@@ -1,0 +1,205 @@
+<!doctype html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge">
+    <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    
+    <title>前端基础重点回顾1:CSS盒模型、DOM | Minimalist</title>
+    
+    <link rel="alternative" href="/atom.xml" title="Minimalist" type="application/atom+xml">
+    
+    <link rel="stylesheet" href="/css/style.css">
+    
+    <link rel="stylesheet" href="/libs/fancybox/jquery.fancybox.css" charset="utf-8">
+    
+    <!--[if lt IE 9]>
+    <script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
+    <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+    <![endif]-->
+</head>
+<body class="site">
+    <header class="site-header">
+        <h1 class="site-title"><a href="/">Minimalist</a></h1>
+        <nav class="site-nav">
+            <ul class="nav">
+                
+                <li><a href="/archives">Archives</a></li>
+                
+                
+                <li><a href="https://github.com/sfyr111" title="git">GITHUB</a></li>
+                
+                <li><a class="toggle-search" href="#search">search</a></li>
+            </ul>
+        </nav>
+        <div class="site-search" id="search">
+            <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><input type="hidden" name="sitesearch" value="http://yoursite.com"></form>
+        </div>
+        
+            <div class="site-header-background" style="background-image:url(http://reumia.github.io/hexo-theme-zzoman2015/images/background-zzoman2015.jpg)"></div>
+        
+    </header>
+    <div class="site-body">
+        <div class="global-width">
+    <article class="article" data-layout="post" data-slug="前端基础重点回顾1:CSS盒模型、DOM">
+        <div class="article-content">
+            
+            
+            <header class="article-header">
+                <div class="article-meta">
+                    <a href="/2018/01/22/前端基础重点回顾1:CSS盒模型、DOM/" class="article-date">
+  <time datetime="2018-01-22T13:42:52.000Z">2018-01-22</time>
+</a>
+                    
+  <div class="article-category categories">
+    <a class="category-link" href="/categories/Font-End-Basis/">Font-End Basis</a>
+  </div>
+
+                    
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/css/">css</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/dom/">dom</a></li></ul>
+
+                </div>
+                
+    <h1 class="article-title" itemprop="name">
+      <a href="/2018/01/22/前端基础重点回顾1:CSS盒模型、DOM/">前端基础重点回顾1:CSS盒模型、DOM</a>
+    </h1>
+
+            </header>
+            
+            <div class="article-body">
+                <h2 id="CSS盒模型"><a href="#CSS盒模型" class="headerlink" title="CSS盒模型"></a>CSS盒模型</h2><h3 id="标准模型与IE模型的区别"><a href="#标准模型与IE模型的区别" class="headerlink" title="标准模型与IE模型的区别"></a>标准模型与IE模型的区别</h3><blockquote>
+<p>计算高度宽度不同</p>
+</blockquote>
+<p>标准盒模型的width 是以盒模型的content 来计算的<img src="http://upload-images.jianshu.io/upload_images/2155778-00f499576ed1fa63.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="box-sizing: content-box"><br>IE盒模型的width 是以盒模型的border + padding + content 来计算的<img src="http://upload-images.jianshu.io/upload_images/2155778-b10e7570d675fbf6.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="box-sizing: border-box"></p>
+<h3 id="CSS如何设置这两种模型"><a href="#CSS如何设置这两种模型" class="headerlink" title="CSS如何设置这两种模型"></a>CSS如何设置这两种模型</h3><blockquote>
+<p>通过设置元素的box-sizing 属性</p>
+</blockquote>
+<p>标准盒模型设置为box-sizing: content-box<br>IE盒模型设置为box-sizing: border-box</p>
+<h3 id="JS如何设置获取盒模型对应的宽和高"><a href="#JS如何设置获取盒模型对应的宽和高" class="headerlink" title="JS如何设置获取盒模型对应的宽和高"></a>JS如何设置获取盒模型对应的宽和高</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">// 获取内联样式</span><br><span class="line">dom.style.width / height</span><br></pre></td></tr></table></figure>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">// 获取渲染后的属性 IE 支持</span><br><span class="line">dom.currentStyle.width / height</span><br></pre></td></tr></table></figure>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">// 获取元素渲染后计算完毕的样式，所有浏览器支持</span><br><span class="line">window.getComputedStyle(dom).width / height</span><br></pre></td></tr></table></figure>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">// 计算元素的绝对位置</span><br><span class="line">dom.getBoundingClientRect().width / height</span><br></pre></td></tr></table></figure>
+<p>dom.getBoundingClientRect() 函数不仅可以得到元素的宽高还能获得此元素在页面中的位置。[图片上传失败…(image-a1291e-1516628501105)]</p>
+<h3 id="BFC"><a href="#BFC" class="headerlink" title="BFC"></a>BFC</h3><h4 id="什么是BFC"><a href="#什么是BFC" class="headerlink" title="什么是BFC"></a>什么是BFC</h4><p>BFC(block formatting context) 是一个块级格式化上下文，它形成了一个独立的布局环境。</p>
+<h4 id="怎么创建一个BFC"><a href="#怎么创建一个BFC" class="headerlink" title="怎么创建一个BFC"></a>怎么创建一个BFC</h4><p>1 设置float，值不为”none”<br>2 设置overflow，值不为”visible”（hidden，auto，scroll）<br>3 设置display的值为 “table-cell”, “table-caption”,或 “inline-block”<br>4 设置position，值不为 “static” 或 “relative”（absolute，fixed）</p>
+<h4 id="BFC-有什么特点"><a href="#BFC-有什么特点" class="headerlink" title="BFC 有什么特点"></a>BFC 有什么特点</h4><p>1 BFC 元素内的各元素会在垂直方向上从顶部一个接一个的放置。<br>2 BFC中的元素的布局是不受外界的影响,内外元素不会互相影响。<br>3 BFC元素不会与浮动元素的区域重叠<br>4 计算BFC元素高度的时候浮动元素也会参与计算 <a href="http://js.jirengu.com/linipukiwu/4/edit" target="_blank" rel="noopener">代码</a><br>5 属于同一个BFC的两个相邻Box的margin会发生叠加 <a href="http://js.jirengu.com/linipukiwu/4/edit" target="_blank" rel="noopener">代码</a></p>
+<h4 id="BFC-的使用场景"><a href="#BFC-的使用场景" class="headerlink" title="BFC 的使用场景"></a>BFC 的使用场景</h4><ul>
+<li>解决margin叠加问题  <a href="http://js.jirengu.com/linipukiwu/11/edit" target="_blank" rel="noopener">代码</a></li>
+<li>用于布局 <a href="http://js.jirengu.com/linipukiwu/8/edit" target="_blank" rel="noopener">代码</a></li>
+<li>用于清除浮动  <a href="http://js.jirengu.com/linipukiwu/5/edit" target="_blank" rel="noopener">代码</a></li>
+</ul>
+<h2 id="DOM"><a href="#DOM" class="headerlink" title="DOM"></a>DOM</h2><h3 id="DOM事件的级别"><a href="#DOM事件的级别" class="headerlink" title="DOM事件的级别"></a>DOM事件的级别</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">// DOM0级</span><br><span class="line">el.onclick=function()&#123;&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">// DOM2级</span><br><span class="line">el.addEventListenter(&apos;click&apos;, function()&#123;&#125;, &apos;是否捕获阶段触发&apos;: boolean)</span><br></pre></td></tr></table></figure>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">// DOM3级 区别DOM2级增加了更多的事件类型</span><br><span class="line">el.addEventListenter(&apos;keyup&apos;, function()&#123;&#125;, &apos;是否捕获阶段触发&apos;: boolean)</span><br></pre></td></tr></table></figure>
+<h3 id="DOM事件模型"><a href="#DOM事件模型" class="headerlink" title="DOM事件模型"></a>DOM事件模型</h3><ul>
+<li>事件捕获</li>
+<li>事件冒泡</li>
+</ul>
+<h3 id="DOM事件流"><a href="#DOM事件流" class="headerlink" title="DOM事件流"></a>DOM事件流</h3><p>DOM事件流(event flow)三阶段</p>
+<blockquote>
+<p>事件触发(触发元素) =&gt; 事件捕获阶段(事件下传) =&gt; 处于目标阶段(达到目标元素) =&gt; 事件冒泡阶段(事件上传)</p>
+</blockquote>
+<h3 id="描述DOM事件捕获的具体流程"><a href="#描述DOM事件捕获的具体流程" class="headerlink" title="描述DOM事件捕获的具体流程"></a>描述DOM事件捕获的具体流程</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">// IE 只有冒泡流程</span><br><span class="line">window =&gt; document =&gt; html(document.documentElement) =&gt; body =&gt; ... =&gt; 目标元素</span><br></pre></td></tr></table></figure>
+<h3 id="如何自定义事件"><a href="#如何自定义事件" class="headerlink" title="如何自定义事件"></a>如何自定义事件</h3><h4 id="Event-对象"><a href="#Event-对象" class="headerlink" title="Event 对象"></a>Event 对象</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">// 创建</span><br><span class="line">var event = new Event(&apos;custome&apos;)</span><br><span class="line">// 注册</span><br><span class="line">el.addEventListener(&apos;custome&apos;, function()&#123;</span><br><span class="line">    console.log(&apos;custome&apos;)</span><br><span class="line">&#125;)</span><br><span class="line">el.dispatchEvent(event) // 触发</span><br></pre></td></tr></table></figure>
+<h4 id="CustomEvent-对象"><a href="#CustomEvent-对象" class="headerlink" title="CustomEvent 对象"></a>CustomEvent 对象</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">var event = new CustomEvent(&apos;build&apos;, &#123; &apos;detail&apos;: elem.dataset.time &#125;);</span><br><span class="line">function eventHandler(e) &#123;</span><br><span class="line">  console.log(&apos;The time is: &apos; + e.detail);</span><br><span class="line">&#125;</span><br><span class="line">el.addEventListener(&apos;custome&apos;, eventHandler)</span><br><span class="line">el.dispatchEvent(event) // 触发</span><br></pre></td></tr></table></figure>
+<h3 id="Event对象的常见应用"><a href="#Event对象的常见应用" class="headerlink" title="Event对象的常见应用"></a>Event对象的常见应用</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">event.preventDefault() // 阻止默认</span><br><span class="line">event.stopPropagation() // 阻止冒泡</span><br><span class="line">event.stopImmediatePropagation() // 按钮绑定两个click，A点击时候不出发B，A会成功阻止B, 事件响应优先级</span><br><span class="line">event.target // 可以用于事件委托，由父级注册事件</span><br><span class="line">event.currentTarget</span><br></pre></td></tr></table></figure>
+<h4 id="currentTarget-vs-target"><a href="#currentTarget-vs-target" class="headerlink" title="currentTarget vs target"></a>currentTarget vs target</h4><p>target在事件流的目标阶段；currentTarget在事件流的捕获，目标及冒泡阶段。只有当事件流处在目标阶段的时候，两个的指向才是一样的， 而当处于捕获和冒泡阶段的时候，target指向被单击的对象而currentTarget指向当前事件活动的对象（一般为父级）。<img src="http://upload-images.jianshu.io/upload_images/2155778-7c46033b92acc40a.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt=""></p>
+
+            </div>
+        </div>
+    </article>
+
+    
+    
+<nav class="article-nav">
+  
+  
+    <a href="/2018/01/22/Vue组件-sync修饰符/" id="article-nav-older" class="article-nav-link-wrap next">
+      <strong class="article-nav-caption">Older</strong>
+      <div class="article-nav-title">Vue组件.sync修饰符</div>
+    </a>
+  
+</nav>
+
+    
+
+    
+</div>
+    </div>
+    <footer class="site-footer">
+        <div class="global-width">
+            <ul class="site-widget">
+                
+                <li class="widget widget-tag">
+                    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Tags</h3>
+    <div class="widget-body">
+      <ul class="tag-list"><li class="tag-list-item"><a class="tag-list-link" href="/tags/JavaScript/">JavaScript</a><span class="tag-list-count">4</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Vue/">Vue</a><span class="tag-list-count">3</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/css/">css</a><span class="tag-list-count">3</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/dom/">dom</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/http/">http</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/sftp/">sftp</a><span class="tag-list-count">1</span></li></ul>
+    </div>
+  </div>
+
+                </li>
+                
+                <li class="widget widget-category">
+                    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Categories</h3>
+    <div class="widget-body">
+      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/Font-End-Basis/">Font-End Basis</a><span class="category-list-count">5</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Vue/">Vue</a><span class="category-list-count">3</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/css/">css</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/http/">http</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/network/">network</a><span class="category-list-count">1</span></li></ul>
+    </div>
+  </div>
+
+                </li>
+                
+                <li class="widget widget-recent_posts">
+                    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Recents</h3>
+    <div class="widget-body">
+      <ul>
+        
+          <li>
+            <a href="/2018/01/22/前端基础重点回顾1:CSS盒模型、DOM/">前端基础重点回顾1:CSS盒模型、DOM</a>
+          </li>
+        
+          <li>
+            <a href="/2018/01/22/Vue组件-sync修饰符/">Vue组件.sync修饰符</a>
+          </li>
+        
+          <li>
+            <a href="/2018/01/22/CSS3总结/">CSS3总结</a>
+          </li>
+        
+          <li>
+            <a href="/2018/01/22/使用sftp操作远程服务器/">使用sftp操作远程服务器</a>
+          </li>
+        
+          <li>
+            <a href="/2018/01/22/数组去重/">数组去重</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+                </li>
+                
+            </ul>
+        </div>
+        <div class="site-info">
+            <address>
+                &copy; 2014 <a href="http://yoursite.com">Minimalist</a> All Right Reserved. <br/>
+                Powered by <a href="http://hexo.io">Hexo</a>. Theme by <a href="http://zzoman.com">ZZOMAN</a>
+            </address>
+        </div>
+    </footer>
+    
+    <script src="/libs/jquery-1.11.3.min.js" type="text/javascript"></script>
+    
+    <script src="/libs/fancybox/jquery.fancybox.js" type="text/javascript"></script>
+    
+    <script src="/js/site_init.js" type="text/javascript"></script>
+    
+</body>
+</html>

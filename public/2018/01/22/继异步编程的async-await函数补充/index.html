@@ -1,0 +1,195 @@
+<!doctype html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge">
+    <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    
+    <title>继异步编程的async/await函数补充 | Minimalist</title>
+    
+    <link rel="alternative" href="/atom.xml" title="Minimalist" type="application/atom+xml">
+    
+    <link rel="stylesheet" href="/css/style.css">
+    
+    <link rel="stylesheet" href="/libs/fancybox/jquery.fancybox.css" charset="utf-8">
+    
+    <!--[if lt IE 9]>
+    <script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
+    <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+    <![endif]-->
+</head>
+<body class="site">
+    <header class="site-header">
+        <h1 class="site-title"><a href="/">Minimalist</a></h1>
+        <nav class="site-nav">
+            <ul class="nav">
+                
+                <li><a href="/archives">Archives</a></li>
+                
+                
+                <li><a href="https://github.com/sfyr111" title="git">GITHUB</a></li>
+                
+                <li><a class="toggle-search" href="#search">search</a></li>
+            </ul>
+        </nav>
+        <div class="site-search" id="search">
+            <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><input type="hidden" name="sitesearch" value="http://yoursite.com"></form>
+        </div>
+        
+            <div class="site-header-background" style="background-image:url(http://reumia.github.io/hexo-theme-zzoman2015/images/background-zzoman2015.jpg)"></div>
+        
+    </header>
+    <div class="site-body">
+        <div class="global-width">
+    <article class="article" data-layout="post" data-slug="继异步编程的async-await函数补充">
+        <div class="article-content">
+            
+            
+            <header class="article-header">
+                <div class="article-meta">
+                    <a href="/2018/01/22/继异步编程的async-await函数补充/" class="article-date">
+  <time datetime="2018-01-22T05:01:48.000Z">2018-01-22</time>
+</a>
+                    
+  <div class="article-category categories">
+    <a class="category-link" href="/categories/Font-End-Basis/">Font-End Basis</a>
+  </div>
+
+                    
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/JavaScript/">JavaScript</a></li></ul>
+
+                </div>
+                
+    <h1 class="article-title" itemprop="name">
+      <a href="/2018/01/22/继异步编程的async-await函数补充/">继异步编程的async/await函数补充</a>
+    </h1>
+
+            </header>
+            
+            <div class="article-body">
+                <p>这个执行函数顺序的问题是继之前<a href="http://www.jianshu.com/p/88043a9f5464" target="_blank" rel="noopener">EventLoop 和 MicroTask的文章</a>的补充<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line">async function async1() &#123;</span><br><span class="line">  console.log(&apos;async1 start&apos;); // 问题1 async1 start 在script 里执行是什么样的</span><br><span class="line">  await async2(); // 问题2 为什么async2 在promise1 前执行</span><br><span class="line">  console.log(&apos;async1 end&apos;); // 问题3 为什么async1 end 会在 promise2 后执行</span><br><span class="line">&#125;</span><br><span class="line">async function async2() &#123;</span><br><span class="line">  console.log(&apos;async2&apos;);</span><br><span class="line">&#125;</span><br><span class="line">console.log(&apos;script start&apos;);</span><br><span class="line">setTimeout(function() &#123;</span><br><span class="line">    console.log(&apos;setTimeout&apos;);</span><br><span class="line">&#125;, 0);</span><br><span class="line">async1();</span><br><span class="line">new Promise(function(resolve) &#123;</span><br><span class="line">    console.log(&apos;promise1&apos;);</span><br><span class="line">    resolve();</span><br><span class="line">  &#125;).then(function() &#123;</span><br><span class="line">    console.log(&apos;promise2&apos;);</span><br><span class="line">  &#125;);</span><br><span class="line">console.log(&apos;script end&apos;);</span><br></pre></td></tr></table></figure></p>
+<p>执行结果<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">1. script start</span><br><span class="line">2. async1 start</span><br><span class="line">3. async2</span><br><span class="line">4. promise1</span><br><span class="line">5. script end</span><br><span class="line">6. promise2</span><br><span class="line">7. async1 end</span><br><span class="line">// stack 清空</span><br><span class="line">8. setTimeout</span><br></pre></td></tr></table></figure></p>
+<h4 id="问题1-async1-start-在script-里执行是什么样的"><a href="#问题1-async1-start-在script-里执行是什么样的" class="headerlink" title="问题1 async1 start 在script 里执行是什么样的?"></a>问题1 async1 start 在script 里执行是什么样的?</h4><p>先看下async 函数 babel 后样子<img src="http://upload-images.jianshu.io/upload_images/2155778-6ab70f19f9cb1798.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt=""></p>
+<p>可以看出async 函数只是执行了_asyncToGenerator 这个函数,  再看下_asyncToGenerator<img src="http://upload-images.jianshu.io/upload_images/2155778-07b03653b99e31e6.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="_asyncToGenerator"></p>
+<p>原来_asyncToGenerator 函数只是返回了一个 new Promise()，async1() 的执行也就是在script 里执行里一个new Promise()</p>
+<h4 id="问题2-为什么async2-在promise1-前执行"><a href="#问题2-为什么async2-在promise1-前执行" class="headerlink" title="问题2 为什么async2 在promise1 前执行"></a>问题2 为什么async2 在promise1 前执行</h4><p>从问题1可以知道async2 () 也是一个new Promise() ，不过async2() 多了一个aiwait，看下mdn 的描述</p>
+<blockquote>
+<p>await 表达式会暂停当前 <a href="https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Statements/async_function" title="调用 async 函数时会返回一个 Promise 对象。当这个 async 函数返回一个值时，Promise 的 resolve 方法将会处理这个值；当 async 函数抛出异常时，Promise 的 reject 方法将处理这个异常值。" target="_blank" rel="noopener"><code>async function</code></a> 的执行，等待 Promise 处理完成。若 Promise 正常处理(fulfilled)，其处理结果作为 await 表达式的值，继续执行<br> <a href="https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Statements/async_function" title="调用 async 函数时会返回一个 Promise 对象。当这个 async 函数返回一个值时，Promise 的 resolve 方法将会处理这个值；当 async 函数抛出异常时，Promise 的 reject 方法将处理这个异常值。" target="_blank" rel="noopener"><code>async function</code></a>。</p>
+</blockquote>
+<p>再看一下babel 后的<img src="http://upload-images.jianshu.io/upload_images/2155778-d18f7c4d45c8d2fd.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt=""><br>babel 后只不过前面多了yield，await async()变成了yield new Promise()，yield 是一个暂停执行的标记而后面的语句是已经执行完了，async2 也就先于promise1 在script 中执行。</p>
+<h4 id="问题3-为什么async1-end-会在-promise2-后执行"><a href="#问题3-为什么async1-end-会在-promise2-后执行" class="headerlink" title="问题3 为什么async1 end 会在 promise2 后执行"></a>问题3 为什么async1 end 会在 promise2 后执行</h4><p>这里引用<a href="http://es6.ruanyifeng.com/#docs/generator-async#Generator-函数" target="_blank" rel="noopener">阮一峰的对Generator-函数异步应用</a>的解释</p>
+<blockquote>
+<p>传统的编程语言，早有异步编程的解决方案（其实是多任务的解决方案）。其中有一种叫做”协程”（coroutine），意思是多个线程互相协作，完成异步任务。<br>协程有点像函数，又有点像线程。它的运行流程大致如下。<br>第一步，协程A开始执行。<br>第二步，协程A执行到一半，进入暂停，执行权转移到协程B。<br>第三步，（一段时间后）协程B交还执行权。<br>第四步，协程A恢复执行。<br>上面流程的协程A，就是异步任务，因为它分成两段（或多段）执行。</p>
+</blockquote>
+<p>这里的async1 end 与 promise2 的执行就是因为yield 的“协程”，我们这里改写一下问题，让问题更清晰<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line">async function async1() &#123;</span><br><span class="line">  console.log(&apos;async1 start&apos;);</span><br><span class="line">  new Promise(function(resolve) &#123; // 我们把new Promise 放到async1内部</span><br><span class="line">      console.log(&apos;promise1&apos;);</span><br><span class="line">      resolve();</span><br><span class="line">    &#125;).then(function() &#123; // await 通过yield 协程的功能 把上下两段分割</span><br><span class="line">      console.log(&apos;promise2&apos;);</span><br><span class="line">    &#125;);</span><br><span class="line">  await async2(); // yield 协程分割，但是async2 先执行完毕</span><br><span class="line">  console.log(&apos;async1 end&apos;); // await 通过yield 协程的功能 把上下两段分割</span><br><span class="line">&#125;</span><br><span class="line">async function async2() &#123;</span><br><span class="line">  console.log(&apos;async2&apos;);</span><br><span class="line">&#125;</span><br><span class="line">console.log(&apos;script start&apos;);</span><br><span class="line">setTimeout(function() &#123;</span><br><span class="line">    console.log(&apos;setTimeout&apos;);</span><br><span class="line">&#125;, 0);</span><br><span class="line">async1();</span><br><span class="line">console.log(&apos;script end&apos;);</span><br></pre></td></tr></table></figure></p>
+<p>从上面的改写看出await async2  通过协程把上promise2 和 async1 end 分割成两部分，这里将会把上半部分的microtask 的任务都执行完毕才会执行下一段的代码。</p>
+<p><strong>这段代码的执行顺序不仅考察了异步执行主要考察了对async / await 函数的降级理解，了解到这一层后发现async / await 函数确实是js 异步执行的好方式。</strong></p>
+<p><a href="https://babeljs.io/repl/#?babili=false&amp;browsers=&amp;build=&amp;builtIns=false&amp;code_lz=IYZwngdgxgBAZgV2gFwJYHsI1JKBGACgEoYBvAKBhikxHQBsBTAOnvQHMCByHaPGEMmAAnZFyIBuStgDuwVMmzhoAJmJSqNCHSasO3XvhiMIAE3FSAvuUPwkUNJiW41JCptoMWbTj2VQVC3JrckQUDCwAfUMAFXQAcRNGYWBkdGECOAg3GGlhRmQEYSwwhwiYYjJcqioANxEYdhMYAF54CGZgAAcu-jACZAALVBAAGmxhdgQAWxNkEElqmvzC4pgIRhkYAAVhdGmRxkz7RywCfJ1axnH8gCtGBxzpGrtwp0FGLoIAa0YwcZE7CeLxeyGEYCqzxBdQaqAgcHQrUaJgA2r8wABdAiAxZQ6H1YQwer0BCMJFwhHMYmkiRLaGWaipKCDCrJPbCYHQ5aMe4OAhs9K4rnc1YQWl4moM1BwCoU9DMUyYRic4UXBhXAjU5Xi4UMxj0EBk0h0rkrIpYXb7Q7MNX0DVaojMIYmY5vM4OyHCl4fL4AIg2AA9kL7xg6dV7LONSqdWcIOZ6vVQfQRfUM9jIQ8Y40KIzn6SaqAyJWa1sn_Ywg768zBLDnLOLLEA&amp;debug=false&amp;circleciRepo=&amp;evaluate=false&amp;lineWrap=true&amp;presets=es2017%2Creact%2Cstage-0&amp;targets=&amp;version=6.26.0" target="_blank" rel="noopener">babel编译</a></p>
+
+            </div>
+        </div>
+    </article>
+
+    
+    
+<nav class="article-nav">
+  
+    <a href="/2018/01/22/Vue-nextTick的实现/" id="article-nav-newer" class="article-nav-link-wrap prev">
+      <strong class="article-nav-caption">Newer</strong>
+      <div class="article-nav-title">
+        
+          Vue.nextTick的实现
+        
+      </div>
+    </a>
+  
+  
+    <a href="/2018/01/22/EventLoop事件循环中的 MacroTask与 MicroTask/" id="article-nav-older" class="article-nav-link-wrap next">
+      <strong class="article-nav-caption">Older</strong>
+      <div class="article-nav-title">EventLoop事件循环中的 MacroTask与 MicroTask</div>
+    </a>
+  
+</nav>
+
+    
+
+    
+</div>
+    </div>
+    <footer class="site-footer">
+        <div class="global-width">
+            <ul class="site-widget">
+                
+                <li class="widget widget-tag">
+                    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Tags</h3>
+    <div class="widget-body">
+      <ul class="tag-list"><li class="tag-list-item"><a class="tag-list-link" href="/tags/JavaScript/">JavaScript</a><span class="tag-list-count">6</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/React/">React</a><span class="tag-list-count">5</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/React-Tips/">React Tips</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Redux/">Redux</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Vue/">Vue</a><span class="tag-list-count">4</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/css/">css</a><span class="tag-list-count">3</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/dom/">dom</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/http/">http</a><span class="tag-list-count">5</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/sftp/">sftp</a><span class="tag-list-count">1</span></li></ul>
+    </div>
+  </div>
+
+                </li>
+                
+                <li class="widget widget-category">
+                    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Categories</h3>
+    <div class="widget-body">
+      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/Font-End-Basis/">Font-End Basis</a><span class="category-list-count">11</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/React/">React</a><span class="category-list-count">8</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Vue/">Vue</a><span class="category-list-count">4</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/css/">css</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/http/">http</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/network/">network</a><span class="category-list-count">1</span></li></ul>
+    </div>
+  </div>
+
+                </li>
+                
+                <li class="widget widget-recent_posts">
+                    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Recents</h3>
+    <div class="widget-body">
+      <ul>
+        
+          <li>
+            <a href="/2018/10/28/编写React组件要点-单一责任原则/">编写React组件要点-单一责任原则</a>
+          </li>
+        
+          <li>
+            <a href="/2018/10/26/HTTP相关系统知识/">HTTP相关系统知识</a>
+          </li>
+        
+          <li>
+            <a href="/2018/04/17/JavaScript中的垃圾回收/">JavaScript 中的垃圾回收</a>
+          </li>
+        
+          <li>
+            <a href="/2018/04/11/实现一个 Vue (1) 实现响应式原理/">实现一个 Vue (1) 实现响应式原理</a>
+          </li>
+        
+          <li>
+            <a href="/2018/04/03/学习并实现 redux(1) - 基础 API/">学习并实现 redux(1) - 基础 API</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+                </li>
+                
+            </ul>
+        </div>
+        <div class="site-info">
+            <address>
+                &copy; 2014 <a href="http://yoursite.com">Minimalist</a> All Right Reserved. <br/>
+                Powered by <a href="http://hexo.io">Hexo</a>. Theme by <a href="http://zzoman.com">ZZOMAN</a>
+            </address>
+        </div>
+    </footer>
+    
+    <script src="/libs/jquery-1.11.3.min.js" type="text/javascript"></script>
+    
+    <script src="/libs/fancybox/jquery.fancybox.js" type="text/javascript"></script>
+    
+    <script src="/js/site_init.js" type="text/javascript"></script>
+    
+</body>
+</html>

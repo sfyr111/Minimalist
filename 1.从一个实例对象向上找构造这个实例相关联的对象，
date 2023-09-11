@@ -1,0 +1,106 @@
+>2.再从从这个相关联的对象继续向上找创建这个对象相关联的对象，
+>3.以此类推一直到Object.prototype (null)终止。
+
+### 原型链通过什么连接和寻找
+>通过构造函数prototype 和 实例对象的proto 进行寻找
+
+### 原型对象prototype 有什么特点
+>构造函数的prototype 由此构造函数创建的多个实例共同使用的对象
+
+### instanceof的原理
+[站外图片上传中...(image-be8bfc-15169800[站外图片上传中...(ima:p[站外图片上传中ro[站外图片上传中...(imag��[站外图片上传中...(image-be8bfbj[站外图片上传中...(image-be8bfc-151��[站外图片上传中...(image��[站外图片上传中...(image-be8bfc-15169800[站外图片上传中...(imala[站外图片上传中...(image-be8bfc-15169800[站外
+}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}���}}}}}}}}}}}��}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}22'}}}}}}}}}}}}}}}}}}��}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}���}}}} 这时p2的原型是Object
+Person.call(p2, 'xiaoyang', '2', 'test') // Person构造函数在 p2 对象的环境内执行 这时p2已经是一个具有Person属性的实例了，但原型是Object
+p2.__proto__ = Object.create(Person.prototype) // 最后创建一个原型为Person.prototype 的p2.__proto__，让p2的原型为Person.prototype
+```
+
+### new 操作符做了什么
+>+ 创建一个空对象，它继承自构造函数Person.prototype
+>+ 构造函数Person被执行，执行时相应的参数会被传入，同时上下文this会被指定为这个新实例
+>+ 如果构造函数Person返回了一个对象，那么这个对象会取代整个new 出来的结果，如果构造函数没有返回对象，那么new 出来的结果为创建的对象
+```
+var new = function(func) {
+    var o = Object.create(func.prototype)
+    var k = function.call(o)
+    if (typeof k === 'object') {
+        return k
+    } else {
+        return o
+    }
+}
+var obj = new(P)
+obj instanceof P // true
+obj.__proto__.constructor === P // true
+```
+
+### 继承有几种方式
++ 借助构造函数实现继承
+```
+function Parent () {
+  this.name = 'parent'
+}
+Parent.prototype.fn = function () {}
+function Child () {
+  Parent.call(this)
+  this.type = 'child'
+}
+缺点: Parent 的原型对象prototype 无法继承
+```
++ 借助原型链实现继承
+```
+function Parent () {
+  this.name = 'parent'
+  this.arr = [1,2,3]
+}
+function Child () {
+  this.type = 'child'
+}
+Child.prototype = new Parent()
+优点: 解决了Parent 原型对象的继承
+缺点: 由Child 创建的多个实例对象共享父类的引用类型
+var c1 = new Child()
+var c2 = new Child()
+c1.arr.push(4)
+c2.arr // [1, 2, 3, 4]
+```
++ 前两种的组合方式
+```
+function Parent () {
+  this.name = 'parent'
+  this.arr = [1, 2, 3, 4]
+}
+function Child () {
+  Parent.call(this)
+  this.type = 'child'
+}
+Child.prototype = new Parent()
+优点: 不仅实现了父类prototype 的继承，也通过Parent.call(this) 创建了各实例独自的arr 复杂类型
+缺点: 不够优雅，可以优化
+```
++ 组合方式优化1
+```
+function Parent () {
+  this.name = 'parent'
+  this.arr = [1, 2, 3]
+}
+function Child () {
+  Parent.call(this)
+  this.type = 'child'
+}
+Child.prototype = Parent.prototype
+优点: Child不仅继承了Parent 的prototype，而且实现优雅
+缺点:  Child 创建的实例constructor 指向是Parent, 而且修改了Parent.prototype 会同时改变Child.prototype 和由Child 创建实例的__proto__
+```
++ 组合方式优化2
+```
+function Parent () {
+  this.name = 'parent'
+  this.arr = [1, 2, 3]
+}
+function Child () {
+  Parent.call(this)
+  this.type = 'child'
+}
+Child.prototype = Object.create(Parent.prototype) // 创建一个纯净的对象
+Child.prototype.constructor = Child // 把Child 原型的constructor 指向自己
+优点: 不仅完成了继承，同时把Child.prototype.constructor 指向自己，使得每个实例的__proto__.constructor 都指向Child构造函数，更规范。使用Object.create(proto) 方法创建了一个原型对象为Parent.prototype 但是又和Parent.prototype 彻底分离的纯净对象，与Child.prototype 两者互不影响。

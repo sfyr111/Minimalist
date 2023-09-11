@@ -1,0 +1,233 @@
+<!doctype html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge">
+    <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    
+    <title>学习并实现react3 | Minimalist</title>
+    
+    <link rel="alternative" href="/atom.xml" title="Minimalist" type="application/atom+xml">
+    
+    <link rel="stylesheet" href="/css/style.css">
+    
+    <link rel="stylesheet" href="/libs/fancybox/jquery.fancybox.css" charset="utf-8">
+    
+    <!--[if lt IE 9]>
+    <script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
+    <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+    <![endif]-->
+</head>
+<body class="site">
+    <header class="site-header">
+        <h1 class="site-title"><a href="/">Minimalist</a></h1>
+        <nav class="site-nav">
+            <ul class="nav">
+                
+                <li><a href="/archives">Archives</a></li>
+                
+                
+                <li><a href="https://github.com/sfyr111" title="git">GITHUB</a></li>
+                
+                <li><a class="toggle-search" href="#search">search</a></li>
+            </ul>
+        </nav>
+        <div class="site-search" id="search">
+            <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><input type="hidden" name="sitesearch" value="http://yoursite.com"></form>
+        </div>
+        
+            <div class="site-header-background" style="background-image:url(http://reumia.github.io/hexo-theme-zzoman2015/images/background-zzoman2015.jpg)"></div>
+        
+    </header>
+    <div class="site-body">
+        <div class="global-width">
+    <article class="article" data-layout="post" data-slug="学习并实现react3">
+        <div class="article-content">
+            
+            
+            <header class="article-header">
+                <div class="article-meta">
+                    <a href="/2018/03/15/学习并实现react3/" class="article-date">
+  <time datetime="2018-03-15T14:36:00.000Z">2018-03-15</time>
+</a>
+                    
+  <div class="article-category categories">
+    <a class="category-link" href="/categories/React/">React</a>
+  </div>
+
+                    
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/React/">React</a></li></ul>
+
+                </div>
+                
+    <h1 class="article-title" itemprop="name">
+      <a href="/2018/03/15/学习并实现react3/">学习并实现react3</a>
+    </h1>
+
+            </header>
+            
+            <div class="article-body">
+                <h3 id="复用组件"><a href="#复用组件" class="headerlink" title="复用组件"></a>复用组件</h3><h5 id="React-组件书写规则"><a href="#React-组件书写规则" class="headerlink" title="React 组件书写规则"></a>React 组件书写规则</h5><blockquote>
+<ul>
+<li>组件可以直接渲染组件</li>
+<li>组件渲染多个children 时需要用 dom 元素进行包裹</li>
+</ul>
+</blockquote>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line">class Parent extends Component &#123;</span><br><span class="line">  render() &#123;</span><br><span class="line">    return &lt;Child /&gt;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">class Child extends Component &#123;</span><br><span class="line">  render() &#123;</span><br><span class="line">    return (</span><br><span class="line">      &lt;div&gt;</span><br><span class="line">        &lt;SubChild /&gt;</span><br><span class="line">        &lt;SubChild /&gt;</span><br><span class="line">        &lt;SubChild /&gt;</span><br><span class="line">      &lt;/div&gt;</span><br><span class="line">    )</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">class SubChild extends Component &#123;</span><br><span class="line">  render() &#123;</span><br><span class="line">    return (</span><br><span class="line">      &lt;div&gt;</span><br><span class="line">       &lt;span&gt;SubChild&lt;/span&gt;</span><br><span class="line">      &lt;/div&gt;</span><br><span class="line">    )</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h5 id="组件复用策略"><a href="#组件复用策略" class="headerlink" title="组件复用策略"></a>组件复用策略</h5><blockquote>
+<ul>
+<li>每个组件渲染时都增加 <code>__rendered</code> 确定渲染元素的标记</li>
+<li>对于渲染多个组件(<code>children</code>)时 <code>children</code> 为数组，<code>__rendered</code> 标记每个<code>children</code> 元素</li>
+<li><code>__rendered</code> 标记组件或dom</li>
+</ul>
+</blockquote>
+<p><strong>组件渲染树绝对不会出现下列情况</strong><img src="https://upload-images.jianshu.io/upload_images/2155778-9c25f514b14de01e.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/310" alt=""></p>
+<p><strong>渲染多个组件(children)时 必须用 dom 元素包裹</strong><img src="https://upload-images.jianshu.io/upload_images/2155778-6448d96ce772a95c.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/310" alt=""></p>
+<p><strong>最后正确渲染后的Tree</strong><img src="https://upload-images.jianshu.io/upload_images/2155778-828550c40b3f9e71.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt=""></p>
+<h4 id="改造render"><a href="#改造render" class="headerlink" title="改造render"></a>改造render</h4><blockquote>
+<ul>
+<li>为了复用组件 render 第四个参数由 olddom 改为 olddomOrComp </li>
+</ul>
+</blockquote>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><span class="line">function render(vnode, parent, comp, olddomOrComp) &#123;</span><br><span class="line">  let dom</span><br><span class="line">  if (typeof vnode === &apos;string&apos; || typeof vnode === &apos;number&apos;) &#123; // 文本节点直接渲染</span><br><span class="line">    if (olddomOrComp &amp;&amp; olddomOrComp.nodeType === 3) &#123; // 是一个文本节点</span><br><span class="line">      if (olddomOrComp.nodeValue !== vnode) olddomOrComp.nodeValue = vnode</span><br><span class="line">    &#125; else &#123;</span><br><span class="line">      dom = document.createTextNode(vnode)</span><br><span class="line"></span><br><span class="line">      if (olddomOrComp) parent.replaceChild(dom, olddomOrComp)</span><br><span class="line">      else parent.appendChild(dom)</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  if (typeof vnode.type === &apos;string&apos;) &#123; // dom 节点</span><br><span class="line">    if (!olddomOrComp || olddomOrComp.nodeName !== vnode.type.toUpperCase()) &#123;</span><br><span class="line">      createNewDom(vnode, parent, comp, olddomOrComp)</span><br><span class="line">    &#125; else &#123;</span><br><span class="line">      diffDOM(vnode, olddomOrComp)</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  if (typeof vnode.type === &apos;function&apos;) &#123;</span><br><span class="line">    let func = vnode.type</span><br><span class="line">    let inst = new func(vnode.props)</span><br><span class="line"></span><br><span class="line">    comp &amp;&amp; (comp.__rendered = inst)</span><br><span class="line"></span><br><span class="line">    let innerVNode = inst.render()</span><br><span class="line">    render(innerVNode, parent, inst, inst.__rendered) // 比较是否复用组件</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<blockquote>
+<ul>
+<li>修改前olddom 参数可以判断是否复用，也可以判断replace(newdom, olddom) 的替换位置</li>
+<li>当<code>&lt;Parent /&gt; __rendered = &lt;Child1 /&gt;</code> – setState变成 – <code>&lt;Parent /&gt; __rendered = &lt;Child2 /&gt;</code>, 而<code>&lt;Child2 /&gt;</code> 这个组件实例的<code>inst.__rendered</code> 应该是 <code>undefined</code></li>
+<li>原逻辑中 olddom  不存在时进行 <code>appendChild</code> 存在则进行<code>replacechild</code></li>
+<li>现在olddomOrComp 在替换组件时为 <code>undefined</code> 只会操作<code>appendChild</code></li>
+<li>为 render 函数增加第五个参数 myIndex 标识 dom 的位置</li>
+</ul>
+</blockquote>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">function setNewDom(parent, newDom, myIndex) &#123;</span><br><span class="line">    const old =  parent.childNodes[myIndex]</span><br><span class="line">    if (old) &#123;</span><br><span class="line">        parent.replaceChild(newDom, old)</span><br><span class="line">    &#125; else &#123;</span><br><span class="line">        parent.appendChild(newDom)</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><span class="line">function render(vnode, parent, comp, olddomOrComp, myIndex) &#123;</span><br><span class="line">  let dom</span><br><span class="line">  if (typeof vnode === &apos;string&apos; || typeof vnode === &apos;number&apos;) &#123; // 文本节点直接渲染</span><br><span class="line">    if (olddomOrComp &amp;&amp; olddomOrComp.nodeType === 3) &#123; // 是一个文本节点</span><br><span class="line">      if (olddomOrComp.nodeValue !== vnode) olddomOrComp.nodeValue = vnode</span><br><span class="line">    &#125; else &#123;</span><br><span class="line">      dom = document.createTextNode(vnode)</span><br><span class="line"></span><br><span class="line">      setNewDom(parent, dom, myIndex) //</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  if (typeof vnode.type === &apos;string&apos;) &#123; // dom 节点</span><br><span class="line">    if (!olddomOrComp || olddomOrComp.nodeName !== vnode.type.toUpperCase()) &#123;</span><br><span class="line">      createNewDom(vnode, parent, comp, olddomOrComp, myIndex)</span><br><span class="line">    &#125; else &#123;</span><br><span class="line">      diffDOM(vnode, parent, comp, olddomOrComp, myIndex)</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  if (typeof vnode.type === &apos;function&apos;) &#123;</span><br><span class="line">    let func = vnode.type</span><br><span class="line">    let inst = new func(vnode.props)</span><br><span class="line"></span><br><span class="line">    comp &amp;&amp; (comp.__rendered = inst)</span><br><span class="line"></span><br><span class="line">    let innerVNode = inst.render()</span><br><span class="line">    render(innerVNode, parent, inst, inst.__rendered, myIndex)</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line">function createNewDom(vnode, parent, comp, olddomOrComp, myIndex) &#123;</span><br><span class="line">    ...</span><br><span class="line">    setAttrs(dom, vnode.props)</span><br><span class="line"></span><br><span class="line">    setNewDom(parent, dom, myIndex) // 创建时根据myIndex 决定是append / replace</span><br><span class="line"></span><br><span class="line">    for(let i = 0; i &lt; vnode.children.length; i++) &#123;</span><br><span class="line">        render(vnode.children[i], dom, null, null, i)  // myIndex 其实就是 children 的 i</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line">function diffDOM(vnode, parent, comp, olddom) &#123;</span><br><span class="line">    ...</span><br><span class="line">  const willRemoveArr = olddom.__rendered.slice(vnode.children.length) // 将要删除的 dom</span><br><span class="line">  const renderedArr = olddom.__rendered.slice(0, vnode.children.length)</span><br><span class="line"></span><br><span class="line">  olddom.__rendered = renderedArr</span><br><span class="line">  for(let i = 0; i &lt; vnode.children.length; i++) &#123;</span><br><span class="line">      render(vnode.children[i], olddom, null, renderedArr[i], i)  // 同样要增加 children 的 i</span><br><span class="line">  &#125;</span><br><span class="line">    ...</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h4 id="实现-rendered-链"><a href="#实现-rendered-链" class="headerlink" title="实现 __rendered 链"></a>实现 __rendered 链</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">// __rendered 链场景</span><br><span class="line">class Child extends Component &#123;</span><br><span class="line">  render() &#123;</span><br><span class="line">    return (</span><br><span class="line">      &lt;div&gt; // 此处dom，__rendered 在这里应该为数组</span><br><span class="line">        &lt;SubChild 1/&gt;</span><br><span class="line">        &lt;SubChild 2/&gt;</span><br><span class="line">        &lt;SubChild 3/&gt;</span><br><span class="line">      &lt;/div&gt;</span><br><span class="line">    )</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<blockquote>
+<ul>
+<li>现在 __rendered 标识组件实例后再标识到 dom 节点就结束了。</li>
+<li>现在需要实现 div.__rendered 关联 SubChild 组件</li>
+</ul>
+</blockquote>
+<p><img src="https://upload-images.jianshu.io/upload_images/2155778-828550c40b3f9e71.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt=""></p>
+<blockquote>
+<ul>
+<li>确定<strong>rendered 链的思想，当渲染的是dom 元素时(组件被根dom包裹), </strong>rendered 为数组</li>
+</ul>
+</blockquote>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br></pre></td><td class="code"><pre><span class="line">function render(vnode, parent, comp, olddomOrComp, myIndex) &#123;</span><br><span class="line">  let dom</span><br><span class="line">  if (typeof vnode === &apos;string&apos; || typeof vnode === &apos;number&apos;) &#123; // 文本节点直接渲染</span><br><span class="line">    if (olddomOrComp &amp;&amp; olddomOrComp.nodeType === 3) &#123; // 是一个文本节点</span><br><span class="line">      if (olddomOrComp.nodeValue !== vnode) olddomOrComp.nodeValue = vnode</span><br><span class="line">    &#125; else &#123;</span><br><span class="line">      dom = document.createTextNode(vnode)</span><br><span class="line">      parent.__rendered[myIndex] = dom // comp 为 null 组件实例不会渲染文本节点</span><br><span class="line"></span><br><span class="line">      setNewDom(parent, dom, myIndex)</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  if (typeof vnode.type === &apos;string&apos;) &#123; // dom 节点</span><br><span class="line">    if (!olddomOrComp || olddomOrComp.nodeName !== vnode.type.toUpperCase()) &#123;</span><br><span class="line">      createNewDom(vnode, parent, comp, olddomOrComp, myIndex)</span><br><span class="line">    &#125; else &#123;</span><br><span class="line">      diffDOM(vnode, parent, comp, olddomOrComp)</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  if (typeof vnode.type === &apos;function&apos;) &#123;</span><br><span class="line">    let func = vnode.type</span><br><span class="line">    let inst</span><br><span class="line">    if (olddomOrComp &amp;&amp; olddomOrComp instanceof func) &#123;</span><br><span class="line">      inst = olddomOrComp</span><br><span class="line">      inst.props = vnode.props</span><br><span class="line">    &#125; else &#123;</span><br><span class="line">      inst = new func(vnode.props)</span><br><span class="line"></span><br><span class="line">      if (comp) comp.__rendered = inst</span><br><span class="line">      else parent.__rendered[myIndex] = inst // dom 渲染</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    let innerVNode = inst.render()</span><br><span class="line">    render(innerVNode, parent, inst, inst.__rendered, myIndex)</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line">function setNewDom(parent, newDom, myIndex) &#123;</span><br><span class="line">  const old = parent.childNodes[myIndex]</span><br><span class="line">  if (old) parent.replaceChild(newDom, old)</span><br><span class="line">  else parent.appendChild(newDom)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">function createNewDom(vnode, parent, comp, olddomOrComp, myIndex) &#123;</span><br><span class="line">  let dom = document.createElement(vnode.type)</span><br><span class="line"></span><br><span class="line">  dom.__rendered = [] // 创建dom 时 初始的 __rendered 未数组</span><br><span class="line">  dom.__vnode = vnode</span><br><span class="line"></span><br><span class="line">  if (comp) comp.__rendered = dom</span><br><span class="line">  else parent.__rendered[myIndex] = dom</span><br><span class="line"></span><br><span class="line">  setAttrs(dom, vnode.props)</span><br><span class="line"></span><br><span class="line">  setNewDom(parent, dom, myIndex)</span><br><span class="line"></span><br><span class="line">  for (let i = 0; i &lt; vnode.children.length; i++) &#123;</span><br><span class="line">    render(vnode.children[i], dom, null, null, i) // 标记位置</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line">function diffDOM(vnode, parent, comp, olddom) &#123;</span><br><span class="line">  const &#123; onlyInLeft, onlyInRight, bothIn &#125; = diffObject(vnode.props, olddom.__vnode.props)</span><br><span class="line">  setAttrs(olddom, onlyInLeft) // 添加新属性</span><br><span class="line">  removeAttrs(olddom, onlyInRight) // 删除旧属性</span><br><span class="line">  diffAttrs(olddom, bothIn) // 比较且更新新旧属性的不同</span><br><span class="line"></span><br><span class="line">  // 比较__rendered 和children 删除多余的</span><br><span class="line">  const willRemoveArr = olddom.__rendered.slice(vnode.children.length)</span><br><span class="line">  const renderedArr = olddom.__rendered.slice(0, vnode.children.length)</span><br><span class="line"></span><br><span class="line">  olddom.__rendered = renderedArr</span><br><span class="line">  for (let i = 0; i &lt; vnode.children.length; i++) &#123;</span><br><span class="line">    // 顺序固定，有缺点，原来是replaceChild，现在对dom 或 text 节点进行重新render</span><br><span class="line">    _render(vnode.children[i], olddom, null, renderedArr[i], i)</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  willRemoveArr.forEach(el =&gt; olddom.removeChild(getDOM(el)))</span><br><span class="line"></span><br><span class="line">  olddom.__vnode = vnode // 不忘重新标记</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line">class Component &#123;</span><br><span class="line">  constructor(props) &#123;</span><br><span class="line">    this.props = props</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  setState(state) &#123;</span><br><span class="line">    setTimeout(() =&gt; &#123;</span><br><span class="line">      this.state = state</span><br><span class="line">      const vnode = this.render()</span><br><span class="line">      let olddom = getDOM(this) // 获取渲染此实例的 olddom</span><br><span class="line">      const myIndex = getDOMIndex(olddom)</span><br><span class="line">      const startTime = new Date().getTime()</span><br><span class="line">      render(vnode, olddom.parentNode, this.__rendered, myIndex) // 传入此组件渲染的内容</span><br><span class="line">      console.log(&quot;duration for setState:&quot;, new Date().getTime() - startTime)</span><br><span class="line">    &#125;, 0)</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">function getDOMIndex(dom) &#123;</span><br><span class="line">  const nodes = dom.parentNode.childNodes</span><br><span class="line">  for (let i = 0; i &lt; nodes.length; i++) &#123;</span><br><span class="line">    if (nodes[i] === dom) return i</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>最后再看下这张图，setState 后也会尝试复用组件，完善 __rendered 链</p>
+</blockquote>
+<p><img src="https://upload-images.jianshu.io/upload_images/2155778-828550c40b3f9e71.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt=""></p>
+
+            </div>
+        </div>
+    </article>
+
+    
+    
+<nav class="article-nav">
+  
+    <a href="/2018/03/16/学习并实现react4/" id="article-nav-newer" class="article-nav-link-wrap prev">
+      <strong class="article-nav-caption">Newer</strong>
+      <div class="article-nav-title">
+        
+          学习并实现react4
+        
+      </div>
+    </a>
+  
+  
+    <a href="/2018/03/13/学习并实现react2/" id="article-nav-older" class="article-nav-link-wrap next">
+      <strong class="article-nav-caption">Older</strong>
+      <div class="article-nav-title">学习并实现react2</div>
+    </a>
+  
+</nav>
+
+    
+
+    
+</div>
+    </div>
+    <footer class="site-footer">
+        <div class="global-width">
+            <ul class="site-widget">
+                
+                <li class="widget widget-tag">
+                    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Tags</h3>
+    <div class="widget-body">
+      <ul class="tag-list"><li class="tag-list-item"><a class="tag-list-link" href="/tags/JavaScript/">JavaScript</a><span class="tag-list-count">6</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/React/">React</a><span class="tag-list-count">5</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/React-Tips/">React Tips</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Redux/">Redux</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Vue/">Vue</a><span class="tag-list-count">4</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/css/">css</a><span class="tag-list-count">3</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/dom/">dom</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/http/">http</a><span class="tag-list-count">5</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/sftp/">sftp</a><span class="tag-list-count">1</span></li></ul>
+    </div>
+  </div>
+
+                </li>
+                
+                <li class="widget widget-category">
+                    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Categories</h3>
+    <div class="widget-body">
+      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/Font-End-Basis/">Font-End Basis</a><span class="category-list-count">11</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/React/">React</a><span class="category-list-count">8</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Vue/">Vue</a><span class="category-list-count">4</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/css/">css</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/http/">http</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/network/">network</a><span class="category-list-count">1</span></li></ul>
+    </div>
+  </div>
+
+                </li>
+                
+                <li class="widget widget-recent_posts">
+                    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Recents</h3>
+    <div class="widget-body">
+      <ul>
+        
+          <li>
+            <a href="/2018/10/28/编写React组件要点-单一责任原则/">编写React组件要点-单一责任原则</a>
+          </li>
+        
+          <li>
+            <a href="/2018/10/26/HTTP相关系统知识/">HTTP相关系统知识</a>
+          </li>
+        
+          <li>
+            <a href="/2018/04/17/JavaScript中的垃圾回收/">JavaScript 中的垃圾回收</a>
+          </li>
+        
+          <li>
+            <a href="/2018/04/11/实现一个 Vue (1) 实现响应式原理/">实现一个 Vue (1) 实现响应式原理</a>
+          </li>
+        
+          <li>
+            <a href="/2018/04/03/学习并实现 redux(1) - 基础 API/">学习并实现 redux(1) - 基础 API</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+                </li>
+                
+            </ul>
+        </div>
+        <div class="site-info">
+            <address>
+                &copy; 2014 <a href="http://yoursite.com">Minimalist</a> All Right Reserved. <br/>
+                Powered by <a href="http://hexo.io">Hexo</a>. Theme by <a href="http://zzoman.com">ZZOMAN</a>
+            </address>
+        </div>
+    </footer>
+    
+    <script src="/libs/jquery-1.11.3.min.js" type="text/javascript"></script>
+    
+    <script src="/libs/fancybox/jquery.fancybox.js" type="text/javascript"></script>
+    
+    <script src="/js/site_init.js" type="text/javascript"></script>
+    
+</body>
+</html>

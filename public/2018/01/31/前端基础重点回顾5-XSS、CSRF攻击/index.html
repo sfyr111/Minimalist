@@ -1,0 +1,223 @@
+<!doctype html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge">
+    <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    
+    <title>前端基础重点回顾5:XSS、CSRF攻击 | Minimalist</title>
+    
+    <link rel="alternative" href="/atom.xml" title="Minimalist" type="application/atom+xml">
+    
+    <link rel="stylesheet" href="/css/style.css">
+    
+    <link rel="stylesheet" href="/libs/fancybox/jquery.fancybox.css" charset="utf-8">
+    
+    <!--[if lt IE 9]>
+    <script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
+    <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+    <![endif]-->
+</head>
+<body class="site">
+    <header class="site-header">
+        <h1 class="site-title"><a href="/">Minimalist</a></h1>
+        <nav class="site-nav">
+            <ul class="nav">
+                
+                <li><a href="/archives">Archives</a></li>
+                
+                
+                <li><a href="https://github.com/sfyr111" title="git">GITHUB</a></li>
+                
+                <li><a class="toggle-search" href="#search">search</a></li>
+            </ul>
+        </nav>
+        <div class="site-search" id="search">
+            <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><input type="hidden" name="sitesearch" value="http://yoursite.com"></form>
+        </div>
+        
+            <div class="site-header-background" style="background-image:url(http://reumia.github.io/hexo-theme-zzoman2015/images/background-zzoman2015.jpg)"></div>
+        
+    </header>
+    <div class="site-body">
+        <div class="global-width">
+    <article class="article" data-layout="post" data-slug="前端基础重点回顾5-XSS、CSRF攻击">
+        <div class="article-content">
+            
+            
+            <header class="article-header">
+                <div class="article-meta">
+                    <a href="/2018/01/31/前端基础重点回顾5-XSS、CSRF攻击/" class="article-date">
+  <time datetime="2018-01-31T09:01:53.000Z">2018-01-31</time>
+</a>
+                    
+  <div class="article-category categories">
+    <a class="category-link" href="/categories/Font-End-Basis/">Font-End Basis</a>
+  </div>
+
+                    
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/http/">http</a></li></ul>
+
+                </div>
+                
+    <h1 class="article-title" itemprop="name">
+      <a href="/2018/01/31/前端基础重点回顾5-XSS、CSRF攻击/">前端基础重点回顾5:XSS、CSRF攻击</a>
+    </h1>
+
+            </header>
+            
+            <div class="article-body">
+                <h2 id="XSS"><a href="#XSS" class="headerlink" title="XSS"></a>XSS</h2><h5 id="攻击前提"><a href="#攻击前提" class="headerlink" title="攻击前提"></a>攻击前提</h5><blockquote>
+<ul>
+<li>攻击脚本必须添加到页面上</li>
+</ul>
+</blockquote>
+<h5 id="攻击方式"><a href="#攻击方式" class="headerlink" title="攻击方式"></a>攻击方式</h5><blockquote>
+<ul>
+<li>跨站脚本XSS(Cross site script) 代码注入</li>
+<li>script 标签注入攻击 <code>&lt;li&gt;&lt;script&gt;alert(1)&lt;/script&gt;&lt;/li&gt;</code></li>
+<li>标签属性注入攻击 <code>&lt;img src=&quot;&quot; onerror=&quot;alert(1)&quot;&gt;</code> <code>&lt;p onclick=&quot;alert(2)&quot;&gt;诱导点击&lt;/p&gt;</code></li>
+<li>广告注入 <code>&lt;iframe src=&#39;&#39;&gt;&lt;/iframe&gt;</code></li>
+</ul>
+</blockquote>
+<h5 id="防止XSS攻击"><a href="#防止XSS攻击" class="headerlink" title="防止XSS攻击"></a>防止XSS攻击</h5><blockquote>
+<ul>
+<li>获取的数据不允许进行字符串拼接</li>
+<li>使用element.inneText方法 把数据添加到dom 中，inneText 方法会转义所有内容</li>
+<li>把所有数据里的<code>/[&quot;&#39;&amp;&lt;&gt;]/</code>使用正则进行转义</li>
+<li>存储数据时过滤并转义<code>/[&quot;&#39;&amp;&lt;&gt;]/</code></li>
+<li>防止URL 上的参数在页面上展示 <code>http://url?code=&lt;p onclick=&quot;alert(2)&quot;&gt;诱导点击&lt;/p&gt;</code> 这里的code query参数内容不得在页面中渲染</li>
+</ul>
+</blockquote>
+<h2 id="CSRF"><a href="#CSRF" class="headerlink" title="CSRF"></a>CSRF</h2><p><img src="http://upload-images.jianshu.io/upload_images/2155778-617054f296163894.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt=""></p>
+<h5 id="攻击原理"><a href="#攻击原理" class="headerlink" title="攻击原理"></a>攻击原理</h5><blockquote>
+<ul>
+<li>利用用户已经登录的状态 伪造请求发送给服务器进行用户操作</li>
+</ul>
+</blockquote>
+<h5 id="攻击方式-1"><a href="#攻击方式-1" class="headerlink" title="攻击方式"></a>攻击方式</h5><blockquote>
+<ul>
+<li>跨站请求伪造(Cross site request forgery)</li>
+<li>用户已登录(cookie登录)<code>如果没设置httpOnly cookie是根据域名和路径访问的, 无关端口</code></li>
+<li>伪造请求(GET, POST)<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">伪造GET</span><br><span class="line">&lt;img src=&quot;http://localhost:3000/csrf?data=111&quot; alt=&quot;&quot;&gt;</span><br><span class="line">http://localhost:3000/csrf?data=111 // 直接地址栏中输入</span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+</blockquote>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">表单伪造POST</span><br><span class="line">    &lt;form id=&quot;form&quot; style=&quot;display: none;&quot; action=&quot;http://localhost:3000/csrf?data=111&quot; method=&quot;post&quot; target=&quot;csrf&quot;&gt;</span><br><span class="line">    &lt;/form&gt;</span><br><span class="line">    &lt;input id=&quot;btn&quot; type=&quot;button&quot; value=&quot;submit&quot;&gt;</span><br><span class="line">    &lt;iframe src=&quot;&quot; style=&quot;display: none;&quot; name=&quot;csrf&quot; frameborder=&quot;0&quot;&gt;&lt;/iframe&gt;</span><br><span class="line">    &lt;script&gt;</span><br><span class="line">      btn.addEventListener(&apos;click&apos;, (e) =&gt; &#123;</span><br><span class="line">        e.preventDefault()</span><br><span class="line">        form.submit()</span><br><span class="line">      &#125;)</span><br><span class="line">    &lt;/script&gt;</span><br></pre></td></tr></table></figure>
+<p>防止CSRF攻击</p>
+<blockquote>
+<ul>
+<li>请求时不仅浏览器携带cookie， <code>请求参数也需要把跟cookie 相关的值携带到参数中, 伪造的请求无法获取正确网站cookie的值, 比如常见约定的csrfToken</code></li>
+<li>使用Authorization 的token 授权</li>
+<li>提交表单的时候增加token 认证</li>
+<li>验证请求header 的Referer <code>携带请求来源信息</code></li>
+</ul>
+</blockquote>
+
+            </div>
+        </div>
+    </article>
+
+    
+    
+<nav class="article-nav">
+  
+    <a href="/2018/02/05/前端基础重点回顾6-渲染机制、页面性能优化、错误监控/" id="article-nav-newer" class="article-nav-link-wrap prev">
+      <strong class="article-nav-caption">Newer</strong>
+      <div class="article-nav-title">
+        
+          前端基础重点回顾6:渲染机制、页面性能优化、错误监控
+        
+      </div>
+    </a>
+  
+  
+    <a href="/2018/01/30/前端基础重点回顾4-前后端通信/" id="article-nav-older" class="article-nav-link-wrap next">
+      <strong class="article-nav-caption">Older</strong>
+      <div class="article-nav-title">前端基础重点回顾4:前后端通信</div>
+    </a>
+  
+</nav>
+
+    
+
+    
+</div>
+    </div>
+    <footer class="site-footer">
+        <div class="global-width">
+            <ul class="site-widget">
+                
+                <li class="widget widget-tag">
+                    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Tags</h3>
+    <div class="widget-body">
+      <ul class="tag-list"><li class="tag-list-item"><a class="tag-list-link" href="/tags/JavaScript/">JavaScript</a><span class="tag-list-count">6</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/React/">React</a><span class="tag-list-count">5</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/React-Tips/">React Tips</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Redux/">Redux</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Vue/">Vue</a><span class="tag-list-count">4</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/css/">css</a><span class="tag-list-count">3</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/dom/">dom</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/http/">http</a><span class="tag-list-count">5</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/sftp/">sftp</a><span class="tag-list-count">1</span></li></ul>
+    </div>
+  </div>
+
+                </li>
+                
+                <li class="widget widget-category">
+                    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Categories</h3>
+    <div class="widget-body">
+      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/Font-End-Basis/">Font-End Basis</a><span class="category-list-count">11</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/React/">React</a><span class="category-list-count">8</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Vue/">Vue</a><span class="category-list-count">4</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/css/">css</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/http/">http</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/network/">network</a><span class="category-list-count">1</span></li></ul>
+    </div>
+  </div>
+
+                </li>
+                
+                <li class="widget widget-recent_posts">
+                    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Recents</h3>
+    <div class="widget-body">
+      <ul>
+        
+          <li>
+            <a href="/2018/10/28/编写React组件要点-单一责任原则/">编写React组件要点-单一责任原则</a>
+          </li>
+        
+          <li>
+            <a href="/2018/10/26/HTTP相关系统知识/">HTTP相关系统知识</a>
+          </li>
+        
+          <li>
+            <a href="/2018/04/17/JavaScript中的垃圾回收/">JavaScript 中的垃圾回收</a>
+          </li>
+        
+          <li>
+            <a href="/2018/04/11/实现一个 Vue (1) 实现响应式原理/">实现一个 Vue (1) 实现响应式原理</a>
+          </li>
+        
+          <li>
+            <a href="/2018/04/03/学习并实现 redux(1) - 基础 API/">学习并实现 redux(1) - 基础 API</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+                </li>
+                
+            </ul>
+        </div>
+        <div class="site-info">
+            <address>
+                &copy; 2014 <a href="http://yoursite.com">Minimalist</a> All Right Reserved. <br/>
+                Powered by <a href="http://hexo.io">Hexo</a>. Theme by <a href="http://zzoman.com">ZZOMAN</a>
+            </address>
+        </div>
+    </footer>
+    
+    <script src="/libs/jquery-1.11.3.min.js" type="text/javascript"></script>
+    
+    <script src="/libs/fancybox/jquery.fancybox.js" type="text/javascript"></script>
+    
+    <script src="/js/site_init.js" type="text/javascript"></script>
+    
+</body>
+</html>

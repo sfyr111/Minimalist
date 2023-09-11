@@ -1,0 +1,367 @@
+<!doctype html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge">
+    <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    
+    <title>前端基础重点回顾6:渲染机制、页面性能优化、错误监控 | Minimalist</title>
+    
+    <link rel="alternative" href="/atom.xml" title="Minimalist" type="application/atom+xml">
+    
+    <link rel="stylesheet" href="/css/style.css">
+    
+    <link rel="stylesheet" href="/libs/fancybox/jquery.fancybox.css" charset="utf-8">
+    
+    <!--[if lt IE 9]>
+    <script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
+    <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+    <![endif]-->
+</head>
+<body class="site">
+    <header class="site-header">
+        <h1 class="site-title"><a href="/">Minimalist</a></h1>
+        <nav class="site-nav">
+            <ul class="nav">
+                
+                <li><a href="/archives">Archives</a></li>
+                
+                
+                <li><a href="https://github.com/sfyr111" title="git">GITHUB</a></li>
+                
+                <li><a class="toggle-search" href="#search">search</a></li>
+            </ul>
+        </nav>
+        <div class="site-search" id="search">
+            <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><input type="hidden" name="sitesearch" value="http://yoursite.com"></form>
+        </div>
+        
+            <div class="site-header-background" style="background-image:url(http://reumia.github.io/hexo-theme-zzoman2015/images/background-zzoman2015.jpg)"></div>
+        
+    </header>
+    <div class="site-body">
+        <div class="global-width">
+    <article class="article" data-layout="post" data-slug="前端基础重点回顾6-渲染机制、页面性能优化、错误监控">
+        <div class="article-content">
+            
+            
+            <header class="article-header">
+                <div class="article-meta">
+                    <a href="/2018/02/05/前端基础重点回顾6-渲染机制、页面性能优化、错误监控/" class="article-date">
+  <time datetime="2018-02-05T12:26:55.000Z">2018-02-05</time>
+</a>
+                    
+  <div class="article-category categories">
+    <a class="category-link" href="/categories/Font-End-Basis/">Font-End Basis</a>
+  </div>
+
+                    
+                </div>
+                
+    <h1 class="article-title" itemprop="name">
+      <a href="/2018/02/05/前端基础重点回顾6-渲染机制、页面性能优化、错误监控/">前端基础重点回顾6:渲染机制、页面性能优化、错误监控</a>
+    </h1>
+
+            </header>
+            
+            <div class="article-body">
+                <h2 id="渲染机制"><a href="#渲染机制" class="headerlink" title="渲染机制"></a>渲染机制</h2><h3 id="DOCTYPE"><a href="#DOCTYPE" class="headerlink" title="DOCTYPE"></a>DOCTYPE</h3><ul>
+<li>DOCTYPE是用来声明文档类型的，告诉浏览器使用哪一种DTD规范的文档类型。</li>
+<li>DTD(document type definition, 文档类型定义) 是一些列的语法规则，用来定义HTML文件类型。用来给浏览器判断文档类型。</li>
+</ul>
+<h3 id="声明文档类型"><a href="#声明文档类型" class="headerlink" title="声明文档类型"></a>声明文档类型</h3><ul>
+<li>HTML5 &lt;!DOCTYPE html&gt;</li>
+<li>HTML 4.01 有宽松模式和严格模式(不包括展示性和弃用的元素)</li>
+</ul>
+<h3 id="浏览器渲染过程"><a href="#浏览器渲染过程" class="headerlink" title="浏览器渲染过程"></a>浏览器渲染过程</h3><p><img src="http://upload-images.jianshu.io/upload_images/2155778-ef5de6d4ba45be14.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt=""></p>
+<ul>
+<li><p>HTML通过HTML解析转化成DOM树<img src="http://upload-images.jianshu.io/upload_images/2155778-fec1b2b8f9f20c16.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt=""></p>
+</li>
+<li><p>Style样式通过CSS解析转化成Style规则<img src="http://upload-images.jianshu.io/upload_images/2155778-b0409bf33090df6d.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="image.png"></p>
+</li>
+<li><p>DOM树和Style规则结合成渲染树(Render Tree)<img src="http://upload-images.jianshu.io/upload_images/2155778-bab125871f5c883b.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt=""></p>
+</li>
+<li><p>然后渲染树通过layout 计算出各元素在浏览器上的宽高颜色位置等属性，最后在浏览器上进行绘制。<img src="http://upload-images.jianshu.io/upload_images/2155778-94171718e5c6a199.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt=""></p>
+</li>
+</ul>
+<h3 id="重排Reflow"><a href="#重排Reflow" class="headerlink" title="重排Reflow"></a>重排Reflow</h3><blockquote>
+<ul>
+<li>DOM元素的盒模型需要浏览器根据样式计算结果将他们绘制在页面上，这个过程就是reflow</li>
+</ul>
+</blockquote>
+<h4 id="触发Reflow-条件"><a href="#触发Reflow-条件" class="headerlink" title="触发Reflow 条件"></a>触发Reflow 条件</h4><blockquote>
+<ul>
+<li>增加、删除、修改DOM节点时，会触发Reflow 或 Repaint</li>
+<li>移动DOM节点、动画</li>
+<li>修改CSS样式</li>
+<li>resize 窗口、滚动页面</li>
+<li>修改页面默认字体</li>
+</ul>
+</blockquote>
+<h3 id="重绘Repaint"><a href="#重绘Repaint" class="headerlink" title="重绘Repaint"></a>重绘Repaint</h3><blockquote>
+<ul>
+<li>当DOM元素盒模型的各种属性确定计算结果后，浏览器根据这些元素的样式属性绘制一遍出现在页面上的过程就是repaint</li>
+</ul>
+</blockquote>
+<h4 id="触发Repaint"><a href="#触发Repaint" class="headerlink" title="触发Repaint"></a>触发Repaint</h4><blockquote>
+<ul>
+<li>DOM改动</li>
+<li>CSS改动</li>
+</ul>
+</blockquote>
+<h4 id="减少Reflow-Repaint的开销"><a href="#减少Reflow-Repaint的开销" class="headerlink" title="减少Reflow Repaint的开销"></a>减少Reflow Repaint的开销</h4><blockquote>
+<ul>
+<li>DOM拼接后一次append 到页面上(</li><li>列表</li>)
+</ul>
+</blockquote>
+<h2 id="页面性能优化"><a href="#页面性能优化" class="headerlink" title="页面性能优化"></a>页面性能优化</h2><h3 id="打开浏览器，在地址栏输入-url-直到页面展现，整个过程发生了什么？"><a href="#打开浏览器，在地址栏输入-url-直到页面展现，整个过程发生了什么？" class="headerlink" title="打开浏览器，在地址栏输入 url 直到页面展现，整个过程发生了什么？"></a>打开浏览器，在地址栏输入 url 直到页面展现，整个过程发生了什么？</h3><blockquote>
+<ul>
+<li>DNS(Domain Name System)域名系统预解析(应用层)，输入url后,浏览器会进行DNS解析出, 对应服务器的ip地址.</li>
+<li>浏览器会将用户输入的请求信息打包发送给nginx服务器.</li>
+<li>服务器会分析用户的请求寻找处理请求的对应文件，发送给浏览器.</li>
+<li>最后浏览器接收服务器的响应,解析并渲染呈现给用户。</li>
+</ul>
+</blockquote>
+<h3 id="提升页面性能的方法有哪些？"><a href="#提升页面性能的方法有哪些？" class="headerlink" title="提升页面性能的方法有哪些？"></a>提升页面性能的方法有哪些？</h3><blockquote>
+<ul>
+<li>资源压缩合并，减少HTTP请求</li>
+<li>非核心代码异步加载</li>
+<li>利用浏览器缓存</li>
+<li>使用CDN</li>
+<li>预解析DNS</li>
+</ul>
+</blockquote>
+<h3 id="非核心代码异步加载"><a href="#非核心代码异步加载" class="headerlink" title="非核心代码异步加载"></a>非核心代码异步加载</h3><blockquote>
+<ul>
+<li>动态脚本加载<br>动态创建<code>&lt;script&gt;</code>标签添加到<code>html</code> 文档中内</li>
+<li><code>&lt;script&gt;</code> 标签的<code>defer</code> 属性<br>在<code>html</code> 文档解析完执行，按加载顺序依次执行</li>
+<li><code>&lt;script&gt;</code> 标签的<code>async</code> 属性<br>在<code>html</code> 文档解析完执行，加载顺序与执行顺序无关</li>
+</ul>
+</blockquote>
+<h3 id="利用浏览器缓存"><a href="#利用浏览器缓存" class="headerlink" title="利用浏览器缓存"></a>利用浏览器缓存</h3><blockquote>
+<ul>
+<li>强缓存:<br>客户端无需再次请求服务端，客户端直接根据缓存条件决定是否使用缓存资源</li>
+</ul>
+</blockquote>
+<table>
+<thead>
+<tr>
+<th>响应header</th>
+<th>描述</th>
+<th>常用响应返回内容</th>
+<th>推荐</th>
+<th>特点</th>
+<th>缺点</th>
+<th>场景</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Cache-Control</td>
+<td>在多少秒内进行缓存</td>
+<td>public, max-age=秒</td>
+<td>是</td>
+<td>固定时间</td>
+<td>客户端服务端时间可能不一致</td>
+<td></td>
+</tr>
+<tr>
+<td>Expires</td>
+<td>在此时间前进行缓存</td>
+<td>格林威治时间</td>
+<td>否</td>
+<td>绝对时间</td>
+<td>客户端服务端时间可能不一致</td>
+<td>兼容http1.0</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<ul>
+<li>协商缓存:<br>客户端需请求服务端进行比较缓存条件，符合条件则返回<code>304</code>使用缓存资源</li>
+</ul>
+</blockquote>
+<table>
+<thead>
+<tr>
+<th>响应header</th>
+<th>请求header</th>
+<th>描述</th>
+<th>常用响应返回内容</th>
+<th>推荐</th>
+<th>特点</th>
+<th>缺点</th>
+<th>场景</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>ETag</td>
+<td>If-None-Match</td>
+<td>固定字符串</td>
+<td>md5 hash值</td>
+<td>是</td>
+<td>检测文件完整性</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>Last-Modified</td>
+<td>If-Modified-Since</td>
+<td>在某时间后没再更改</td>
+<td>格林威治时间</td>
+<td>否</td>
+<td>浏览器根据返回的时间自己决定缓存</td>
+<td>浏览器差异</td>
+</tr>
+</tbody>
+</table>
+<h3 id="DNS-预解析"><a href="#DNS-预解析" class="headerlink" title="DNS 预解析"></a>DNS 预解析</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">// 强制打开a 标签的DNS 预解析，https 默认关闭a 标签的DNS 预解析</span><br><span class="line">&lt;meta http-equiv=&quot;x-dns-prefetch-control&quot; content=&quot;on&quot;&gt;</span><br><span class="line">&lt;link rel=&quot;dns-prefatch&quot; href=&quot;url&quot;&gt;</span><br></pre></td></tr></table></figure>
+<h2 id="前端错误监控"><a href="#前端错误监控" class="headerlink" title="前端错误监控"></a>前端错误监控</h2><blockquote>
+<ul>
+<li>保证产品质量</li>
+<li>即时运行错误(代码错误)收集</li>
+<li>资源加载错误收集</li>
+</ul>
+</blockquote>
+<h3 id="即时运行错误的捕获方式"><a href="#即时运行错误的捕获方式" class="headerlink" title="即时运行错误的捕获方式"></a>即时运行错误的捕获方式</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">// 代码块使用错误捕获</span><br><span class="line">try &#123;&#125; catch (e) &#123;&#125;</span><br><span class="line"></span><br><span class="line">// 使用window对象错误事件捕获</span><br><span class="line">window.onerror = function(e) &#123;&#125;</span><br><span class="line">window.addEventListener(&apos;error&apos;, function(e) &#123;&#125;)</span><br></pre></td></tr></table></figure>
+<h3 id="资源加载错误"><a href="#资源加载错误" class="headerlink" title="资源加载错误"></a>资源加载错误</h3><p><code>&lt;img&gt;</code>等资源加载错误不会冒泡，<code>window.onerror</code> 无法捕获到标签资源加载的错误</p>
+<ul>
+<li><p>dom 捕获</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">elScript.onerror = function (e)&#123;&#125;</span><br><span class="line">elImg.onerror = function (e)&#123;&#125;</span><br><span class="line">...</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>跨域js 错误捕获</p>
+<blockquote>
+<p>js 文件资源响应头设置<code>Access-Control-Allow-Origin: *</code></p>
+</blockquote>
+</li>
+</ul>
+<blockquote>
+<p>script 标签增加crossorigin 属性<br><code>&lt;script crossorigin src=&#39;url&#39;&gt;&lt;/script&gt;</code></p>
+</blockquote>
+<ul>
+<li><p>获取成功加载的资源</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">performance.getEntries()</span><br><span class="line">performance.getEntries().map(item =&gt; item.name) // 获取所有成功资源加载地址</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>通过Error 事件捕获</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">window.addEventListener(&apos;error&apos;, function(e) &#123;</span><br><span class="line">  console.log(&apos;捕获&apos;, e) // 将会捕获到资源加载错误</span><br><span class="line">&#125;, true)</span><br><span class="line">&lt;script src=&apos;错误url&apos;&gt;&lt;/script&gt;</span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+<h3 id="上报错误的基本原理"><a href="#上报错误的基本原理" class="headerlink" title="上报错误的基本原理"></a>上报错误的基本原理</h3><blockquote>
+<ul>
+<li><p>采用Ajax 通信方式上报</p>
+</li>
+<li><p>利用Image 对象上报</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">&lt;script&gt;</span><br><span class="line">  new Image().src = &apos;url?k=val&apos;  // 会发送一个请求用于上报</span><br><span class="line">&lt;/script&gt;</span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+</blockquote>
+<p><a href="http://www.alloyteam.com/2014/03/front-end-data-monitoring/" target="_blank" rel="noopener">参考</a></p>
+
+            </div>
+        </div>
+    </article>
+
+    
+    
+<nav class="article-nav">
+  
+    <a href="/2018/03/09/学习并实现react1/" id="article-nav-newer" class="article-nav-link-wrap prev">
+      <strong class="article-nav-caption">Newer</strong>
+      <div class="article-nav-title">
+        
+          学习并实现react1
+        
+      </div>
+    </a>
+  
+  
+    <a href="/2018/01/31/前端基础重点回顾5-XSS、CSRF攻击/" id="article-nav-older" class="article-nav-link-wrap next">
+      <strong class="article-nav-caption">Older</strong>
+      <div class="article-nav-title">前端基础重点回顾5:XSS、CSRF攻击</div>
+    </a>
+  
+</nav>
+
+    
+
+    
+</div>
+    </div>
+    <footer class="site-footer">
+        <div class="global-width">
+            <ul class="site-widget">
+                
+                <li class="widget widget-tag">
+                    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Tags</h3>
+    <div class="widget-body">
+      <ul class="tag-list"><li class="tag-list-item"><a class="tag-list-link" href="/tags/JavaScript/">JavaScript</a><span class="tag-list-count">6</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/React/">React</a><span class="tag-list-count">5</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/React-Tips/">React Tips</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Redux/">Redux</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Vue/">Vue</a><span class="tag-list-count">4</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/css/">css</a><span class="tag-list-count">3</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/dom/">dom</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/http/">http</a><span class="tag-list-count">5</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/sftp/">sftp</a><span class="tag-list-count">1</span></li></ul>
+    </div>
+  </div>
+
+                </li>
+                
+                <li class="widget widget-category">
+                    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Categories</h3>
+    <div class="widget-body">
+      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/Font-End-Basis/">Font-End Basis</a><span class="category-list-count">11</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/React/">React</a><span class="category-list-count">8</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Vue/">Vue</a><span class="category-list-count">4</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/css/">css</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/http/">http</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/network/">network</a><span class="category-list-count">1</span></li></ul>
+    </div>
+  </div>
+
+                </li>
+                
+                <li class="widget widget-recent_posts">
+                    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Recents</h3>
+    <div class="widget-body">
+      <ul>
+        
+          <li>
+            <a href="/2018/10/28/编写React组件要点-单一责任原则/">编写React组件要点-单一责任原则</a>
+          </li>
+        
+          <li>
+            <a href="/2018/10/26/HTTP相关系统知识/">HTTP相关系统知识</a>
+          </li>
+        
+          <li>
+            <a href="/2018/04/17/JavaScript中的垃圾回收/">JavaScript 中的垃圾回收</a>
+          </li>
+        
+          <li>
+            <a href="/2018/04/11/实现一个 Vue (1) 实现响应式原理/">实现一个 Vue (1) 实现响应式原理</a>
+          </li>
+        
+          <li>
+            <a href="/2018/04/03/学习并实现 redux(1) - 基础 API/">学习并实现 redux(1) - 基础 API</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+                </li>
+                
+            </ul>
+        </div>
+        <div class="site-info">
+            <address>
+                &copy; 2014 <a href="http://yoursite.com">Minimalist</a> All Right Reserved. <br/>
+                Powered by <a href="http://hexo.io">Hexo</a>. Theme by <a href="http://zzoman.com">ZZOMAN</a>
+            </address>
+        </div>
+    </footer>
+    
+    <script src="/libs/jquery-1.11.3.min.js" type="text/javascript"></script>
+    
+    <script src="/libs/fancybox/jquery.fancybox.js" type="text/javascript"></script>
+    
+    <script src="/js/site_init.js" type="text/javascript"></script>
+    
+</body>
+</html>
