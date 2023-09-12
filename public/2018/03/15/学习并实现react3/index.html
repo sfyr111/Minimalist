@@ -83,9 +83,9 @@
 <li><code>__rendered</code> 标记组件或dom</li>
 </ul>
 </blockquote>
-<p><strong>组件渲染树绝对不会出现下列情况</strong><img src="https://upload-images.jianshu.io/upload_images/2155778-9c25f514b14de01e.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/310"></p>
-<p><strong>渲染多个组件(children)时 必须用 dom 元素包裹</strong><img src="https://upload-images.jianshu.io/upload_images/2155778-6448d96ce772a95c.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/310"></p>
-<p><strong>最后正确渲染后的Tree</strong><img src="https://upload-images.jianshu.io/upload_images/2155778-828550c40b3f9e71.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240"></p>
+<p><strong>组件渲染树绝对不会出现下列情况</strong><img src="/images/imagemogr2_auto_orient_strip_7cimageview2_2_w_310_3101694537015244.png"></p>
+<p><strong>渲染多个组件(children)时 必须用 dom 元素包裹</strong><img src="/images/imagemogr2_auto_orient_strip_7cimageview2_2_w_310_3101694537015910.png"></p>
+<p><strong>最后正确渲染后的Tree</strong><img src="/images/imagemogr2_auto_orient_strip_7cimageview2_2_w_1240_12401694537016558.png"></p>
 <h4 id="改造render"><a href="#改造render" class="headerlink" title="改造render"></a>改造render</h4><blockquote>
 <ul>
 <li>为了复用组件 render 第四个参数由 olddom 改为 olddomOrComp</li>
@@ -111,7 +111,7 @@
 <li>现在需要实现 div.__rendered 关联 SubChild 组件</li>
 </ul>
 </blockquote>
-<p><img src="https://upload-images.jianshu.io/upload_images/2155778-828550c40b3f9e71.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240"></p>
+<p><img src="/images/imagemogr2_auto_orient_strip_7cimageview2_2_w_1240_12401694537017227.png"></p>
 <blockquote>
 <ul>
 <li>确定__rendered 链的思想，当渲染的是dom 元素时(组件被根dom包裹), __rendered 为数组</li>
@@ -124,7 +124,7 @@
 <blockquote>
 <p>最后再看下这张图，setState 后也会尝试复用组件，完善 __rendered 链</p>
 </blockquote>
-<p><img src="https://upload-images.jianshu.io/upload_images/2155778-828550c40b3f9e71.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240"></p>
+<p><img src="/images/imagemogr2_auto_orient_strip_7cimageview2_2_w_1240_12401694537017849.png"></p>
 
             </div>
         </div>

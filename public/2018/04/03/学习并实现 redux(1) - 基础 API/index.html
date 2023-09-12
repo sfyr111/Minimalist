@@ -89,7 +89,7 @@
 <li>action 由store.dispatch(action) 触发通知 reducer 命中后更改store 的state</li>
 </ul>
 </blockquote>
-<h2 id="redux-应用流程图"><a href="#redux-应用流程图" class="headerlink" title="redux 应用流程图"></a>redux 应用流程图</h2><p><img src="https://upload-images.jianshu.io/upload_images/2155778-1a69fa7a1a6cb599.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240"></p>
+<h2 id="redux-应用流程图"><a href="#redux-应用流程图" class="headerlink" title="redux 应用流程图"></a>redux 应用流程图</h2><p><img src="/images/imagemogr2_auto_orient_strip_7cimageview2_2_w_1240_12401694537027273.png"></p>
 <h2 id="根据流程图实现-redux"><a href="#根据流程图实现-redux" class="headerlink" title="根据流程图实现 redux"></a>根据流程图实现 redux</h2><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line">// redux.js</span><br><span class="line">export function createStore(reducer) &#123;</span><br><span class="line">  let currentState = &#123;&#125; // state</span><br><span class="line">  let currentListeners = [] // 监听器</span><br><span class="line"></span><br><span class="line">  function getState() &#123; // store.getState() 获取 state</span><br><span class="line">    return currentState</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  function subscribe(listener) &#123; // store.subscribe(listener) 注册listener</span><br><span class="line">    currentListeners.push(listener)</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  function dispatch(action) &#123;</span><br><span class="line">    currentState = reducer(currentState, action) // 更改 state</span><br><span class="line">    currentListeners.forEach(v =&gt; v()) // 执行listeners</span><br><span class="line">    return action // 返回action </span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  dispatch(&#123; type: &#x27;@@redux/INIT&#x27; &#125;) // store 初始化时命中 reducer default</span><br><span class="line">  return &#123; getState, subscribe, dispatch &#125; // 暴露store API</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 <blockquote>
 <p>定义 reducer 创建 store</p>
@@ -106,7 +106,7 @@
 <blockquote>
 <p>控制台输出</p>
 </blockquote>
-<p><img src="https://upload-images.jianshu.io/upload_images/2155778-934065760af5cee4.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/620"></p>
+<p><img src="/images/imagemogr2_auto_orient_strip_7cimageview2_2_w_620_6201694537027913.png"></p>
 
             </div>
         </div>

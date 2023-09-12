@@ -75,7 +75,7 @@
 <li>使用显式构造函数创建<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">var Obj = function (name) &#123; this.name = name &#125;</span><br><span class="line">var o3 = new Obj(&#x27;o3&#x27;)</span><br></pre></td></tr></table></figure></li>
 <li>是用Object.create 创建一个指定原型的对象<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">var proto = &#123; name: &#x27;o4&#x27; &#125;</span><br><span class="line">var o4 = Object.create(proto)</span><br></pre></td></tr></table></figure></li>
 </ul>
-<h2 id="原型链"><a href="#原型链" class="headerlink" title="原型链"></a>原型链</h2><p><img src="http://upload-images.jianshu.io/upload_images/2155778-4735ac71a90c328c.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240"></p>
+<h2 id="原型链"><a href="#原型链" class="headerlink" title="原型链"></a>原型链</h2><p><img src="/images/imagemogr2_auto_orient_strip_7cimageview2_2_w_1240_12401694537038674.png"></p>
 <h3 id="原型链描述"><a href="#原型链描述" class="headerlink" title="原型链描述"></a>原型链描述</h3><blockquote>
 <p>1.从一个实例对象向上找构造这个实例相关联的对象，<br>2.再从从这个相关联的对象继续向上找创建这个对象相关联的对象，<br>3.以此类推一直到Object.prototype (null)终止。</p>
 </blockquote>
@@ -85,7 +85,7 @@
 <h3 id="原型对象prototype-有什么特点"><a href="#原型对象prototype-有什么特点" class="headerlink" title="原型对象prototype 有什么特点"></a>原型对象prototype 有什么特点</h3><blockquote>
 <p>构造函数的prototype 由此构造函数创建的多个实例共同使用的对象</p>
 </blockquote>
-<h3 id="instanceof的原理"><a href="#instanceof的原理" class="headerlink" title="instanceof的原理"></a>instanceof的原理</h3><p><img src="http://upload-images.jianshu.io/upload_images/2155778-ac97579ec668fd1c.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240"></p>
+<h3 id="instanceof的原理"><a href="#instanceof的原理" class="headerlink" title="instanceof的原理"></a>instanceof的原理</h3><p><img src="/images/imagemogr2_auto_orient_strip_7cimageview2_2_w_1240_12401694537039261.png"></p>
 <blockquote>
 <ul>
 <li>判断实例对象:proto 和构造函数:prototype 两者的引用是否是同一个原型的引用地址(比如Object.prototype )</li>

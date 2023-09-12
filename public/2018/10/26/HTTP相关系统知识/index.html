@@ -69,8 +69,8 @@
             </header>
             
             <div class="article-body">
-                <p><img src="https://upload-images.jianshu.io/upload_images/2155778-00f4024cb110f446.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240"></p>
-<p><img src="https://upload-images.jianshu.io/upload_images/2155778-8233ea18c19cee84.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240"></p>
+                <p><img src="/images/imagemogr2_auto_orient_strip_7cimageview2_2_w_1240_12401694537060066.png"></p>
+<p><img src="/images/imagemogr2_auto_orient_strip_7cimageview2_2_w_1240_12401694537060737.png"></p>
 <h2 id="因特网协议五层协议"><a href="#因特网协议五层协议" class="headerlink" title="因特网协议五层协议"></a>因特网协议五层协议</h2><ul>
 <li><p>物理层<br>定义物理设备如何传输数据</p>
 </li>
@@ -102,7 +102,7 @@
 </li>
 </ul>
 <h2 id="HTTP-请求"><a href="#HTTP-请求" class="headerlink" title="HTTP 请求"></a>HTTP 请求</h2><ul>
-<li><p>报文<br><img src="https://upload-images.jianshu.io/upload_images/2155778-0a44fcd3f9abd715.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240"></p>
+<li><p>报文<br><img src="/images/imagemogr2_auto_orient_strip_7cimageview2_2_w_1240_12401694537061376.png"></p>
 </li>
 <li><p>HTTP 方法<br>用来定义对于资源的操作<br>常用 GET、POST、DETEL、PUT、PATCH<br>有各自的语义</p>
 </li>
@@ -121,7 +121,7 @@
 <li><p>其他限制<br>自定义 header 限制<br>XMLHttpRequestUpload 对象没有注册时间监听<br>请求中没有使用 ReadableStream 对象</p>
 </li>
 </ul>
-<h2 id="HTTP-缓存"><a href="#HTTP-缓存" class="headerlink" title="HTTP 缓存"></a>HTTP 缓存</h2><p><img src="https://upload-images.jianshu.io/upload_images/2155778-f66b44d1c430c628.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240"></p>
+<h2 id="HTTP-缓存"><a href="#HTTP-缓存" class="headerlink" title="HTTP 缓存"></a>HTTP 缓存</h2><p><img src="/images/imagemogr2_auto_orient_strip_7cimageview2_2_w_1240_12401694537062034.png"></p>
 <h3 id="强缓存-Cache-Control"><a href="#强缓存-Cache-Control" class="headerlink" title="强缓存 Cache-Control"></a>强缓存 Cache-Control</h3><h4 id="可缓存性"><a href="#可缓存性" class="headerlink" title="可缓存性"></a>可缓存性</h4><p><code>public</code>: 任何地方都可缓存，http 代理服务器、发出请求的客户端浏览器都可缓存<br><code>private</code>: 发起请求的客户端浏览器才可缓存<br><code>no-cache</code>: 任何节点都不可使用缓存(可缓存但服务器指定其不使用)</p>
 <h4 id="到期"><a href="#到期" class="headerlink" title="到期"></a>到期</h4><p><code>max-age=&lt;seconds&gt;</code>: 缓存时间<br><code>s-maxage=&lt;seconds&gt;</code>: 会代替 max-age 只在代理服务器生效<br><code>max-stale=&lt;seconds&gt;</code>: max-age 过期后仍然使用过期缓存，发起请求的客户端设置(浏览器不常用)</p>
 <h4 id="资源重新验证"><a href="#资源重新验证" class="headerlink" title="资源重新验证"></a>资源重新验证</h4><p><code>must-revalidate</code>: 过期后会去原服务端验证是否过期<br><code>proxy-revalidate</code>: 指定的缓存服务器验证是否过期</p>
@@ -142,25 +142,25 @@
 </ul>
 <h3 id="请求-header-Accept"><a href="#请求-header-Accept" class="headerlink" title="请求 header - Accept"></a>请求 header - Accept</h3><p><code>Accept</code>: 想要的数据类型<br><code>Accept-Encoding</code>: 什么样的编码方式传输, 用于数据压缩格式<br><code>Accept-Language</code>: 数据语言<br><code>User-Agent</code>: 浏览器信息判断</p>
 <h3 id="响应-header-Content"><a href="#响应-header-Content" class="headerlink" title="响应 header - Content"></a>响应 header - Content</h3><p><code>Content-Type</code>: 返回的数据格式<br><code>Content-Encoding</code>: 对应客户端请求的 <code>Accept-Encoding</code><br><code>Content-Language</code>: 对应客户端请求的 <code>Accept-Language</code></p>
-<h3 id="数据压缩"><a href="#数据压缩" class="headerlink" title="数据压缩"></a>数据压缩</h3><p><code>zlib 压缩</code><br><code>zlib.gzipSync(buffer)</code><br><code>Content-Encoding: gzip</code><br>没压缩前<br><img src="https://upload-images.jianshu.io/upload_images/2155778-5afe01229914904e.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="没压缩前"><br>压缩后<br><img src="https://upload-images.jianshu.io/upload_images/2155778-956289a5b202cf8c.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="zip 压缩后"></p>
+<h3 id="数据压缩"><a href="#数据压缩" class="headerlink" title="数据压缩"></a>数据压缩</h3><p><code>zlib 压缩</code><br><code>zlib.gzipSync(buffer)</code><br><code>Content-Encoding: gzip</code><br>没压缩前<br><img src="/images/imagemogr2_auto_orient_strip_7cimageview2_2_w_1240_12401694537062679.png" alt="没压缩前"><br>压缩后<br><img src="/images/imagemogr2_auto_orient_strip_7cimageview2_2_w_1240_12401694537063329.png" alt="zip 压缩后"></p>
 <h3 id="文件数据协商"><a href="#文件数据协商" class="headerlink" title="文件数据协商"></a>文件数据协商</h3><p><code>Content-Type: multipart/form-data</code></p>
 <h2 id="重定向-redirect"><a href="#重定向-redirect" class="headerlink" title="重定向 redirect"></a>重定向 redirect</h2><p>响应 header :  <code>Location: /url</code><br>响应 CODE: <code>302 301</code> 才可以跳转</p>
 <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">response.writeHead(301, &#123;</span><br><span class="line">  &#x27;Location&#x27;: &#x27;/new&#x27;,</span><br><span class="line">&#125;)</span><br></pre></td></tr></table></figure>
 
 <h3 id="301-302-区别"><a href="#301-302-区别" class="headerlink" title="301 302 区别"></a>301 302 区别</h3><ul>
-<li><p>302 临时跳转<br>请求 <code>/</code> 重定向到 <code>/new</code><br>每次后台都会收到两次请求<br><img src="https://upload-images.jianshu.io/upload_images/2155778-bb5a7cb72d262697.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240"></p>
+<li><p>302 临时跳转<br>请求 <code>/</code> 重定向到 <code>/new</code><br>每次后台都会收到两次请求<br><img src="/images/imagemogr2_auto_orient_strip_7cimageview2_2_w_1240_12401694537063983.png"></p>
 </li>
-<li><p>301 永久跳转<br>浏览器会尽量长的缓存 301 请求，需要慎重设置, 浏览器如果不清缓存会造成一直跳转<img src="https://upload-images.jianshu.io/upload_images/2155778-ffc8e98f9c1f3b8f.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240"></p>
+<li><p>301 永久跳转<br>浏览器会尽量长的缓存 301 请求，需要慎重设置, 浏览器如果不清缓存会造成一直跳转<img src="/images/imagemogr2_auto_orient_strip_7cimageview2_2_w_1240_12401694537064634.png"></p>
 </li>
 </ul>
-<p>请求 <code>/</code> 重定向到 <code>/new</code><br>后台第一次会收到两次请求<br>第二次只会收到<code>/new</code><br><img src="https://upload-images.jianshu.io/upload_images/2155778-916b6f721227ff1e.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240"></p>
+<p>请求 <code>/</code> 重定向到 <code>/new</code><br>后台第一次会收到两次请求<br>第二次只会收到<code>/new</code><br><img src="/images/imagemogr2_auto_orient_strip_7cimageview2_2_w_1240_12401694537065265.png"></p>
 <h2 id="内容安全策略-CSP"><a href="#内容安全策略-CSP" class="headerlink" title="内容安全策略 CSP"></a>内容安全策略 CSP</h2><p><code>Content-Security-Policy: </code><br>限制资源获取<br>报告资源获取越权</p>
 <h3 id="限制方式"><a href="#限制方式" class="headerlink" title="限制方式"></a>限制方式</h3><p>default-src 限制全局<br>制定资源类型</p>
 <h3 id="资源类型"><a href="#资源类型" class="headerlink" title="资源类型"></a>资源类型</h3><p><a target="_blank" rel="noopener" href="https://developer.mozilla.org/zh-CN/docs/Web/HTTP/Headers/Content-Security-Policy__by_cnvoid">MDN</a><br>connect-src &#x2F; img-src &#x2F; style-src &#x2F; script-src 等</p>
 <h3 id="设置-CSP"><a href="#设置-CSP" class="headerlink" title="设置 CSP"></a>设置 CSP</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">// 服务端设置</span><br><span class="line">      &#x27;Content-Security-Policy&#x27;: &#x27;default-src http: https:&#x27; // 只能根据外链</span><br><span class="line">      &#x27;Content-Security-Policy&#x27;: &#x27;script-src http: https:&#x27; // 只限制script</span><br><span class="line">      &#x27;Content-Security-Policy&#x27;: &#x27;default-src \&#x27;self\&#x27; https://cdn.bootcss.com&#x27; // 只根据本域名, 增加 cdn.bootcss.com 域名</span><br><span class="line">      &#x27;Content-Security-Policy&#x27;: &#x27;default-src \&#x27;self\&#x27;&#x27; // 只根据本域名</span><br><span class="line">      &#x27;Content-Security-Policy&#x27;: &#x27;default-src \&#x27;self\&#x27;; form-action \&#x27;self\&#x27;&#x27; // 限制表单提交</span><br><span class="line">      &#x27;Content-Security-Policy&#x27;: &#x27;default-src \&#x27;self\&#x27;; form-action \&#x27;self\&#x27;; report-uri /report&#x27; // 服务器上报</span><br><span class="line">      &#x27;Content-Security-Policy-Report-Only&#x27;: &#x27;default-src \&#x27;self\&#x27;; form-action \&#x27;self\&#x27;; report-uri /report&#x27; // 服务器只上报，但是课加载</span><br></pre></td></tr></table></figure>
 <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">// meta 标签设置</span><br><span class="line">  &lt;meta http-equiv=&quot;Content-Security-Policy&quot; content=&quot;default-src &#x27;self&#x27;; form-action &#x27;self&#x27;; report-uri /report&quot;&gt;</span><br></pre></td></tr></table></figure>
-<p>被 csp 禁止<img src="https://upload-images.jianshu.io/upload_images/2155778-d096021edee9b638.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240"><br><img src="https://upload-images.jianshu.io/upload_images/2155778-87c1a85a19d701bd.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240"></p>
-<p>设置 connect-src 可以限制 ajax 发送<img src="https://upload-images.jianshu.io/upload_images/2155778-bef2bd92061c5126.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240"></p>
+<p>被 csp 禁止<img src="/images/imagemogr2_auto_orient_strip_7cimageview2_2_w_1240_12401694537065934.png"><br><img src="/images/imagemogr2_auto_orient_strip_7cimageview2_2_w_1240_12401694537066578.png"></p>
+<p>设置 connect-src 可以限制 ajax 发送<img src="/images/imagemogr2_auto_orient_strip_7cimageview2_2_w_1240_12401694537067310.png"></p>
 <h2 id="nginx"><a href="#nginx" class="headerlink" title="nginx"></a>nginx</h2><h3 id="统一配置文件"><a href="#统一配置文件" class="headerlink" title="统一配置文件"></a>统一配置文件</h3><p>nginx.conf</p>
 <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">include servers/*; // 此目录下的所有 .conf 文件</span><br></pre></td></tr></table></figure>
 
@@ -175,7 +175,7 @@
 <li><code>Vary</code> 当 <code>req.header</code>: <code>X-Test-Cache</code> 为 1 时发送后，代理缓存了 <code>X-Test-Cache</code> 为 1 这个请求，下次其他客户端请求 <code>X-Test-Cache</code> 为 1 则使用代理服务器缓存。可以使用 <strong>user-agent</strong> 进行代理服务器的设备缓存。</li>
 </ul>
 </blockquote>
-<h2 id="HTTPS"><a href="#HTTPS" class="headerlink" title="HTTPS"></a>HTTPS</h2><p><img src="https://upload-images.jianshu.io/upload_images/2155778-8fff24b9b3e28b3c.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240"></p>
+<h2 id="HTTPS"><a href="#HTTPS" class="headerlink" title="HTTPS"></a>HTTPS</h2><p><img src="/images/imagemogr2_auto_orient_strip_7cimageview2_2_w_1240_12401694537067972.png"></p>
 <h3 id="生成密钥"><a href="#生成密钥" class="headerlink" title="生成密钥"></a>生成密钥</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">openssl req -x509 -newkey rsa:2048 -nodes -sha256 -keyout test-privkey.pem -out test-cert.pem</span><br></pre></td></tr></table></figure>
 
 <h3 id="nginx-生成-https-服务"><a href="#nginx-生成-https-服务" class="headerlink" title="nginx 生成 https 服务"></a>nginx 生成 https 服务</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">server &#123;</span><br><span class="line">  listen      443;</span><br><span class="line">  server_name yang.com; # 要配置 host 不然就访问外网了</span><br><span class="line"></span><br><span class="line">  ssl on;</span><br><span class="line">  ssl_certificate_key /usr/local/etc/openssl/test/test-privkey.pem; # 密钥路径</span><br><span class="line">  ssl_certificate /usr/local/etc/openssl/test/test-cert.pem; # 密钥路径</span><br><span class="line"></span><br><span class="line">  location / &#123;</span><br><span class="line">    proxy_cache my_cache; # 配置的缓存名</span><br><span class="line">    proxy_pass http://127.0.0.1:8888;</span><br><span class="line">    proxy_set_header Host $host; # host配置</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
@@ -189,7 +189,7 @@
 <h3 id="nginx-将-http2-转为-http1-1"><a href="#nginx-将-http2-转为-http1-1" class="headerlink" title="nginx 将 http2 转为 http1.1"></a>nginx 将 http2 转为 http1.1</h3><p>nginx 可以将 http2 转成 1.1 版本传输给服务端</p>
 <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">server &#123;</span><br><span class="line">  listen             443 http2;</span><br><span class="line">  server_name        yang.com; # 要配置 host 不然就访问外网了</span><br><span class="line">  http2_push_preload on; # 开启服务器推送</span><br><span class="line"></span><br><span class="line">  ssl on;</span><br><span class="line">  ssl_certificate_key /usr/local/etc/openssl/test/test-privkey.pem;</span><br><span class="line">  ssl_certificate     /usr/local/etc/openssl/test/test-cert.pem;</span><br><span class="line"></span><br><span class="line">  location / &#123;</span><br><span class="line">    proxy_cache my_cache; # 配置的缓存名</span><br><span class="line">    proxy_pass http://127.0.0.1:8888;</span><br><span class="line">    proxy_set_header Host $host; # host配置</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
-<h3 id="推送结果"><a href="#推送结果" class="headerlink" title="推送结果"></a>推送结果</h3><p><img src="https://upload-images.jianshu.io/upload_images/2155778-34c3f8e5f7461c30.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240"><br><a target="_blank" rel="noopener" href="https://http2.akamai.com/demo/http2-lab.html">测试 HTTP2 性能</a></p>
+<h3 id="推送结果"><a href="#推送结果" class="headerlink" title="推送结果"></a>推送结果</h3><p><img src="/images/imagemogr2_auto_orient_strip_7cimageview2_2_w_1240_12401694537068602.png"><br><a target="_blank" rel="noopener" href="https://http2.akamai.com/demo/http2-lab.html">测试 HTTP2 性能</a></p>
 <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">$ curl -v https://yang.com </span><br><span class="line">$ curl -v -k https://yang.com // 打开不安全 ssl 限制</span><br><span class="line">$ curl -v -k --http1.1 https://yang.com // 指定 http1.1 访问</span><br></pre></td></tr></table></figure>
             </div>
         </div>

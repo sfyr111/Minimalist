@@ -71,7 +71,7 @@
             <div class="article-body">
                 <h2 id="问题来源"><a href="#问题来源" class="headerlink" title="问题来源"></a>问题来源</h2><p>在学习Promise时在stackoverflow上看到一个解释Promise运行顺序回答。<br>之前在<a target="_blank" rel="noopener" href="http://www.jianshu.com/p/dbd0329077fa">学习异步编程</a>中讲解了MacroTask和MicroTask， 但在最近深入EventLoop后又有了更多的了解</p>
 <blockquote>
-<p><img src="http://upload-images.jianshu.io/upload_images/2155778-56260f7068aaf973.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/620"></p>
+<p><img src="/images/imagemogr2_auto_orient_strip_7cimageview2_2_w_620_6201694537070778.png"></p>
 </blockquote>
 <h2 id="EventLoop、MacroTask、MicroTask之间的关系"><a href="#EventLoop、MacroTask、MicroTask之间的关系" class="headerlink" title="EventLoop、MacroTask、MicroTask之间的关系"></a>EventLoop、MacroTask、MicroTask之间的关系</h2><blockquote>
 <ul>
@@ -79,7 +79,7 @@
 </ul>
 </blockquote>
 <ul>
-<li>一张图先了解microtasks 与macrotasks 在eventloop队列里的位置<img src="http://upload-images.jianshu.io/upload_images/2155778-b88b043ab349ff4b.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/620"><img src="http://upload-images.jianshu.io/upload_images/2155778-a00c309940108114.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/620"><br>这里用了上一章EventLoop 事件循环文章里的图，并在回调队列里标注里microtask的位置。</li>
+<li>一张图先了解microtasks 与macrotasks 在eventloop队列里的位置<img src="/images/imagemogr2_auto_orient_strip_7cimageview2_2_w_620_6201694537071359.png"><img src="/images/imagemogr2_auto_orient_strip_7cimageview2_2_w_620_6201694537071945.png"><br>这里用了上一章EventLoop 事件循环文章里的图，并在回调队列里标注里microtask的位置。</li>
 </ul>
 <h3 id="microtasks-与macrotasks-在eventloop-里的流程"><a href="#microtasks-与macrotasks-在eventloop-里的流程" class="headerlink" title="microtasks 与macrotasks 在eventloop 里的流程"></a>microtasks 与macrotasks 在eventloop 里的流程</h3><p>在没有引入microtasks 概念前事件循环是这样执行的</p>
 <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">while (queue是否有task) &#123;</span><br><span class="line">   执行task</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>

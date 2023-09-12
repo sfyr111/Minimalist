@@ -101,7 +101,7 @@
 <li>首先我们先给host 设置几个子域名来模拟跨域</li>
 </ul>
 </blockquote>
-<p><img src="http://upload-images.jianshu.io/upload_images/2155778-f75131cee1c483fe.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/620"><br><a target="_blank" rel="noopener" href="https://github.com/sfyr111/font-end-communicate">跨域代码示例</a></p>
+<p><img src="/images/imagemogr2_auto_orient_strip_7cimageview2_2_w_620_6201694537036576.png"><br><a target="_blank" rel="noopener" href="https://github.com/sfyr111/font-end-communicate">跨域代码示例</a></p>
 <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">$ npm install</span><br><span class="line">$ npm start</span><br><span class="line">port: 3000 </span><br><span class="line">使用示例前记得设置本机host</span><br></pre></td></tr></table></figure>
 
 <h3 id="JSONP"><a href="#JSONP" class="headerlink" title="JSONP"></a>JSONP</h3><p>jsonp 原理就是在页面上动态添加一个script标签，给标签的src 指定一个url 路径并加上回调函数query 参数，发送给后端后，后端利用需返回的数据和回调函数的query 参数拼接成类似<code>handleJsonp(&#123; a:1, b:2 &#125;)</code>的字符串返回前端，前端定义的handleJsonp 的函数会直接运行并处理<code>&#123; a:1, b:2 &#125;</code> 这个后端返回的数据</p>

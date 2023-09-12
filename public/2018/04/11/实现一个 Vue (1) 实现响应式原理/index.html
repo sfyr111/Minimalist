@@ -69,7 +69,7 @@
             </header>
             
             <div class="article-body">
-                <p><img src="https://upload-images.jianshu.io/upload_images/2155778-4554860907a963c2.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240"></p>
+                <p><img src="/images/imagemogr2_auto_orient_strip_7cimageview2_2_w_1240_12401694537009587.png"></p>
 <blockquote>
 <ul>
 <li>new Vue(options) 创建 Vue 实例</li>
@@ -123,7 +123,7 @@
 </blockquote>
 <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line">// mvvm.js</span><br><span class="line">import Watcher from &#x27;./watcher&#x27;</span><br><span class="line">import &#123; observer &#125; from &#x27;./observer&#x27;</span><br><span class="line"></span><br><span class="line">export default class Vue &#123;</span><br><span class="line">  constructor(options) &#123;</span><br><span class="line">    this._data = options.data</span><br><span class="line">    observer(this._data)</span><br><span class="line">    new Watcher()</span><br><span class="line">    this._init()</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  _init() &#123;</span><br><span class="line">    this._compile(this._data)</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  _compile(data) &#123;</span><br><span class="line">    // 每次 log 模拟绑定一次视图， 触发一次响应数据的 getter </span><br><span class="line">    console.log(&#x27;view 层绑定&#x27;, data.testA)</span><br><span class="line">    console.log(&#x27;view 层绑定&#x27;, data.testA)</span><br><span class="line">    console.log(&#x27;view 层绑定&#x27;, data.testA)</span><br><span class="line"></span><br><span class="line">    console.log(&#x27;view 层绑定&#x27;, data.testB)</span><br><span class="line">    console.log(&#x27;view 层绑定&#x27;, data.testB)</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
-<p><img src="https://upload-images.jianshu.io/upload_images/2155778-35e7cc9960609709.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240"></p>
+<p><img src="/images/imagemogr2_auto_orient_strip_7cimageview2_2_w_1240_12401694537010248.png"></p>
 
             </div>
         </div>
