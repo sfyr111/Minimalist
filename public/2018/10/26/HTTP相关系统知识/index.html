@@ -9,7 +9,9 @@
     
     <link rel="alternative" href="/atom.xml" title="Minimalist" type="application/atom+xml">
     
-    <link rel="stylesheet" href="/css/style.css">
+    
+<link rel="stylesheet" href="/css/style.css">
+
     
     <link rel="stylesheet" href="/libs/fancybox/jquery.fancybox.css" charset="utf-8">
     
@@ -17,7 +19,7 @@
     <script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
     <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
     <![endif]-->
-</head>
+<meta name="generator" content="Hexo 6.3.0"></head>
 <body class="site">
     <header class="site-header">
         <h1 class="site-title"><a href="/">Minimalist</a></h1>
@@ -27,7 +29,7 @@
                 <li><a href="/archives">Archives</a></li>
                 
                 
-                <li><a href="https://github.com/sfyr111" title="git">GITHUB</a></li>
+                <li><a target="_blank" rel="noopener" href="https://github.com/sfyr111" title="git">GITHUB</a></li>
                 
                 <li><a class="toggle-search" href="#search">search</a></li>
             </ul>
@@ -47,7 +49,7 @@
             
             <header class="article-header">
                 <div class="article-meta">
-                    <a href="/2018/10/26/HTTP相关系统知识/" class="article-date">
+                    <a href="/2018/10/26/HTTP%E7%9B%B8%E5%85%B3%E7%B3%BB%E7%BB%9F%E7%9F%A5%E8%AF%86/" class="article-date">
   <time datetime="2018-10-26T15:22:06.000Z">2018-10-26</time>
 </a>
                     
@@ -56,19 +58,19 @@
   </div>
 
                     
-  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/http/">http</a></li></ul>
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/http/" rel="tag">http</a></li></ul>
 
                 </div>
                 
     <h1 class="article-title" itemprop="name">
-      <a href="/2018/10/26/HTTP相关系统知识/">HTTP相关系统知识</a>
+      <a href="/2018/10/26/HTTP%E7%9B%B8%E5%85%B3%E7%B3%BB%E7%BB%9F%E7%9F%A5%E8%AF%86/">HTTP相关系统知识</a>
     </h1>
 
             </header>
             
             <div class="article-body">
-                <p><img src="https://upload-images.jianshu.io/upload_images/2155778-00f4024cb110f446.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt=""></p>
-<p><img src="https://upload-images.jianshu.io/upload_images/2155778-8233ea18c19cee84.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt=""></p>
+                <p><img src="https://upload-images.jianshu.io/upload_images/2155778-00f4024cb110f446.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240"></p>
+<p><img src="https://upload-images.jianshu.io/upload_images/2155778-8233ea18c19cee84.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240"></p>
 <h2 id="因特网协议五层协议"><a href="#因特网协议五层协议" class="headerlink" title="因特网协议五层协议"></a>因特网协议五层协议</h2><ul>
 <li><p>物理层<br>定义物理设备如何传输数据</p>
 </li>
@@ -82,25 +84,25 @@
 </li>
 </ul>
 <h2 id="HTTP-历史"><a href="#HTTP-历史" class="headerlink" title="HTTP 历史"></a>HTTP 历史</h2><ul>
-<li><p>HTTP / 0.9<br>只有一个命令 GET<br>没有HEADER 等描述数据的信息<br>服务器发送完毕就关闭 TCP 连接</p>
+<li><p>HTTP &#x2F; 0.9<br>只有一个命令 GET<br>没有HEADER 等描述数据的信息<br>服务器发送完毕就关闭 TCP 连接</p>
 </li>
-<li><p>HTTP / 1.0<br>增加了很多命令<br>增加 status code 和header<br>多字符集的支持、多部分发送、权限、缓存</p>
+<li><p>HTTP &#x2F; 1.0<br>增加了很多命令<br>增加 status code 和header<br>多字符集的支持、多部分发送、权限、缓存</p>
 </li>
-<li><p>HTTP / 1.1<br>持久连接<br>pipeline(同一个连接里发送多个请求)<br>增加 host 和其他命令 (物理服务、集群里 host 区分部署的 web 服务)</p>
+<li><p>HTTP &#x2F; 1.1<br>持久连接<br>pipeline(同一个连接里发送多个请求)<br>增加 host 和其他命令 (物理服务、集群里 host 区分部署的 web 服务)</p>
 </li>
 <li><p>HTTP2<br>所有数据以二进制传输<br>同一个连接里发送多个请求不再需要按照顺序(并行)<br>头信息压缩以及推送提高效率的功能(资源返回和 ajax 并行)</p>
 </li>
 </ul>
 <h2 id="URI-、URL、URN"><a href="#URI-、URL、URN" class="headerlink" title="URI 、URL、URN"></a>URI 、URL、URN</h2><ul>
-<li><p>URI<br>Uniform Resource Identifier / 统一资源标识符<br>用来标识互联网上唯一的信息资源<br>包括 URL、URN</p>
+<li><p>URI<br>Uniform Resource Identifier &#x2F; 统一资源标识符<br>用来标识互联网上唯一的信息资源<br>包括 URL、URN</p>
 </li>
-<li><p>URL<br>Uniform Resource Locator / 统一资源定位器<br>http、ftp 协议都是同一个格式<br><code>http://user:pass@host.com:80/path?query=string#hash</code><br>schema: http:// file:// https://<br>host: 找到物理服务器<br>端口: 定位 web 服务器<br>path: 路由、资源目录<br>query: 查询参数<br>hash: 文档片段、锚点定位</p>
+<li><p>URL<br>Uniform Resource Locator &#x2F; 统一资源定位器<br>http、ftp 协议都是同一个格式<br><code>http://user:pass@host.com:80/path?query=string#hash </code><br>schema: http:&#x2F;&#x2F; file:&#x2F;&#x2F; https:&#x2F;&#x2F;<br>host: 找到物理服务器<br>端口: 定位 web 服务器<br>path: 路由、资源目录<br>query: 查询参数<br>hash: 文档片段、锚点定位</p>
 </li>
 <li><p>URN<br>永久统一资源定位符<br>在资源移动之后还能被找到<br>不成熟</p>
 </li>
 </ul>
 <h2 id="HTTP-请求"><a href="#HTTP-请求" class="headerlink" title="HTTP 请求"></a>HTTP 请求</h2><ul>
-<li><p>报文<br><img src="https://upload-images.jianshu.io/upload_images/2155778-0a44fcd3f9abd715.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt=""></p>
+<li><p>报文<br><img src="https://upload-images.jianshu.io/upload_images/2155778-0a44fcd3f9abd715.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240"></p>
 </li>
 <li><p>HTTP 方法<br>用来定义对于资源的操作<br>常用 GET、POST、DETEL、PUT、PATCH<br>有各自的语义</p>
 </li>
@@ -108,8 +110,7 @@
 </li>
 </ul>
 <h2 id="命令行发送请求"><a href="#命令行发送请求" class="headerlink" title="命令行发送请求"></a>命令行发送请求</h2><ul>
-<li>curl<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">curl -v url</span><br></pre></td></tr></table></figure>
-</li>
+<li>curl<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">curl -v url</span><br></pre></td></tr></table></figure></li>
 </ul>
 <h2 id="同源限制"><a href="#同源限制" class="headerlink" title="同源限制"></a>同源限制</h2><p><code>Access-Control-Allow-Origin</code></p>
 <h3 id="CORS-预请求"><a href="#CORS-预请求" class="headerlink" title="CORS 预请求"></a>CORS 预请求</h3><ul>
@@ -120,7 +121,7 @@
 <li><p>其他限制<br>自定义 header 限制<br>XMLHttpRequestUpload 对象没有注册时间监听<br>请求中没有使用 ReadableStream 对象</p>
 </li>
 </ul>
-<h2 id="HTTP-缓存"><a href="#HTTP-缓存" class="headerlink" title="HTTP 缓存"></a>HTTP 缓存</h2><p><img src="https://upload-images.jianshu.io/upload_images/2155778-f66b44d1c430c628.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt=""></p>
+<h2 id="HTTP-缓存"><a href="#HTTP-缓存" class="headerlink" title="HTTP 缓存"></a>HTTP 缓存</h2><p><img src="https://upload-images.jianshu.io/upload_images/2155778-f66b44d1c430c628.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240"></p>
 <h3 id="强缓存-Cache-Control"><a href="#强缓存-Cache-Control" class="headerlink" title="强缓存 Cache-Control"></a>强缓存 Cache-Control</h3><h4 id="可缓存性"><a href="#可缓存性" class="headerlink" title="可缓存性"></a>可缓存性</h4><p><code>public</code>: 任何地方都可缓存，http 代理服务器、发出请求的客户端浏览器都可缓存<br><code>private</code>: 发起请求的客户端浏览器才可缓存<br><code>no-cache</code>: 任何节点都不可使用缓存(可缓存但服务器指定其不使用)</p>
 <h4 id="到期"><a href="#到期" class="headerlink" title="到期"></a>到期</h4><p><code>max-age=&lt;seconds&gt;</code>: 缓存时间<br><code>s-maxage=&lt;seconds&gt;</code>: 会代替 max-age 只在代理服务器生效<br><code>max-stale=&lt;seconds&gt;</code>: max-age 过期后仍然使用过期缓存，发起请求的客户端设置(浏览器不常用)</p>
 <h4 id="资源重新验证"><a href="#资源重新验证" class="headerlink" title="资源重新验证"></a>资源重新验证</h4><p><code>must-revalidate</code>: 过期后会去原服务端验证是否过期<br><code>proxy-revalidate</code>: 指定的缓存服务器验证是否过期</p>
@@ -131,9 +132,9 @@
 </ul>
 <h4 id="Last-Modified"><a href="#Last-Modified" class="headerlink" title="Last-Modified"></a>Last-Modified</h4><p>配合 <code>If-Modified-Since</code> 或 <code>If-Unmodified-Since</code> 使用<br>对比上次修改时间验证资源是否需要更新</p>
 <h4 id="Etag"><a href="#Etag" class="headerlink" title="Etag"></a>Etag</h4><p>文件完整性 hash 数据签名<br>配合 <code>If-Match</code> 或  <code>If-Non-Match</code> 使用<br>对比资源的 hash 签名是否一致决定是否使用缓存</p>
-<h3 id="cookie-amp-session"><a href="#cookie-amp-session" class="headerlink" title="cookie &amp;  session"></a>cookie &amp;  session</h3><h4 id="cookie"><a href="#cookie" class="headerlink" title="cookie"></a>cookie</h4><p><code>Set-Cookie</code> 设置<br>同源下再次请求会自动带上<br>键值对形式，可以设置多个</p>
-<h4 id="cookie-属性"><a href="#cookie-属性" class="headerlink" title="cookie 属性"></a>cookie 属性</h4><p><code>max-age</code> 和 <code>expires</code> 设置过期时间<br><code>Secure</code> 只在 https 请求的时候才发送 cookie<br><code>HttpOnly</code> 无法通过 document.cookie 访问 cookie<br><code>domain</code> 设置二级域名可访问的 cookie (domain=yang.com，a.yang.com, b.yang.com 都可以访问)</p>
-<h2 id="长连接"><a href="#长连接" class="headerlink" title="长连接"></a>长连接</h2><p><code>Connection</code>: <code>keep-alive | close</code><br>http/1.1 无法并发，在网速慢的情况下还是会创建多个 ConnectionID</p>
+<h3 id="cookie-session"><a href="#cookie-session" class="headerlink" title="cookie &amp;  session"></a>cookie &amp;  session</h3><h4 id="cookie"><a href="#cookie" class="headerlink" title="cookie"></a>cookie</h4><p><code>Set-Cookie</code> 设置<br>同源下再次请求会自动带上<br>键值对形式，可以设置多个</p>
+<h4 id="cookie-属性"><a href="#cookie-属性" class="headerlink" title="cookie 属性"></a>cookie 属性</h4><p><code>max-age</code> 和 <code>expires</code> 设置过期时间<br><code>Secure</code> 只在 https 请求的时候才发送 cookie<br><code>HttpOnly</code> 无法通过 document.cookie 访问 cookie<br><code>domain</code> 设置二级域名可访问的 cookie (domain&#x3D;yang.com，a.yang.com, b.yang.com 都可以访问)</p>
+<h2 id="长连接"><a href="#长连接" class="headerlink" title="长连接"></a>长连接</h2><p><code>Connection</code>: <code>keep-alive | close</code><br>http&#x2F;1.1 无法并发，在网速慢的情况下还是会创建多个 ConnectionID</p>
 <h2 id="数据协商"><a href="#数据协商" class="headerlink" title="数据协商"></a>数据协商</h2><h3 id="分类"><a href="#分类" class="headerlink" title="分类"></a>分类</h3><p><strong>MIME types</strong></p>
 <ul>
 <li>请求</li>
@@ -143,41 +144,53 @@
 <h3 id="响应-header-Content"><a href="#响应-header-Content" class="headerlink" title="响应 header - Content"></a>响应 header - Content</h3><p><code>Content-Type</code>: 返回的数据格式<br><code>Content-Encoding</code>: 对应客户端请求的 <code>Accept-Encoding</code><br><code>Content-Language</code>: 对应客户端请求的 <code>Accept-Language</code></p>
 <h3 id="数据压缩"><a href="#数据压缩" class="headerlink" title="数据压缩"></a>数据压缩</h3><p><code>zlib 压缩</code><br><code>zlib.gzipSync(buffer)</code><br><code>Content-Encoding: gzip</code><br>没压缩前<br><img src="https://upload-images.jianshu.io/upload_images/2155778-5afe01229914904e.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="没压缩前"><br>压缩后<br><img src="https://upload-images.jianshu.io/upload_images/2155778-956289a5b202cf8c.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="zip 压缩后"></p>
 <h3 id="文件数据协商"><a href="#文件数据协商" class="headerlink" title="文件数据协商"></a>文件数据协商</h3><p><code>Content-Type: multipart/form-data</code></p>
-<h2 id="重定向-redirect"><a href="#重定向-redirect" class="headerlink" title="重定向 redirect"></a>重定向 redirect</h2><p>响应 header :  <code>Location: /url</code><br>响应 CODE: <code>302 301</code> 才可以跳转<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">response.writeHead(301, &#123;</span><br><span class="line">  &apos;Location&apos;: &apos;/new&apos;,</span><br><span class="line">&#125;)</span><br></pre></td></tr></table></figure></p>
+<h2 id="重定向-redirect"><a href="#重定向-redirect" class="headerlink" title="重定向 redirect"></a>重定向 redirect</h2><p>响应 header :  <code>Location: /url</code><br>响应 CODE: <code>302 301</code> 才可以跳转</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">response.writeHead(301, &#123;</span><br><span class="line">  &#x27;Location&#x27;: &#x27;/new&#x27;,</span><br><span class="line">&#125;)</span><br></pre></td></tr></table></figure>
+
 <h3 id="301-302-区别"><a href="#301-302-区别" class="headerlink" title="301 302 区别"></a>301 302 区别</h3><ul>
-<li><p>302 临时跳转<br>请求 <code>/</code> 重定向到 <code>/new</code><br>每次后台都会收到两次请求<br><img src="https://upload-images.jianshu.io/upload_images/2155778-bb5a7cb72d262697.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt=""></p>
+<li><p>302 临时跳转<br>请求 <code>/</code> 重定向到 <code>/new</code><br>每次后台都会收到两次请求<br><img src="https://upload-images.jianshu.io/upload_images/2155778-bb5a7cb72d262697.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240"></p>
 </li>
-<li><p>301 永久跳转<br>浏览器会尽量长的缓存 301 请求，需要慎重设置, 浏览器如果不清缓存会造成一直跳转<img src="https://upload-images.jianshu.io/upload_images/2155778-ffc8e98f9c1f3b8f.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt=""></p>
+<li><p>301 永久跳转<br>浏览器会尽量长的缓存 301 请求，需要慎重设置, 浏览器如果不清缓存会造成一直跳转<img src="https://upload-images.jianshu.io/upload_images/2155778-ffc8e98f9c1f3b8f.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240"></p>
 </li>
 </ul>
-<p>请求 <code>/</code> 重定向到 <code>/new</code><br>后台第一次会收到两次请求<br>第二次只会收到<code>/new</code><br><img src="https://upload-images.jianshu.io/upload_images/2155778-916b6f721227ff1e.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt=""></p>
-<h2 id="内容安全策略-CSP"><a href="#内容安全策略-CSP" class="headerlink" title="内容安全策略 CSP"></a>内容安全策略 CSP</h2><p><code>Content-Security-Policy:</code><br>限制资源获取<br>报告资源获取越权</p>
+<p>请求 <code>/</code> 重定向到 <code>/new</code><br>后台第一次会收到两次请求<br>第二次只会收到<code>/new</code><br><img src="https://upload-images.jianshu.io/upload_images/2155778-916b6f721227ff1e.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240"></p>
+<h2 id="内容安全策略-CSP"><a href="#内容安全策略-CSP" class="headerlink" title="内容安全策略 CSP"></a>内容安全策略 CSP</h2><p><code>Content-Security-Policy: </code><br>限制资源获取<br>报告资源获取越权</p>
 <h3 id="限制方式"><a href="#限制方式" class="headerlink" title="限制方式"></a>限制方式</h3><p>default-src 限制全局<br>制定资源类型</p>
-<h3 id="资源类型"><a href="#资源类型" class="headerlink" title="资源类型"></a>资源类型</h3><p><a href="https://developer.mozilla.org/zh-CN/docs/Web/HTTP/Headers/Content-Security-Policy__by_cnvoid" target="_blank" rel="noopener">MDN</a><br>connect-src / img-src / style-src / script-src 等</p>
-<h3 id="设置-CSP"><a href="#设置-CSP" class="headerlink" title="设置 CSP"></a>设置 CSP</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">// 服务端设置</span><br><span class="line">      &apos;Content-Security-Policy&apos;: &apos;default-src http: https:&apos; // 只能根据外链</span><br><span class="line">      &apos;Content-Security-Policy&apos;: &apos;script-src http: https:&apos; // 只限制script</span><br><span class="line">      &apos;Content-Security-Policy&apos;: &apos;default-src \&apos;self\&apos; https://cdn.bootcss.com&apos; // 只根据本域名, 增加 cdn.bootcss.com 域名</span><br><span class="line">      &apos;Content-Security-Policy&apos;: &apos;default-src \&apos;self\&apos;&apos; // 只根据本域名</span><br><span class="line">      &apos;Content-Security-Policy&apos;: &apos;default-src \&apos;self\&apos;; form-action \&apos;self\&apos;&apos; // 限制表单提交</span><br><span class="line">      &apos;Content-Security-Policy&apos;: &apos;default-src \&apos;self\&apos;; form-action \&apos;self\&apos;; report-uri /report&apos; // 服务器上报</span><br><span class="line">      &apos;Content-Security-Policy-Report-Only&apos;: &apos;default-src \&apos;self\&apos;; form-action \&apos;self\&apos;; report-uri /report&apos; // 服务器只上报，但是课加载</span><br></pre></td></tr></table></figure>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">// meta 标签设置</span><br><span class="line">  &lt;meta http-equiv=&quot;Content-Security-Policy&quot; content=&quot;default-src &apos;self&apos;; form-action &apos;self&apos;; report-uri /report&quot;&gt;</span><br></pre></td></tr></table></figure>
-<p>被 csp 禁止<img src="https://upload-images.jianshu.io/upload_images/2155778-d096021edee9b638.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt=""><br><img src="https://upload-images.jianshu.io/upload_images/2155778-87c1a85a19d701bd.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt=""></p>
-<p>设置 connect-src 可以限制 ajax 发送<img src="https://upload-images.jianshu.io/upload_images/2155778-bef2bd92061c5126.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt=""></p>
-<h2 id="nginx"><a href="#nginx" class="headerlink" title="nginx"></a>nginx</h2><h3 id="统一配置文件"><a href="#统一配置文件" class="headerlink" title="统一配置文件"></a>统一配置文件</h3><p>nginx.conf<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">include servers/*; // 此目录下的所有 .conf 文件</span><br></pre></td></tr></table></figure></p>
-<h3 id="代理"><a href="#代理" class="headerlink" title="代理"></a>代理</h3><p>访问 yang.com 下的 / 路径代理到本地 8888 端口<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">server &#123;</span><br><span class="line">  listen      80;</span><br><span class="line">  server_name yang.com; # 要配置 host 不然就访问外网了</span><br><span class="line"></span><br><span class="line">  location / &#123;</span><br><span class="line">    proxy_pass http://127.0.0.1:8888;</span><br><span class="line">    proxy_set_header Host $host; # host配置</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
-<h3 id="代理缓存"><a href="#代理缓存" class="headerlink" title="代理缓存"></a>代理缓存</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"># 缓存</span><br><span class="line">proxy_cache_path cache levels=1:2 keys_zone=my_cache:10m; # levels=1:2 是否创建二级文件夹, keys_zone 缓存大小</span><br><span class="line"></span><br><span class="line">server &#123;</span><br><span class="line">  listen      80;</span><br><span class="line">  server_name yang.com; # 要配置 host 不然就访问外网了</span><br><span class="line"></span><br><span class="line">  location / &#123;</span><br><span class="line">    proxy_cache my_cache; # 配置的缓存名</span><br><span class="line">    proxy_pass http://127.0.0.1:8888;</span><br><span class="line">    proxy_set_header Host $host; # host配置</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">&apos;Cache-Control&apos;: &apos;max-age=5, s-maxage=20&apos; 浏览器缓存 5s 代理服务器缓存 20s</span><br><span class="line">&apos;Cache-Control&apos;: &apos;max-age=5, s-maxage=20, private&apos; // 只可浏览器缓存</span><br><span class="line">&apos;Cache-Control&apos;: &apos;max-age=5, s-maxage=20, no-store&apos; // 都不可缓存</span><br><span class="line">&apos;Vary&apos;: &apos;X-Test-Cache&apos;  // 指定的 X-Test-Cache 头才可缓存，比如 req header 发了 X-Test-Cache： user-agent，</span><br></pre></td></tr></table></figure>
+<h3 id="资源类型"><a href="#资源类型" class="headerlink" title="资源类型"></a>资源类型</h3><p><a target="_blank" rel="noopener" href="https://developer.mozilla.org/zh-CN/docs/Web/HTTP/Headers/Content-Security-Policy__by_cnvoid">MDN</a><br>connect-src &#x2F; img-src &#x2F; style-src &#x2F; script-src 等</p>
+<h3 id="设置-CSP"><a href="#设置-CSP" class="headerlink" title="设置 CSP"></a>设置 CSP</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">// 服务端设置</span><br><span class="line">      &#x27;Content-Security-Policy&#x27;: &#x27;default-src http: https:&#x27; // 只能根据外链</span><br><span class="line">      &#x27;Content-Security-Policy&#x27;: &#x27;script-src http: https:&#x27; // 只限制script</span><br><span class="line">      &#x27;Content-Security-Policy&#x27;: &#x27;default-src \&#x27;self\&#x27; https://cdn.bootcss.com&#x27; // 只根据本域名, 增加 cdn.bootcss.com 域名</span><br><span class="line">      &#x27;Content-Security-Policy&#x27;: &#x27;default-src \&#x27;self\&#x27;&#x27; // 只根据本域名</span><br><span class="line">      &#x27;Content-Security-Policy&#x27;: &#x27;default-src \&#x27;self\&#x27;; form-action \&#x27;self\&#x27;&#x27; // 限制表单提交</span><br><span class="line">      &#x27;Content-Security-Policy&#x27;: &#x27;default-src \&#x27;self\&#x27;; form-action \&#x27;self\&#x27;; report-uri /report&#x27; // 服务器上报</span><br><span class="line">      &#x27;Content-Security-Policy-Report-Only&#x27;: &#x27;default-src \&#x27;self\&#x27;; form-action \&#x27;self\&#x27;; report-uri /report&#x27; // 服务器只上报，但是课加载</span><br></pre></td></tr></table></figure>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">// meta 标签设置</span><br><span class="line">  &lt;meta http-equiv=&quot;Content-Security-Policy&quot; content=&quot;default-src &#x27;self&#x27;; form-action &#x27;self&#x27;; report-uri /report&quot;&gt;</span><br></pre></td></tr></table></figure>
+<p>被 csp 禁止<img src="https://upload-images.jianshu.io/upload_images/2155778-d096021edee9b638.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240"><br><img src="https://upload-images.jianshu.io/upload_images/2155778-87c1a85a19d701bd.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240"></p>
+<p>设置 connect-src 可以限制 ajax 发送<img src="https://upload-images.jianshu.io/upload_images/2155778-bef2bd92061c5126.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240"></p>
+<h2 id="nginx"><a href="#nginx" class="headerlink" title="nginx"></a>nginx</h2><h3 id="统一配置文件"><a href="#统一配置文件" class="headerlink" title="统一配置文件"></a>统一配置文件</h3><p>nginx.conf</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">include servers/*; // 此目录下的所有 .conf 文件</span><br></pre></td></tr></table></figure>
+
+<h3 id="代理"><a href="#代理" class="headerlink" title="代理"></a>代理</h3><p>访问 yang.com 下的 &#x2F; 路径代理到本地 8888 端口</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">server &#123;</span><br><span class="line">  listen      80;</span><br><span class="line">  server_name yang.com; # 要配置 host 不然就访问外网了</span><br><span class="line"></span><br><span class="line">  location / &#123;</span><br><span class="line">    proxy_pass http://127.0.0.1:8888;</span><br><span class="line">    proxy_set_header Host $host; # host配置</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="代理缓存"><a href="#代理缓存" class="headerlink" title="代理缓存"></a>代理缓存</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"># 缓存</span><br><span class="line">proxy_cache_path cache levels=1:2 keys_zone=my_cache:10m; # levels=1:2 是否创建二级文件夹, keys_zone 缓存大小</span><br><span class="line"></span><br><span class="line">server &#123;</span><br><span class="line">  listen      80;</span><br><span class="line">  server_name yang.com; # 要配置 host 不然就访问外网了</span><br><span class="line"></span><br><span class="line">  location / &#123;</span><br><span class="line">    proxy_cache my_cache; # 配置的缓存名</span><br><span class="line">    proxy_pass http://127.0.0.1:8888;</span><br><span class="line">    proxy_set_header Host $host; # host配置</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">&#x27;Cache-Control&#x27;: &#x27;max-age=5, s-maxage=20&#x27; 浏览器缓存 5s 代理服务器缓存 20s</span><br><span class="line">&#x27;Cache-Control&#x27;: &#x27;max-age=5, s-maxage=20, private&#x27; // 只可浏览器缓存</span><br><span class="line">&#x27;Cache-Control&#x27;: &#x27;max-age=5, s-maxage=20, no-store&#x27; // 都不可缓存</span><br><span class="line">&#x27;Vary&#x27;: &#x27;X-Test-Cache&#x27;  // 指定的 X-Test-Cache 头才可缓存，比如 req header 发了 X-Test-Cache： user-agent， </span><br></pre></td></tr></table></figure>
 <blockquote>
 <ul>
 <li><code>s-maxage</code> 代理服务器缓存，对应多个客户端请求加速</li>
 <li><code>Vary</code> 当 <code>req.header</code>: <code>X-Test-Cache</code> 为 1 时发送后，代理缓存了 <code>X-Test-Cache</code> 为 1 这个请求，下次其他客户端请求 <code>X-Test-Cache</code> 为 1 则使用代理服务器缓存。可以使用 <strong>user-agent</strong> 进行代理服务器的设备缓存。</li>
 </ul>
 </blockquote>
-<h2 id="HTTPS"><a href="#HTTPS" class="headerlink" title="HTTPS"></a>HTTPS</h2><p><img src="https://upload-images.jianshu.io/upload_images/2155778-8fff24b9b3e28b3c.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt=""></p>
-<h3 id="生成密钥"><a href="#生成密钥" class="headerlink" title="生成密钥"></a>生成密钥</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">openssl req -x509 -newkey rsa:2048 -nodes -sha256 -keyout test-privkey.pem -out test-cert.pem</span><br></pre></td></tr></table></figure>
-<h3 id="nginx-生成-https-服务"><a href="#nginx-生成-https-服务" class="headerlink" title="nginx 生成 https 服务"></a>nginx 生成 https 服务</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">server &#123;</span><br><span class="line">  listen      443;</span><br><span class="line">  server_name yang.com; # 要配置 host 不然就访问外网了</span><br><span class="line"></span><br><span class="line">  ssl on;</span><br><span class="line">  ssl_certificate_key /usr/local/etc/openssl/test/test-privkey.pem; # 密钥路径</span><br><span class="line">  ssl_certificate /usr/local/etc/openssl/test/test-cert.pem; # 密钥路径</span><br><span class="line"></span><br><span class="line">  location / &#123;</span><br><span class="line">    proxy_cache my_cache; # 配置的缓存名</span><br><span class="line">    proxy_pass http://127.0.0.1:8888;</span><br><span class="line">    proxy_set_header Host $host; # host配置</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<h3 id="http-跳转到-https"><a href="#http-跳转到-https" class="headerlink" title="http 跳转到 https"></a>http 跳转到 https</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"># http 跳转到 https</span><br><span class="line">server &#123;</span><br><span class="line">  listen      80 default_server;</span><br><span class="line">  listen      [::]:80 default_server;</span><br><span class="line">  server_name yang.com;</span><br><span class="line">  return 302  https://$server_name$request_uri; # 进行 302 跳转</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h2 id="HTTPS"><a href="#HTTPS" class="headerlink" title="HTTPS"></a>HTTPS</h2><p><img src="https://upload-images.jianshu.io/upload_images/2155778-8fff24b9b3e28b3c.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240"></p>
+<h3 id="生成密钥"><a href="#生成密钥" class="headerlink" title="生成密钥"></a>生成密钥</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">openssl req -x509 -newkey rsa:2048 -nodes -sha256 -keyout test-privkey.pem -out test-cert.pem</span><br></pre></td></tr></table></figure>
+
+<h3 id="nginx-生成-https-服务"><a href="#nginx-生成-https-服务" class="headerlink" title="nginx 生成 https 服务"></a>nginx 生成 https 服务</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">server &#123;</span><br><span class="line">  listen      443;</span><br><span class="line">  server_name yang.com; # 要配置 host 不然就访问外网了</span><br><span class="line"></span><br><span class="line">  ssl on;</span><br><span class="line">  ssl_certificate_key /usr/local/etc/openssl/test/test-privkey.pem; # 密钥路径</span><br><span class="line">  ssl_certificate /usr/local/etc/openssl/test/test-cert.pem; # 密钥路径</span><br><span class="line"></span><br><span class="line">  location / &#123;</span><br><span class="line">    proxy_cache my_cache; # 配置的缓存名</span><br><span class="line">    proxy_pass http://127.0.0.1:8888;</span><br><span class="line">    proxy_set_header Host $host; # host配置</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="http-跳转到-https"><a href="#http-跳转到-https" class="headerlink" title="http 跳转到 https"></a>http 跳转到 https</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"># http 跳转到 https</span><br><span class="line">server &#123;</span><br><span class="line">  listen      80 default_server;</span><br><span class="line">  listen      [::]:80 default_server;</span><br><span class="line">  server_name yang.com;</span><br><span class="line">  return 302  https://$server_name$request_uri; # 进行 302 跳转</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
 <h2 id="HTTP2"><a href="#HTTP2" class="headerlink" title="HTTP2"></a>HTTP2</h2><p>开启 https 才可使用 http2</p>
 <h3 id="优势"><a href="#优势" class="headerlink" title="优势"></a>优势</h3><p>信道复用、分帧传输: 并发的 TCP 连接只创建一个 TCP<br>Server Push: 服务端主动发送</p>
-<h3 id="server-编写-http2"><a href="#server-编写-http2" class="headerlink" title="server 编写 http2"></a>server 编写 http2</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">// ...</span><br><span class="line">  if (request.url === &apos;/&apos;) &#123;</span><br><span class="line"></span><br><span class="line">    response.writeHead(200, &#123;</span><br><span class="line">      &apos;Content-Type&apos;: &apos;text/html&apos;,</span><br><span class="line">      &apos;Connection&apos;: &apos;close&apos;,</span><br><span class="line">      &apos;Link&apos;: &apos;&lt;/carbon.png&gt;; as=image; rel=preload&apos; // http2 需要进行服务端推送</span><br><span class="line">    &#125;)</span><br><span class="line"></span><br><span class="line">    response.end(html)</span><br><span class="line">  &#125;</span><br><span class="line">// ...</span><br></pre></td></tr></table></figure>
-<h3 id="nginx-将-http2-转为-http1-1"><a href="#nginx-将-http2-转为-http1-1" class="headerlink" title="nginx 将 http2 转为 http1.1"></a>nginx 将 http2 转为 http1.1</h3><p>nginx 可以将 http2 转成 1.1 版本传输给服务端<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">server &#123;</span><br><span class="line">  listen             443 http2;</span><br><span class="line">  server_name        yang.com; # 要配置 host 不然就访问外网了</span><br><span class="line">  http2_push_preload on; # 开启服务器推送</span><br><span class="line"></span><br><span class="line">  ssl on;</span><br><span class="line">  ssl_certificate_key /usr/local/etc/openssl/test/test-privkey.pem;</span><br><span class="line">  ssl_certificate     /usr/local/etc/openssl/test/test-cert.pem;</span><br><span class="line"></span><br><span class="line">  location / &#123;</span><br><span class="line">    proxy_cache my_cache; # 配置的缓存名</span><br><span class="line">    proxy_pass http://127.0.0.1:8888;</span><br><span class="line">    proxy_set_header Host $host; # host配置</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
-<h3 id="推送结果"><a href="#推送结果" class="headerlink" title="推送结果"></a>推送结果</h3><p><img src="https://upload-images.jianshu.io/upload_images/2155778-34c3f8e5f7461c30.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt=""><br><a href="https://http2.akamai.com/demo/http2-lab.html" target="_blank" rel="noopener">测试 HTTP2 性能</a><br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">$ curl -v https://yang.com </span><br><span class="line">$ curl -v -k https://yang.com // 打开不安全 ssl 限制</span><br><span class="line">$ curl -v -k --http1.1 https://yang.com // 指定 http1.1 访问</span><br></pre></td></tr></table></figure></p>
+<h3 id="server-编写-http2"><a href="#server-编写-http2" class="headerlink" title="server 编写 http2"></a>server 编写 http2</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">// ...</span><br><span class="line">  if (request.url === &#x27;/&#x27;) &#123;</span><br><span class="line"></span><br><span class="line">    response.writeHead(200, &#123;</span><br><span class="line">      &#x27;Content-Type&#x27;: &#x27;text/html&#x27;,</span><br><span class="line">      &#x27;Connection&#x27;: &#x27;close&#x27;,</span><br><span class="line">      &#x27;Link&#x27;: &#x27;&lt;/carbon.png&gt;; as=image; rel=preload&#x27; // http2 需要进行服务端推送</span><br><span class="line">    &#125;)</span><br><span class="line"></span><br><span class="line">    response.end(html)</span><br><span class="line">  &#125;</span><br><span class="line">// ...</span><br></pre></td></tr></table></figure>
 
+<h3 id="nginx-将-http2-转为-http1-1"><a href="#nginx-将-http2-转为-http1-1" class="headerlink" title="nginx 将 http2 转为 http1.1"></a>nginx 将 http2 转为 http1.1</h3><p>nginx 可以将 http2 转成 1.1 版本传输给服务端</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">server &#123;</span><br><span class="line">  listen             443 http2;</span><br><span class="line">  server_name        yang.com; # 要配置 host 不然就访问外网了</span><br><span class="line">  http2_push_preload on; # 开启服务器推送</span><br><span class="line"></span><br><span class="line">  ssl on;</span><br><span class="line">  ssl_certificate_key /usr/local/etc/openssl/test/test-privkey.pem;</span><br><span class="line">  ssl_certificate     /usr/local/etc/openssl/test/test-cert.pem;</span><br><span class="line"></span><br><span class="line">  location / &#123;</span><br><span class="line">    proxy_cache my_cache; # 配置的缓存名</span><br><span class="line">    proxy_pass http://127.0.0.1:8888;</span><br><span class="line">    proxy_set_header Host $host; # host配置</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="推送结果"><a href="#推送结果" class="headerlink" title="推送结果"></a>推送结果</h3><p><img src="https://upload-images.jianshu.io/upload_images/2155778-34c3f8e5f7461c30.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240"><br><a target="_blank" rel="noopener" href="https://http2.akamai.com/demo/http2-lab.html">测试 HTTP2 性能</a></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">$ curl -v https://yang.com </span><br><span class="line">$ curl -v -k https://yang.com // 打开不安全 ssl 限制</span><br><span class="line">$ curl -v -k --http1.1 https://yang.com // 指定 http1.1 访问</span><br></pre></td></tr></table></figure>
             </div>
         </div>
     </article>
@@ -186,7 +199,7 @@
     
 <nav class="article-nav">
   
-    <a href="/2018/10/28/编写React组件要点-单一责任原则/" id="article-nav-newer" class="article-nav-link-wrap prev">
+    <a href="/2018/10/28/%E7%BC%96%E5%86%99React%E7%BB%84%E4%BB%B6%E8%A6%81%E7%82%B9-%E5%8D%95%E4%B8%80%E8%B4%A3%E4%BB%BB%E5%8E%9F%E5%88%99/" id="article-nav-newer" class="article-nav-link-wrap prev">
       <strong class="article-nav-caption">Newer</strong>
       <div class="article-nav-title">
         
@@ -196,7 +209,7 @@
     </a>
   
   
-    <a href="/2018/04/17/JavaScript中的垃圾回收/" id="article-nav-older" class="article-nav-link-wrap next">
+    <a href="/2018/04/17/JavaScript%E4%B8%AD%E7%9A%84%E5%9E%83%E5%9C%BE%E5%9B%9E%E6%94%B6/" id="article-nav-older" class="article-nav-link-wrap next">
       <strong class="article-nav-caption">Older</strong>
       <div class="article-nav-title">JavaScript 中的垃圾回收</div>
     </a>
@@ -217,7 +230,7 @@
   <div class="widget-wrap">
     <h3 class="widget-title">Tags</h3>
     <div class="widget-body">
-      <ul class="tag-list"><li class="tag-list-item"><a class="tag-list-link" href="/tags/JavaScript/">JavaScript</a><span class="tag-list-count">6</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/React/">React</a><span class="tag-list-count">5</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/React-Tips/">React Tips</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Redux/">Redux</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Vue/">Vue</a><span class="tag-list-count">4</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/css/">css</a><span class="tag-list-count">3</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/dom/">dom</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/http/">http</a><span class="tag-list-count">5</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/sftp/">sftp</a><span class="tag-list-count">1</span></li></ul>
+      <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/JavaScript/" rel="tag">JavaScript</a><span class="tag-list-count">6</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/React/" rel="tag">React</a><span class="tag-list-count">5</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/React-Tips/" rel="tag">React Tips</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Redux/" rel="tag">Redux</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Vue/" rel="tag">Vue</a><span class="tag-list-count">4</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/css/" rel="tag">css</a><span class="tag-list-count">3</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/dom/" rel="tag">dom</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/http/" rel="tag">http</a><span class="tag-list-count">5</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/sftp/" rel="tag">sftp</a><span class="tag-list-count">1</span></li></ul>
     </div>
   </div>
 
@@ -242,23 +255,23 @@
       <ul>
         
           <li>
-            <a href="/2018/10/28/编写React组件要点-单一责任原则/">编写React组件要点-单一责任原则</a>
+            <a href="/2018/10/28/%E7%BC%96%E5%86%99React%E7%BB%84%E4%BB%B6%E8%A6%81%E7%82%B9-%E5%8D%95%E4%B8%80%E8%B4%A3%E4%BB%BB%E5%8E%9F%E5%88%99/">编写React组件要点-单一责任原则</a>
           </li>
         
           <li>
-            <a href="/2018/10/26/HTTP相关系统知识/">HTTP相关系统知识</a>
+            <a href="/2018/10/26/HTTP%E7%9B%B8%E5%85%B3%E7%B3%BB%E7%BB%9F%E7%9F%A5%E8%AF%86/">HTTP相关系统知识</a>
           </li>
         
           <li>
-            <a href="/2018/04/17/JavaScript中的垃圾回收/">JavaScript 中的垃圾回收</a>
+            <a href="/2018/04/17/JavaScript%E4%B8%AD%E7%9A%84%E5%9E%83%E5%9C%BE%E5%9B%9E%E6%94%B6/">JavaScript 中的垃圾回收</a>
           </li>
         
           <li>
-            <a href="/2018/04/11/实现一个 Vue (1) 实现响应式原理/">实现一个 Vue (1) 实现响应式原理</a>
+            <a href="/2018/04/11/%E5%AE%9E%E7%8E%B0%E4%B8%80%E4%B8%AA%20Vue%20(1)%20%E5%AE%9E%E7%8E%B0%E5%93%8D%E5%BA%94%E5%BC%8F%E5%8E%9F%E7%90%86/">实现一个 Vue (1) 实现响应式原理</a>
           </li>
         
           <li>
-            <a href="/2018/04/03/学习并实现 redux(1) - 基础 API/">学习并实现 redux(1) - 基础 API</a>
+            <a href="/2018/04/03/%E5%AD%A6%E4%B9%A0%E5%B9%B6%E5%AE%9E%E7%8E%B0%20redux(1)%20-%20%E5%9F%BA%E7%A1%80%20API/">学习并实现 redux(1) - 基础 API</a>
           </li>
         
       </ul>
@@ -272,7 +285,7 @@
         <div class="site-info">
             <address>
                 &copy; 2014 <a href="http://yoursite.com">Minimalist</a> All Right Reserved. <br/>
-                Powered by <a href="http://hexo.io">Hexo</a>. Theme by <a href="http://zzoman.com">ZZOMAN</a>
+                Powered by <a target="_blank" rel="noopener" href="http://hexo.io">Hexo</a>. Theme by <a target="_blank" rel="noopener" href="http://zzoman.com">ZZOMAN</a>
             </address>
         </div>
     </footer>

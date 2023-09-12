@@ -9,7 +9,9 @@
     
     <link rel="alternative" href="/atom.xml" title="Minimalist" type="application/atom+xml">
     
-    <link rel="stylesheet" href="/css/style.css">
+    
+<link rel="stylesheet" href="/css/style.css">
+
     
     <link rel="stylesheet" href="/libs/fancybox/jquery.fancybox.css" charset="utf-8">
     
@@ -17,7 +19,7 @@
     <script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
     <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
     <![endif]-->
-</head>
+<meta name="generator" content="Hexo 6.3.0"></head>
 <body class="site">
     <header class="site-header">
         <h1 class="site-title"><a href="/">Minimalist</a></h1>
@@ -27,7 +29,7 @@
                 <li><a href="/archives">Archives</a></li>
                 
                 
-                <li><a href="https://github.com/sfyr111" title="git">GITHUB</a></li>
+                <li><a target="_blank" rel="noopener" href="https://github.com/sfyr111" title="git">GITHUB</a></li>
                 
                 <li><a class="toggle-search" href="#search">search</a></li>
             </ul>
@@ -47,7 +49,7 @@
             
             <header class="article-header">
                 <div class="article-meta">
-                    <a href="/2018/02/05/前端基础重点回顾6-渲染机制、页面性能优化、错误监控/" class="article-date">
+                    <a href="/2018/02/05/%E5%89%8D%E7%AB%AF%E5%9F%BA%E7%A1%80%E9%87%8D%E7%82%B9%E5%9B%9E%E9%A1%BE6-%E6%B8%B2%E6%9F%93%E6%9C%BA%E5%88%B6%E3%80%81%E9%A1%B5%E9%9D%A2%E6%80%A7%E8%83%BD%E4%BC%98%E5%8C%96%E3%80%81%E9%94%99%E8%AF%AF%E7%9B%91%E6%8E%A7/" class="article-date">
   <time datetime="2018-02-05T12:26:55.000Z">2018-02-05</time>
 </a>
                     
@@ -59,7 +61,7 @@
                 </div>
                 
     <h1 class="article-title" itemprop="name">
-      <a href="/2018/02/05/前端基础重点回顾6-渲染机制、页面性能优化、错误监控/">前端基础重点回顾6:渲染机制、页面性能优化、错误监控</a>
+      <a href="/2018/02/05/%E5%89%8D%E7%AB%AF%E5%9F%BA%E7%A1%80%E9%87%8D%E7%82%B9%E5%9B%9E%E9%A1%BE6-%E6%B8%B2%E6%9F%93%E6%9C%BA%E5%88%B6%E3%80%81%E9%A1%B5%E9%9D%A2%E6%80%A7%E8%83%BD%E4%BC%98%E5%8C%96%E3%80%81%E9%94%99%E8%AF%AF%E7%9B%91%E6%8E%A7/">前端基础重点回顾6:渲染机制、页面性能优化、错误监控</a>
     </h1>
 
             </header>
@@ -70,18 +72,18 @@
 <li>DTD(document type definition, 文档类型定义) 是一些列的语法规则，用来定义HTML文件类型。用来给浏览器判断文档类型。</li>
 </ul>
 <h3 id="声明文档类型"><a href="#声明文档类型" class="headerlink" title="声明文档类型"></a>声明文档类型</h3><ul>
-<li>HTML5 &lt;!DOCTYPE html&gt;</li>
+<li>HTML5 <!DOCTYPE html></li>
 <li>HTML 4.01 有宽松模式和严格模式(不包括展示性和弃用的元素)</li>
 </ul>
-<h3 id="浏览器渲染过程"><a href="#浏览器渲染过程" class="headerlink" title="浏览器渲染过程"></a>浏览器渲染过程</h3><p><img src="http://upload-images.jianshu.io/upload_images/2155778-ef5de6d4ba45be14.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt=""></p>
+<h3 id="浏览器渲染过程"><a href="#浏览器渲染过程" class="headerlink" title="浏览器渲染过程"></a>浏览器渲染过程</h3><p><img src="http://upload-images.jianshu.io/upload_images/2155778-ef5de6d4ba45be14.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240"></p>
 <ul>
-<li><p>HTML通过HTML解析转化成DOM树<img src="http://upload-images.jianshu.io/upload_images/2155778-fec1b2b8f9f20c16.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt=""></p>
+<li><p>HTML通过HTML解析转化成DOM树<img src="http://upload-images.jianshu.io/upload_images/2155778-fec1b2b8f9f20c16.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240"></p>
 </li>
 <li><p>Style样式通过CSS解析转化成Style规则<img src="http://upload-images.jianshu.io/upload_images/2155778-b0409bf33090df6d.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="image.png"></p>
 </li>
-<li><p>DOM树和Style规则结合成渲染树(Render Tree)<img src="http://upload-images.jianshu.io/upload_images/2155778-bab125871f5c883b.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt=""></p>
+<li><p>DOM树和Style规则结合成渲染树(Render Tree)<img src="http://upload-images.jianshu.io/upload_images/2155778-bab125871f5c883b.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240"></p>
 </li>
-<li><p>然后渲染树通过layout 计算出各元素在浏览器上的宽高颜色位置等属性，最后在浏览器上进行绘制。<img src="http://upload-images.jianshu.io/upload_images/2155778-94171718e5c6a199.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt=""></p>
+<li><p>然后渲染树通过layout 计算出各元素在浏览器上的宽高颜色位置等属性，最后在浏览器上进行绘制。<img src="http://upload-images.jianshu.io/upload_images/2155778-94171718e5c6a199.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240"></p>
 </li>
 </ul>
 <h3 id="重排Reflow"><a href="#重排Reflow" class="headerlink" title="重排Reflow"></a>重排Reflow</h3><blockquote>
@@ -111,10 +113,10 @@
 </blockquote>
 <h4 id="减少Reflow-Repaint的开销"><a href="#减少Reflow-Repaint的开销" class="headerlink" title="减少Reflow Repaint的开销"></a>减少Reflow Repaint的开销</h4><blockquote>
 <ul>
-<li>DOM拼接后一次append 到页面上(</li><li>列表</li>)
+<li>DOM拼接后一次append 到页面上(<li>列表</li>)</li>
 </ul>
 </blockquote>
-<h2 id="页面性能优化"><a href="#页面性能优化" class="headerlink" title="页面性能优化"></a>页面性能优化</h2><h3 id="打开浏览器，在地址栏输入-url-直到页面展现，整个过程发生了什么？"><a href="#打开浏览器，在地址栏输入-url-直到页面展现，整个过程发生了什么？" class="headerlink" title="打开浏览器，在地址栏输入 url 直到页面展现，整个过程发生了什么？"></a>打开浏览器，在地址栏输入 url 直到页面展现，整个过程发生了什么？</h3><blockquote>
+<h2 id="页面性能优化"><a href="#页面性能优化" class="headerlink" title="页面性能优化"></a>页面性能优化</h2><h3 id="打开浏览器，在地址栏输入-url-直到页面展现，整个过程发生了什么？"><a href="#打开浏览器，在地址栏输入-url-直到页面展现，整个过程发生了什么？" class="headerlink" title="打开浏览器，在地址栏输入 url 直到页面展现，整个过程发生了什么？"></a>打开浏览器，在地址栏输入 url 直到页面展现，整个过程发生了什么？</h3><blockquote>
 <ul>
 <li>DNS(Domain Name System)域名系统预解析(应用层)，输入url后,浏览器会进行DNS解析出, 对应服务器的ip地址.</li>
 <li>浏览器会将用户输入的请求信息打包发送给nginx服务器.</li>
@@ -155,11 +157,10 @@
 <th>场景</th>
 </tr>
 </thead>
-<tbody>
-<tr>
+<tbody><tr>
 <td>Cache-Control</td>
 <td>在多少秒内进行缓存</td>
-<td>public, max-age=秒</td>
+<td>public, max-age&#x3D;秒</td>
 <td>是</td>
 <td>固定时间</td>
 <td>客户端服务端时间可能不一致</td>
@@ -174,8 +175,7 @@
 <td>客户端服务端时间可能不一致</td>
 <td>兼容http1.0</td>
 </tr>
-</tbody>
-</table>
+</tbody></table>
 <blockquote>
 <ul>
 <li>协商缓存:<br>客户端需请求服务端进行比较缓存条件，符合条件则返回<code>304</code>使用缓存资源</li>
@@ -194,8 +194,7 @@
 <th>场景</th>
 </tr>
 </thead>
-<tbody>
-<tr>
+<tbody><tr>
 <td>ETag</td>
 <td>If-None-Match</td>
 <td>固定字符串</td>
@@ -213,10 +212,11 @@
 <td>否</td>
 <td>浏览器根据返回的时间自己决定缓存</td>
 <td>浏览器差异</td>
+<td></td>
 </tr>
-</tbody>
-</table>
-<h3 id="DNS-预解析"><a href="#DNS-预解析" class="headerlink" title="DNS 预解析"></a>DNS 预解析</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">// 强制打开a 标签的DNS 预解析，https 默认关闭a 标签的DNS 预解析</span><br><span class="line">&lt;meta http-equiv=&quot;x-dns-prefetch-control&quot; content=&quot;on&quot;&gt;</span><br><span class="line">&lt;link rel=&quot;dns-prefatch&quot; href=&quot;url&quot;&gt;</span><br></pre></td></tr></table></figure>
+</tbody></table>
+<h3 id="DNS-预解析"><a href="#DNS-预解析" class="headerlink" title="DNS 预解析"></a>DNS 预解析</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">// 强制打开a 标签的DNS 预解析，https 默认关闭a 标签的DNS 预解析</span><br><span class="line">&lt;meta http-equiv=&quot;x-dns-prefetch-control&quot; content=&quot;on&quot;&gt;</span><br><span class="line">&lt;link rel=&quot;dns-prefatch&quot; href=&quot;url&quot;&gt;</span><br></pre></td></tr></table></figure>
+
 <h2 id="前端错误监控"><a href="#前端错误监控" class="headerlink" title="前端错误监控"></a>前端错误监控</h2><blockquote>
 <ul>
 <li>保证产品质量</li>
@@ -224,11 +224,12 @@
 <li>资源加载错误收集</li>
 </ul>
 </blockquote>
-<h3 id="即时运行错误的捕获方式"><a href="#即时运行错误的捕获方式" class="headerlink" title="即时运行错误的捕获方式"></a>即时运行错误的捕获方式</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">// 代码块使用错误捕获</span><br><span class="line">try &#123;&#125; catch (e) &#123;&#125;</span><br><span class="line"></span><br><span class="line">// 使用window对象错误事件捕获</span><br><span class="line">window.onerror = function(e) &#123;&#125;</span><br><span class="line">window.addEventListener(&apos;error&apos;, function(e) &#123;&#125;)</span><br></pre></td></tr></table></figure>
+<h3 id="即时运行错误的捕获方式"><a href="#即时运行错误的捕获方式" class="headerlink" title="即时运行错误的捕获方式"></a>即时运行错误的捕获方式</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">// 代码块使用错误捕获</span><br><span class="line">try &#123;&#125; catch (e) &#123;&#125;</span><br><span class="line"></span><br><span class="line">// 使用window对象错误事件捕获</span><br><span class="line">window.onerror = function(e) &#123;&#125;</span><br><span class="line">window.addEventListener(&#x27;error&#x27;, function(e) &#123;&#125;)</span><br></pre></td></tr></table></figure>
+
 <h3 id="资源加载错误"><a href="#资源加载错误" class="headerlink" title="资源加载错误"></a>资源加载错误</h3><p><code>&lt;img&gt;</code>等资源加载错误不会冒泡，<code>window.onerror</code> 无法捕获到标签资源加载的错误</p>
 <ul>
 <li><p>dom 捕获</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">elScript.onerror = function (e)&#123;&#125;</span><br><span class="line">elImg.onerror = function (e)&#123;&#125;</span><br><span class="line">...</span><br></pre></td></tr></table></figure>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">elScript.onerror = function (e)&#123;&#125;</span><br><span class="line">elImg.onerror = function (e)&#123;&#125;</span><br><span class="line">...</span><br></pre></td></tr></table></figure>
 </li>
 <li><p>跨域js 错误捕获</p>
 <blockquote>
@@ -240,23 +241,21 @@
 <p>script 标签增加crossorigin 属性<br><code>&lt;script crossorigin src=&#39;url&#39;&gt;&lt;/script&gt;</code></p>
 </blockquote>
 <ul>
-<li><p>获取成功加载的资源</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">performance.getEntries()</span><br><span class="line">performance.getEntries().map(item =&gt; item.name) // 获取所有成功资源加载地址</span><br></pre></td></tr></table></figure>
-</li>
-<li><p>通过Error 事件捕获</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">window.addEventListener(&apos;error&apos;, function(e) &#123;</span><br><span class="line">  console.log(&apos;捕获&apos;, e) // 将会捕获到资源加载错误</span><br><span class="line">&#125;, true)</span><br><span class="line">&lt;script src=&apos;错误url&apos;&gt;&lt;/script&gt;</span><br></pre></td></tr></table></figure>
-</li>
+<li>获取成功加载的资源<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">performance.getEntries()</span><br><span class="line">performance.getEntries().map(item =&gt; item.name) // 获取所有成功资源加载地址</span><br></pre></td></tr></table></figure></li>
+<li>通过Error 事件捕获<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">window.addEventListener(&#x27;error&#x27;, function(e) &#123;</span><br><span class="line">  console.log(&#x27;捕获&#x27;, e) // 将会捕获到资源加载错误</span><br><span class="line">&#125;, true)</span><br><span class="line">&lt;script src=&#x27;错误url&#x27;&gt;&lt;/script&gt;</span><br></pre></td></tr></table></figure></li>
 </ul>
 <h3 id="上报错误的基本原理"><a href="#上报错误的基本原理" class="headerlink" title="上报错误的基本原理"></a>上报错误的基本原理</h3><blockquote>
 <ul>
-<li><p>采用Ajax 通信方式上报</p>
-</li>
-<li><p>利用Image 对象上报</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">&lt;script&gt;</span><br><span class="line">  new Image().src = &apos;url?k=val&apos;  // 会发送一个请求用于上报</span><br><span class="line">&lt;/script&gt;</span><br></pre></td></tr></table></figure>
-</li>
+<li>采用Ajax 通信方式上报</li>
 </ul>
 </blockquote>
-<p><a href="http://www.alloyteam.com/2014/03/front-end-data-monitoring/" target="_blank" rel="noopener">参考</a></p>
+<blockquote>
+<ul>
+<li>利用Image 对象上报</li>
+</ul>
+</blockquote>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">&lt;script&gt;</span><br><span class="line">  new Image().src = &#x27;url?k=val&#x27;  // 会发送一个请求用于上报</span><br><span class="line">&lt;/script&gt;</span><br></pre></td></tr></table></figure>
+<p><a target="_blank" rel="noopener" href="http://www.alloyteam.com/2014/03/front-end-data-monitoring/">参考</a></p>
 
             </div>
         </div>
@@ -266,7 +265,7 @@
     
 <nav class="article-nav">
   
-    <a href="/2018/03/09/学习并实现react1/" id="article-nav-newer" class="article-nav-link-wrap prev">
+    <a href="/2018/03/09/%E5%AD%A6%E4%B9%A0%E5%B9%B6%E5%AE%9E%E7%8E%B0react1/" id="article-nav-newer" class="article-nav-link-wrap prev">
       <strong class="article-nav-caption">Newer</strong>
       <div class="article-nav-title">
         
@@ -276,7 +275,7 @@
     </a>
   
   
-    <a href="/2018/01/31/前端基础重点回顾5-XSS、CSRF攻击/" id="article-nav-older" class="article-nav-link-wrap next">
+    <a href="/2018/01/31/%E5%89%8D%E7%AB%AF%E5%9F%BA%E7%A1%80%E9%87%8D%E7%82%B9%E5%9B%9E%E9%A1%BE5-XSS%E3%80%81CSRF%E6%94%BB%E5%87%BB/" id="article-nav-older" class="article-nav-link-wrap next">
       <strong class="article-nav-caption">Older</strong>
       <div class="article-nav-title">前端基础重点回顾5:XSS、CSRF攻击</div>
     </a>
@@ -297,7 +296,7 @@
   <div class="widget-wrap">
     <h3 class="widget-title">Tags</h3>
     <div class="widget-body">
-      <ul class="tag-list"><li class="tag-list-item"><a class="tag-list-link" href="/tags/JavaScript/">JavaScript</a><span class="tag-list-count">6</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/React/">React</a><span class="tag-list-count">5</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/React-Tips/">React Tips</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Redux/">Redux</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Vue/">Vue</a><span class="tag-list-count">4</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/css/">css</a><span class="tag-list-count">3</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/dom/">dom</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/http/">http</a><span class="tag-list-count">5</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/sftp/">sftp</a><span class="tag-list-count">1</span></li></ul>
+      <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/JavaScript/" rel="tag">JavaScript</a><span class="tag-list-count">6</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/React/" rel="tag">React</a><span class="tag-list-count">5</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/React-Tips/" rel="tag">React Tips</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Redux/" rel="tag">Redux</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Vue/" rel="tag">Vue</a><span class="tag-list-count">4</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/css/" rel="tag">css</a><span class="tag-list-count">3</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/dom/" rel="tag">dom</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/http/" rel="tag">http</a><span class="tag-list-count">5</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/sftp/" rel="tag">sftp</a><span class="tag-list-count">1</span></li></ul>
     </div>
   </div>
 
@@ -322,23 +321,23 @@
       <ul>
         
           <li>
-            <a href="/2018/10/28/编写React组件要点-单一责任原则/">编写React组件要点-单一责任原则</a>
+            <a href="/2018/10/28/%E7%BC%96%E5%86%99React%E7%BB%84%E4%BB%B6%E8%A6%81%E7%82%B9-%E5%8D%95%E4%B8%80%E8%B4%A3%E4%BB%BB%E5%8E%9F%E5%88%99/">编写React组件要点-单一责任原则</a>
           </li>
         
           <li>
-            <a href="/2018/10/26/HTTP相关系统知识/">HTTP相关系统知识</a>
+            <a href="/2018/10/26/HTTP%E7%9B%B8%E5%85%B3%E7%B3%BB%E7%BB%9F%E7%9F%A5%E8%AF%86/">HTTP相关系统知识</a>
           </li>
         
           <li>
-            <a href="/2018/04/17/JavaScript中的垃圾回收/">JavaScript 中的垃圾回收</a>
+            <a href="/2018/04/17/JavaScript%E4%B8%AD%E7%9A%84%E5%9E%83%E5%9C%BE%E5%9B%9E%E6%94%B6/">JavaScript 中的垃圾回收</a>
           </li>
         
           <li>
-            <a href="/2018/04/11/实现一个 Vue (1) 实现响应式原理/">实现一个 Vue (1) 实现响应式原理</a>
+            <a href="/2018/04/11/%E5%AE%9E%E7%8E%B0%E4%B8%80%E4%B8%AA%20Vue%20(1)%20%E5%AE%9E%E7%8E%B0%E5%93%8D%E5%BA%94%E5%BC%8F%E5%8E%9F%E7%90%86/">实现一个 Vue (1) 实现响应式原理</a>
           </li>
         
           <li>
-            <a href="/2018/04/03/学习并实现 redux(1) - 基础 API/">学习并实现 redux(1) - 基础 API</a>
+            <a href="/2018/04/03/%E5%AD%A6%E4%B9%A0%E5%B9%B6%E5%AE%9E%E7%8E%B0%20redux(1)%20-%20%E5%9F%BA%E7%A1%80%20API/">学习并实现 redux(1) - 基础 API</a>
           </li>
         
       </ul>
@@ -352,7 +351,7 @@
         <div class="site-info">
             <address>
                 &copy; 2014 <a href="http://yoursite.com">Minimalist</a> All Right Reserved. <br/>
-                Powered by <a href="http://hexo.io">Hexo</a>. Theme by <a href="http://zzoman.com">ZZOMAN</a>
+                Powered by <a target="_blank" rel="noopener" href="http://hexo.io">Hexo</a>. Theme by <a target="_blank" rel="noopener" href="http://zzoman.com">ZZOMAN</a>
             </address>
         </div>
     </footer>

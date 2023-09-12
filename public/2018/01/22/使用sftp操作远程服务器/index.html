@@ -9,7 +9,9 @@
     
     <link rel="alternative" href="/atom.xml" title="Minimalist" type="application/atom+xml">
     
-    <link rel="stylesheet" href="/css/style.css">
+    
+<link rel="stylesheet" href="/css/style.css">
+
     
     <link rel="stylesheet" href="/libs/fancybox/jquery.fancybox.css" charset="utf-8">
     
@@ -17,7 +19,7 @@
     <script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
     <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
     <![endif]-->
-</head>
+<meta name="generator" content="Hexo 6.3.0"></head>
 <body class="site">
     <header class="site-header">
         <h1 class="site-title"><a href="/">Minimalist</a></h1>
@@ -27,7 +29,7 @@
                 <li><a href="/archives">Archives</a></li>
                 
                 
-                <li><a href="https://github.com/sfyr111" title="git">GITHUB</a></li>
+                <li><a target="_blank" rel="noopener" href="https://github.com/sfyr111" title="git">GITHUB</a></li>
                 
                 <li><a class="toggle-search" href="#search">search</a></li>
             </ul>
@@ -47,7 +49,7 @@
             
             <header class="article-header">
                 <div class="article-meta">
-                    <a href="/2018/01/22/使用sftp操作远程服务器/" class="article-date">
+                    <a href="/2018/01/22/%E4%BD%BF%E7%94%A8sftp%E6%93%8D%E4%BD%9C%E8%BF%9C%E7%A8%8B%E6%9C%8D%E5%8A%A1%E5%99%A8/" class="article-date">
   <time datetime="2018-01-22T05:07:02.000Z">2018-01-22</time>
 </a>
                     
@@ -56,24 +58,26 @@
   </div>
 
                     
-  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/sftp/">sftp</a></li></ul>
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/sftp/" rel="tag">sftp</a></li></ul>
 
                 </div>
                 
     <h1 class="article-title" itemprop="name">
-      <a href="/2018/01/22/使用sftp操作远程服务器/">使用sftp操作远程服务器</a>
+      <a href="/2018/01/22/%E4%BD%BF%E7%94%A8sftp%E6%93%8D%E4%BD%9C%E8%BF%9C%E7%A8%8B%E6%9C%8D%E5%8A%A1%E5%99%A8/">使用sftp操作远程服务器</a>
     </h1>
 
             </header>
             
             <div class="article-body">
-                <h2 id="远程连接服务器"><a href="#远程连接服务器" class="headerlink" title="远程连接服务器"></a>远程连接服务器</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">sftp user@xxx.xxx.xxx</span><br><span class="line">exit // 退出</span><br></pre></td></tr></table></figure>
-<h2 id="与Bash相似的功能"><a href="#与Bash相似的功能" class="headerlink" title="与Bash相似的功能"></a>与Bash相似的功能</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">pwd // 查看当前路径</span><br><span class="line">ls </span><br><span class="line">ls -la</span><br><span class="line">cd</span><br></pre></td></tr></table></figure>
-<h2 id="进行本地操作"><a href="#进行本地操作" class="headerlink" title="进行本地操作"></a>进行本地操作</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">lpwd // 查看本地路径</span><br><span class="line">lls</span><br><span class="line">lcd</span><br></pre></td></tr></table></figure>
-<h2 id="使用sftp传输文件"><a href="#使用sftp传输文件" class="headerlink" title="使用sftp传输文件"></a>使用sftp传输文件</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">// 下载文件</span><br><span class="line">get remote_file_name</span><br><span class="line">// 下载重命名</span><br><span class="line">get remote_file_name local_file_name</span><br><span class="line">// 下载文件夹</span><br><span class="line">get -r some_directory_name</span><br><span class="line">// 下载并保持信息</span><br><span class="line">get -Pr some_directory_name</span><br></pre></td></tr></table></figure>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">// 上传文件</span><br><span class="line">put local_file_name</span><br><span class="line">// 上传文件夹</span><br><span class="line">put -r local_directory_name</span><br></pre></td></tr></table></figure>
-<h2 id="查看磁盘"><a href="#查看磁盘" class="headerlink" title="查看磁盘"></a>查看磁盘</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">df -h // 查看磁盘大小</span><br><span class="line">! // 切换本地使用bash命令</span><br><span class="line">exit // 返回远程服务器进行sftp操作</span><br></pre></td></tr></table></figure>
-<p><a href="https://linuxstory.org/how-to-use-sftp-to-securely-transfer-files-with-a-remote-server/" target="_blank" rel="noopener">参考文章</a></p>
+                <h2 id="远程连接服务器"><a href="#远程连接服务器" class="headerlink" title="远程连接服务器"></a>远程连接服务器</h2><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">sftp user@xxx.xxx.xxx</span><br><span class="line">exit // 退出</span><br></pre></td></tr></table></figure>
+<h2 id="与Bash相似的功能"><a href="#与Bash相似的功能" class="headerlink" title="与Bash相似的功能"></a>与Bash相似的功能</h2><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">pwd // 查看当前路径</span><br><span class="line">ls </span><br><span class="line">ls -la</span><br><span class="line">cd</span><br></pre></td></tr></table></figure>
+<h2 id="进行本地操作"><a href="#进行本地操作" class="headerlink" title="进行本地操作"></a>进行本地操作</h2><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">lpwd // 查看本地路径</span><br><span class="line">lls</span><br><span class="line">lcd</span><br></pre></td></tr></table></figure>
+<h2 id="使用sftp传输文件"><a href="#使用sftp传输文件" class="headerlink" title="使用sftp传输文件"></a>使用sftp传输文件</h2><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">// 下载文件</span><br><span class="line">get remote_file_name</span><br><span class="line">// 下载重命名</span><br><span class="line">get remote_file_name local_file_name</span><br><span class="line">// 下载文件夹</span><br><span class="line">get -r some_directory_name</span><br><span class="line">// 下载并保持信息</span><br><span class="line">get -Pr some_directory_name</span><br></pre></td></tr></table></figure>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">// 上传文件</span><br><span class="line">put local_file_name</span><br><span class="line">// 上传文件夹</span><br><span class="line">put -r local_directory_name</span><br></pre></td></tr></table></figure>
+
+<h2 id="查看磁盘"><a href="#查看磁盘" class="headerlink" title="查看磁盘"></a>查看磁盘</h2><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">df -h // 查看磁盘大小</span><br><span class="line">! // 切换本地使用bash命令</span><br><span class="line">exit // 返回远程服务器进行sftp操作</span><br></pre></td></tr></table></figure>
+
+<p><a target="_blank" rel="noopener" href="https://linuxstory.org/how-to-use-sftp-to-securely-transfer-files-with-a-remote-server/">参考文章</a></p>
 
             </div>
         </div>
@@ -83,7 +87,7 @@
     
 <nav class="article-nav">
   
-    <a href="/2018/01/22/CSS3总结/" id="article-nav-newer" class="article-nav-link-wrap prev">
+    <a href="/2018/01/22/CSS3%E6%80%BB%E7%BB%93/" id="article-nav-newer" class="article-nav-link-wrap prev">
       <strong class="article-nav-caption">Newer</strong>
       <div class="article-nav-title">
         
@@ -93,7 +97,7 @@
     </a>
   
   
-    <a href="/2018/01/22/数组去重/" id="article-nav-older" class="article-nav-link-wrap next">
+    <a href="/2018/01/22/%E6%95%B0%E7%BB%84%E5%8E%BB%E9%87%8D/" id="article-nav-older" class="article-nav-link-wrap next">
       <strong class="article-nav-caption">Older</strong>
       <div class="article-nav-title">数组去重</div>
     </a>
@@ -114,7 +118,7 @@
   <div class="widget-wrap">
     <h3 class="widget-title">Tags</h3>
     <div class="widget-body">
-      <ul class="tag-list"><li class="tag-list-item"><a class="tag-list-link" href="/tags/JavaScript/">JavaScript</a><span class="tag-list-count">6</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/React/">React</a><span class="tag-list-count">5</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/React-Tips/">React Tips</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Redux/">Redux</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Vue/">Vue</a><span class="tag-list-count">4</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/css/">css</a><span class="tag-list-count">3</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/dom/">dom</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/http/">http</a><span class="tag-list-count">5</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/sftp/">sftp</a><span class="tag-list-count">1</span></li></ul>
+      <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/JavaScript/" rel="tag">JavaScript</a><span class="tag-list-count">6</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/React/" rel="tag">React</a><span class="tag-list-count">5</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/React-Tips/" rel="tag">React Tips</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Redux/" rel="tag">Redux</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Vue/" rel="tag">Vue</a><span class="tag-list-count">4</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/css/" rel="tag">css</a><span class="tag-list-count">3</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/dom/" rel="tag">dom</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/http/" rel="tag">http</a><span class="tag-list-count">5</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/sftp/" rel="tag">sftp</a><span class="tag-list-count">1</span></li></ul>
     </div>
   </div>
 
@@ -139,23 +143,23 @@
       <ul>
         
           <li>
-            <a href="/2018/10/28/编写React组件要点-单一责任原则/">编写React组件要点-单一责任原则</a>
+            <a href="/2018/10/28/%E7%BC%96%E5%86%99React%E7%BB%84%E4%BB%B6%E8%A6%81%E7%82%B9-%E5%8D%95%E4%B8%80%E8%B4%A3%E4%BB%BB%E5%8E%9F%E5%88%99/">编写React组件要点-单一责任原则</a>
           </li>
         
           <li>
-            <a href="/2018/10/26/HTTP相关系统知识/">HTTP相关系统知识</a>
+            <a href="/2018/10/26/HTTP%E7%9B%B8%E5%85%B3%E7%B3%BB%E7%BB%9F%E7%9F%A5%E8%AF%86/">HTTP相关系统知识</a>
           </li>
         
           <li>
-            <a href="/2018/04/17/JavaScript中的垃圾回收/">JavaScript 中的垃圾回收</a>
+            <a href="/2018/04/17/JavaScript%E4%B8%AD%E7%9A%84%E5%9E%83%E5%9C%BE%E5%9B%9E%E6%94%B6/">JavaScript 中的垃圾回收</a>
           </li>
         
           <li>
-            <a href="/2018/04/11/实现一个 Vue (1) 实现响应式原理/">实现一个 Vue (1) 实现响应式原理</a>
+            <a href="/2018/04/11/%E5%AE%9E%E7%8E%B0%E4%B8%80%E4%B8%AA%20Vue%20(1)%20%E5%AE%9E%E7%8E%B0%E5%93%8D%E5%BA%94%E5%BC%8F%E5%8E%9F%E7%90%86/">实现一个 Vue (1) 实现响应式原理</a>
           </li>
         
           <li>
-            <a href="/2018/04/03/学习并实现 redux(1) - 基础 API/">学习并实现 redux(1) - 基础 API</a>
+            <a href="/2018/04/03/%E5%AD%A6%E4%B9%A0%E5%B9%B6%E5%AE%9E%E7%8E%B0%20redux(1)%20-%20%E5%9F%BA%E7%A1%80%20API/">学习并实现 redux(1) - 基础 API</a>
           </li>
         
       </ul>
@@ -169,7 +173,7 @@
         <div class="site-info">
             <address>
                 &copy; 2014 <a href="http://yoursite.com">Minimalist</a> All Right Reserved. <br/>
-                Powered by <a href="http://hexo.io">Hexo</a>. Theme by <a href="http://zzoman.com">ZZOMAN</a>
+                Powered by <a target="_blank" rel="noopener" href="http://hexo.io">Hexo</a>. Theme by <a target="_blank" rel="noopener" href="http://zzoman.com">ZZOMAN</a>
             </address>
         </div>
     </footer>

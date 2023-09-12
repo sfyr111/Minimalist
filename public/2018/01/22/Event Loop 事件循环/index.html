@@ -9,7 +9,9 @@
     
     <link rel="alternative" href="/atom.xml" title="Minimalist" type="application/atom+xml">
     
-    <link rel="stylesheet" href="/css/style.css">
+    
+<link rel="stylesheet" href="/css/style.css">
+
     
     <link rel="stylesheet" href="/libs/fancybox/jquery.fancybox.css" charset="utf-8">
     
@@ -17,7 +19,7 @@
     <script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
     <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
     <![endif]-->
-</head>
+<meta name="generator" content="Hexo 6.3.0"></head>
 <body class="site">
     <header class="site-header">
         <h1 class="site-title"><a href="/">Minimalist</a></h1>
@@ -27,7 +29,7 @@
                 <li><a href="/archives">Archives</a></li>
                 
                 
-                <li><a href="https://github.com/sfyr111" title="git">GITHUB</a></li>
+                <li><a target="_blank" rel="noopener" href="https://github.com/sfyr111" title="git">GITHUB</a></li>
                 
                 <li><a class="toggle-search" href="#search">search</a></li>
             </ul>
@@ -47,7 +49,7 @@
             
             <header class="article-header">
                 <div class="article-meta">
-                    <a href="/2018/01/22/Event Loop 事件循环/" class="article-date">
+                    <a href="/2018/01/22/Event%20Loop%20%E4%BA%8B%E4%BB%B6%E5%BE%AA%E7%8E%AF/" class="article-date">
   <time datetime="2018-01-22T04:32:59.000Z">2018-01-22</time>
 </a>
                     
@@ -56,12 +58,12 @@
   </div>
 
                     
-  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/JavaScript/">JavaScript</a></li></ul>
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/JavaScript/" rel="tag">JavaScript</a></li></ul>
 
                 </div>
                 
     <h1 class="article-title" itemprop="name">
-      <a href="/2018/01/22/Event Loop 事件循环/">Event Loop 事件循环</a>
+      <a href="/2018/01/22/Event%20Loop%20%E4%BA%8B%E4%BB%B6%E5%BE%AA%E7%8E%AF/">Event Loop 事件循环</a>
     </h1>
 
             </header>
@@ -69,51 +71,72 @@
             <div class="article-body">
                 <h2 id="名词解释"><a href="#名词解释" class="headerlink" title="名词解释"></a>名词解释</h2><blockquote>
 <p>“event-loop”: 事件循环<br>“non-blocking”: 非堵塞<br>“callback”: 回调函数<br>“asynchronous”: 异步<br>“single-threaded”: 单线程<br>“concurrency”: 并发<br>“web-api”: DOM, ajax, setTimeout…</p>
-<h2 id="JS在浏览器中的环境"><a href="#JS在浏览器中的环境" class="headerlink" title="JS在浏览器中的环境"></a>JS在浏览器中的环境</h2><p>先看一张图<img src="http://upload-images.jianshu.io/upload_images/2155778-b88b043ab349ff4b.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt=""><a href="https://www.youtube.com/watch?v=6MXRNXXgP_0" target="_blank" rel="noopener">图片出自</a></p>
 </blockquote>
+<h2 id="JS在浏览器中的环境"><a href="#JS在浏览器中的环境" class="headerlink" title="JS在浏览器中的环境"></a>JS在浏览器中的环境</h2><p>先看一张图<img src="http://upload-images.jianshu.io/upload_images/2155778-b88b043ab349ff4b.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240"><a target="_blank" rel="noopener" href="https://www.youtube.com/watch?v=6MXRNXXgP_0">图片出自</a></p>
 <h3 id="V8引擎内的JS"><a href="#V8引擎内的JS" class="headerlink" title="V8引擎内的JS"></a>V8引擎内的JS</h3><p>根据上图，首先可以得到的JS在V8引擎中有一个堆(heap)和栈(stack)的概念<br>堆(heap): 对象被分配的区域<br>栈(stack): 函数调用形成的栈帧</p>
-<h4 id="问题1-执行JS时候发生了什么"><a href="#问题1-执行JS时候发生了什么" class="headerlink" title="问题1: 执行JS时候发生了什么"></a>问题1: 执行JS时候发生了什么</h4><p><code>代码1</code><br><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> a, b</span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">foo</span> (<span class="params"></span>) </span>&#123;</span><br><span class="line">  <span class="keyword">return</span> a +=<span class="number">1</span></span><br><span class="line">&#125;</span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">bar</span> (<span class="params"></span>) </span>&#123;</span><br><span class="line">  <span class="keyword">return</span> b += <span class="number">2</span></span><br><span class="line">&#125;</span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">baz</span> (<span class="params"></span>) </span>&#123;</span><br><span class="line">  bar ()</span><br><span class="line">  foo ()</span><br><span class="line">  <span class="built_in">console</span>.log( a + b )</span><br><span class="line">&#125;</span><br><span class="line">baz()</span><br></pre></td></tr></table></figure></p>
+<h4 id="问题1-执行JS时候发生了什么"><a href="#问题1-执行JS时候发生了什么" class="headerlink" title="问题1: 执行JS时候发生了什么"></a>问题1: 执行JS时候发生了什么</h4><p><code>代码1</code></p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> a, b</span><br><span class="line"><span class="keyword">function</span> <span class="title function_">foo</span> () &#123;</span><br><span class="line">  <span class="keyword">return</span> a +=<span class="number">1</span></span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">function</span> <span class="title function_">bar</span> () &#123;</span><br><span class="line">  <span class="keyword">return</span> b += <span class="number">2</span></span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">function</span> <span class="title function_">baz</span> () &#123;</span><br><span class="line">  bar ()</span><br><span class="line">  foo ()</span><br><span class="line">  <span class="variable language_">console</span>.<span class="title function_">log</span>( a + b )</span><br><span class="line">&#125;</span><br><span class="line"><span class="title function_">baz</span>()</span><br></pre></td></tr></table></figure>
 <p><code>解释1</code></p>
 <blockquote>
 <p>栈内：<br>1执行baz() 进入栈<br>2执行bar() 进入栈 - bar() return 退出栈<br>3执行foo() 进入栈 - foo() return 退出栈<br>4执行console.log 进入栈 无return并退出栈<br>5baz() 执行完毕退出栈</p>
 </blockquote>
 <h3 id="JS操作WebApi"><a href="#JS操作WebApi" class="headerlink" title="JS操作WebApi"></a>JS操作WebApi</h3><p>根据图中WebApi所在的位置我们发现它并没有在V8引擎内，而是由stack内执行后再V8资源外层出现然后进入回调队列，并进行了一次event loop的事件</p>
-<h4 id="问题2-JS操作WebApi发生了什么-WebApi的执行不在V8内那在哪里"><a href="#问题2-JS操作WebApi发生了什么-WebApi的执行不在V8内那在哪里" class="headerlink" title="问题2: JS操作WebApi发生了什么?WebApi的执行不在V8内那在哪里?"></a>问题2: JS操作WebApi发生了什么?WebApi的执行不在V8内那在哪里?</h4><p><code>代码2</code><br><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">console</span>.log(<span class="string">'hi'</span>)</span><br><span class="line">setTimeout(<span class="function"><span class="keyword">function</span> (<span class="params"></span>) </span>&#123;</span><br><span class="line">  <span class="built_in">console</span>.log(<span class="string">'ha'</span>)</span><br><span class="line">&#125;, <span class="number">5000</span>)</span><br><span class="line"><span class="built_in">console</span>.log(<span class="string">'heng'</span>)</span><br></pre></td></tr></table></figure></p>
+<h4 id="问题2-JS操作WebApi发生了什么-WebApi的执行不在V8内那在哪里"><a href="#问题2-JS操作WebApi发生了什么-WebApi的执行不在V8内那在哪里" class="headerlink" title="问题2: JS操作WebApi发生了什么?WebApi的执行不在V8内那在哪里?"></a>问题2: JS操作WebApi发生了什么?WebApi的执行不在V8内那在哪里?</h4><p><code>代码2</code></p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&#x27;hi&#x27;</span>)</span><br><span class="line"><span class="built_in">setTimeout</span>(<span class="keyword">function</span> (<span class="params"></span>) &#123;</span><br><span class="line">  <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&#x27;ha&#x27;</span>)</span><br><span class="line">&#125;, <span class="number">5000</span>)</span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&#x27;heng&#x27;</span>)</span><br></pre></td></tr></table></figure>
 <p><code>解释2</code></p>
 <blockquote>
 <p>栈内:<br>1执行console.log(‘hi’) 进入栈 - 退出栈<br>2执行setTimout 进入栈 - 把回调函数cb放入浏览器资源内(相对V8) - 退出栈<br>3执行console.log(‘heng’)进入栈 - 退出栈<br>4当前栈清空当前事件循环(event loop)结束</p>
+</blockquote>
+<blockquote>
 <p>栈外:<br>5通过while(queue.length)不停的检查队列(queue)是否为空<br>6存放在浏览器资源内的setTimeout回调cb在5秒完成后进入队列(queue)<br>7事件循环while(queue.length)检查到队列(queue)有回调cb<br>8在当前循环内把cb推入栈内</p>
+</blockquote>
+<blockquote>
 <p>栈内:<br>9执行cb，console.log(‘ha’)进入栈 - 退出栈<br>10清空栈</p>
 </blockquote>
-<h4 id="问题3-如果setTimeout-cb-0-会是什么情况"><a href="#问题3-如果setTimeout-cb-0-会是什么情况" class="headerlink" title="问题3: 如果setTimeout(cb, 0) 会是什么情况?"></a>问题3: 如果setTimeout(cb, 0) 会是什么情况?</h4><p><code>代码3</code><br><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">console</span>.log(<span class="string">'hi'</span>)</span><br><span class="line">setTimeout(<span class="function"><span class="keyword">function</span> (<span class="params"></span>) </span>&#123;</span><br><span class="line">  <span class="built_in">console</span>.log(<span class="string">'ha'</span>)</span><br><span class="line">&#125;, <span class="number">0</span>)</span><br><span class="line"><span class="built_in">console</span>.log(<span class="string">'heng'</span>)</span><br></pre></td></tr></table></figure></p>
+<h4 id="问题3-如果setTimeout-cb-0-会是什么情况"><a href="#问题3-如果setTimeout-cb-0-会是什么情况" class="headerlink" title="问题3: 如果setTimeout(cb, 0) 会是什么情况?"></a>问题3: 如果setTimeout(cb, 0) 会是什么情况?</h4><p><code>代码3</code></p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&#x27;hi&#x27;</span>)</span><br><span class="line"><span class="built_in">setTimeout</span>(<span class="keyword">function</span> (<span class="params"></span>) &#123;</span><br><span class="line">  <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&#x27;ha&#x27;</span>)</span><br><span class="line">&#125;, <span class="number">0</span>)</span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&#x27;heng&#x27;</span>)</span><br></pre></td></tr></table></figure>
 <p><code>解释3</code></p>
 <blockquote>
 <p>同解释2，但是再第6步: 存放在浏览器资源内的setTimeout回调cb在5秒完成后进入队列(queue)<br><strong>应该变为cb直接进入队列(queue)</strong></p>
 </blockquote>
-<h4 id="问题4-ajax是什么情况"><a href="#问题4-ajax是什么情况" class="headerlink" title="问题4: ajax是什么情况?"></a>问题4: ajax是什么情况?</h4><p><code>代码4</code><br><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">console</span>.log(<span class="string">'hi'</span>)</span><br><span class="line">$.get(url, <span class="function"><span class="keyword">function</span> (<span class="params">data</span>) </span>&#123;</span><br><span class="line">  <span class="built_in">console</span>.log(data)</span><br><span class="line">&#125;)</span><br><span class="line"><span class="built_in">console</span>.log(<span class="string">'heng'</span>)</span><br></pre></td></tr></table></figure></p>
+<h4 id="问题4-ajax是什么情况"><a href="#问题4-ajax是什么情况" class="headerlink" title="问题4: ajax是什么情况?"></a>问题4: ajax是什么情况?</h4><p><code>代码4</code></p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&#x27;hi&#x27;</span>)</span><br><span class="line">$.<span class="title function_">get</span>(url, <span class="keyword">function</span> (<span class="params">data</span>) &#123;</span><br><span class="line">  <span class="variable language_">console</span>.<span class="title function_">log</span>(data)</span><br><span class="line">&#125;)</span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&#x27;heng&#x27;</span>)</span><br></pre></td></tr></table></figure>
 <p><code>解释4</code></p>
 <blockquote>
 <p>同解释2，但是再第6步: 存放在浏览器资源内的setTimeout回调cb在5秒完成后进入队列(queue)<br><strong>应该变为ajax取得数据后cb进入队列()</strong><br>所以这也解释了为什么使用setTimeout来模拟ajax</p>
 </blockquote>
-<h4 id="问题5-WebApi中Event事件是什么情况？"><a href="#问题5-WebApi中Event事件是什么情况？" class="headerlink" title="问题5: WebApi中Event事件是什么情况？"></a>问题5: WebApi中Event事件是什么情况？</h4><p><code>代码5</code><br><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">console</span>.log(<span class="string">'start'</span>)</span><br><span class="line">$el.on(<span class="string">'click'</span>, <span class="function"><span class="keyword">function</span> <span class="title">fn</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">    <span class="built_in">console</span>.log(<span class="string">'clicked'</span>)</span><br><span class="line">&#125;)</span><br><span class="line">setTimeout(<span class="function"><span class="keyword">function</span> <span class="title">cb</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">    <span class="built_in">console</span>.log(<span class="string">'timeout'</span>)</span><br><span class="line">&#125;, <span class="number">5000</span>)</span><br><span class="line"><span class="built_in">console</span>.log(<span class="string">'done'</span>)</span><br></pre></td></tr></table></figure></p>
+<h4 id="问题5-WebApi中Event事件是什么情况？"><a href="#问题5-WebApi中Event事件是什么情况？" class="headerlink" title="问题5: WebApi中Event事件是什么情况？"></a>问题5: WebApi中Event事件是什么情况？</h4><p><code>代码5</code></p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&#x27;start&#x27;</span>)</span><br><span class="line">$el.<span class="title function_">on</span>(<span class="string">&#x27;click&#x27;</span>, <span class="keyword">function</span> <span class="title function_">fn</span>(<span class="params"></span>) &#123;</span><br><span class="line">    <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&#x27;clicked&#x27;</span>)</span><br><span class="line">&#125;)</span><br><span class="line"><span class="built_in">setTimeout</span>(<span class="keyword">function</span> <span class="title function_">cb</span>(<span class="params"></span>) &#123;</span><br><span class="line">    <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&#x27;timeout&#x27;</span>)</span><br><span class="line">&#125;, <span class="number">5000</span>)</span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&#x27;done&#x27;</span>)</span><br></pre></td></tr></table></figure>
 <p><code>解释5</code></p>
 <blockquote>
 <p>栈内:<br>1执行console.log(‘start’)进入栈 - 退出栈<br>2执行$el.on(‘click’)进入栈 - 整个click事件包括回调函数fn放入浏览器资源内 - 退出栈<br>3执行setTImeout 进入栈 - 把回调函数cb放入浏览器资源内 - 退出栈<br>4执行console.log(‘done’)进入栈 - 退出栈</p>
+</blockquote>
+<blockquote>
 <p>栈外:<br>5通过while(queue.length)不停的检查队列(queue)是否为空<br>6存放在浏览器资源内的setTimeout回调cb在5秒完成后进入队列(queue)<br>7事件循环while(queue.length)检查到队列(queue)有回调cb<br>8在当前循环内把cb推入栈内</p>
+</blockquote>
+<blockquote>
 <p>栈内:<br>9执行cb，console.log(‘ha’)进入栈 - 退出栈<br>10清空栈</p>
+</blockquote>
+<blockquote>
 <p>浏览器中:<br>11用户点击$el触发’click’ 事件，回调函数fn进入队列中<br>12事件循环while(queue.length)检查到队列(queue)有回调fn<br>13在当前循环内把fn推入栈内执行并清空</p>
 </blockquote>
-<h4 id="问题6-列表滚动优化与Debounce去抖函数"><a href="#问题6-列表滚动优化与Debounce去抖函数" class="headerlink" title="问题6 - 列表滚动优化与Debounce去抖函数"></a>问题6 - 列表滚动优化与Debounce去抖函数</h4><p>从问题5中可以知道，当我们连续不停的点击$el触发click时，队列(queue)内将会排满回调函数，这就是页面造成卡顿的原因。<br>造成这种情况出现最多的就是列表滚动scroll事件, 窗口resize事件。<br>常用的优化方法就是使用debounce去抖函数, 先看一下他的实现方法:<br><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">debounce</span>(<span class="params">fn, delay</span>) </span>&#123;</span><br><span class="line">    <span class="keyword">var</span> timer</span><br><span class="line">    <span class="keyword">return</span> <span class="function"><span class="keyword">function</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">        <span class="keyword">var</span> context = <span class="keyword">this</span></span><br><span class="line">        <span class="keyword">var</span> args = <span class="built_in">arguments</span></span><br><span class="line">        clearTimeout(timer)</span><br><span class="line">        timer = setTimeout(<span class="function"><span class="keyword">function</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">            fn.apply(context, args)</span><br><span class="line">        &#125;, delay)</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
-<p><code>分析debounce</code><br>debounce函数里有一个重点，就是clearTimeout(timer)<br>现在模拟一个绑定事件<br><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">document</span>.addEventListener(<span class="string">'scroll'</span>, debounce(</span><br><span class="line"><span class="function"><span class="keyword">function</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">    <span class="built_in">console</span>.log(<span class="string">'scroll'</span>)</span><br><span class="line">&#125;, <span class="number">1000</span>), <span class="literal">false</span>);</span><br></pre></td></tr></table></figure></p>
+<h4 id="问题6-列表滚动优化与Debounce去抖函数"><a href="#问题6-列表滚动优化与Debounce去抖函数" class="headerlink" title="问题6 - 列表滚动优化与Debounce去抖函数"></a>问题6 - 列表滚动优化与Debounce去抖函数</h4><p>从问题5中可以知道，当我们连续不停的点击$el触发click时，队列(queue)内将会排满回调函数，这就是页面造成卡顿的原因。<br>造成这种情况出现最多的就是列表滚动scroll事件, 窗口resize事件。<br>常用的优化方法就是使用debounce去抖函数, 先看一下他的实现方法:</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">function</span> <span class="title function_">debounce</span>(<span class="params">fn, delay</span>) &#123;</span><br><span class="line">    <span class="keyword">var</span> timer</span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">function</span>(<span class="params"></span>) &#123;</span><br><span class="line">        <span class="keyword">var</span> context = <span class="variable language_">this</span></span><br><span class="line">        <span class="keyword">var</span> args = <span class="variable language_">arguments</span></span><br><span class="line">        <span class="built_in">clearTimeout</span>(timer)</span><br><span class="line">        timer = <span class="built_in">setTimeout</span>(<span class="keyword">function</span>(<span class="params"></span>) &#123;</span><br><span class="line">            fn.<span class="title function_">apply</span>(context, args)</span><br><span class="line">        &#125;, delay)</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><code>分析debounce</code><br>debounce函数里有一个重点，就是clearTimeout(timer)<br>现在模拟一个绑定事件</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="variable language_">document</span>.<span class="title function_">addEventListener</span>(<span class="string">&#x27;scroll&#x27;</span>, <span class="title function_">debounce</span>(</span><br><span class="line"><span class="keyword">function</span>(<span class="params"></span>) &#123;</span><br><span class="line">    <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&#x27;scroll&#x27;</span>)</span><br><span class="line">&#125;, <span class="number">1000</span>), <span class="literal">false</span>);</span><br></pre></td></tr></table></figure>
 <blockquote>
-<p>当scroll事件在栈内执行回调函数被注册到浏览器资源后，当我们触发scroll事件时，我们都会把<code>debounce(function(){console.log(&#39;scroll&#39;)}, 1000)</code>排到队列(queue)里，在通过事件循环放入栈内执行。</p>
+<p>当scroll事件在栈内执行回调函数被注册到浏览器资源后，当我们触发scroll事件时，我们都会把<code>debounce(function()&#123;console.log(&#39;scroll&#39;)&#125;, 1000)</code>排到队列(queue)里，在通过事件循环放入栈内执行。</p>
+</blockquote>
+<blockquote>
 <p>如果1秒内只触发1次，那么debounce函数的回调就会因为内部的setTimeout放入浏览器资源等到1秒到后排如队列内在推入栈内执行。</p>
+</blockquote>
+<blockquote>
 <p>但1秒内我们不停的触发scroll事件呢，那么debounce函数内部的<code>clearTimeout(timer)</code>将起到关键作用: <strong>把前一次触发scroll事件放入浏览器资源的setTimeout回调给清空掉并放入新的setTimeout回调</strong>直到最后一次触发scroll，把浏览器资源内的setTimeout回调都清空只留下最后一个，等待1秒后回调排入队列(queue)等待推入栈内执行。</p>
 </blockquote>
 <p>此方法相比问题5中的情况大大减少了浏览器资源的占用，使得在固定时间内队列(queue)内都只有一个回调在等待而不是一大堆。</p>
-<h2 id="异步执行"><a href="#异步执行" class="headerlink" title="异步执行"></a>异步执行</h2><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">代码<span class="number">1</span></span><br><span class="line">[<span class="number">1</span>,<span class="number">2</span>,<span class="number">3</span>,<span class="number">4</span>].forEach(<span class="function"><span class="keyword">function</span> (<span class="params">i</span>) </span>&#123;</span><br><span class="line">    <span class="built_in">console</span>.log(i)</span><br><span class="line">&#125;)</span><br><span class="line">代码<span class="number">2</span></span><br><span class="line">[<span class="number">1</span>,<span class="number">2</span>,<span class="number">3</span>,<span class="number">4</span>].forEach(<span class="function"><span class="keyword">function</span> (<span class="params">i</span>) </span>&#123;</span><br><span class="line">    setTimeout(<span class="function"><span class="keyword">function</span> (<span class="params">i</span>) </span>&#123;</span><br><span class="line">        <span class="built_in">console</span>.log(i)</span><br><span class="line">    &#125;, <span class="number">0</span>, i)</span><br><span class="line">&#125;)</span><br></pre></td></tr></table></figure>
-<p><code>分析</code><br>代码1中打印1，2，3，4 很明显它们都是直接在栈内执行console.log()输出的<br>代码2页打印相同的结果，但是不同的是每次console.log的执行都是通过setTImeout放入队列(queue)内再推入栈内执行的，这就通过浏览器资源和V8资源的区别实现了一段异步执行的代码<br>我们可以第二段代码改写成这样, 制作一个异步执行的forEach<br><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">asyncForEach</span>(<span class="params">arr, cb</span>) </span>&#123;</span><br><span class="line">    arr.forEach(<span class="function"><span class="keyword">function</span> (<span class="params">i</span>) </span>&#123;</span><br><span class="line">        setTimeout(cb, <span class="number">0</span>, i)</span><br><span class="line">    &#125;)</span><br><span class="line">&#125;</span><br><span class="line">asyncForEach([<span class="number">1</span>,<span class="number">2</span>,<span class="number">3</span>,<span class="number">4</span>], <span class="function"><span class="keyword">function</span>(<span class="params">i</span>) </span>&#123;</span><br><span class="line">    <span class="built_in">console</span>.log(i)</span><br><span class="line">&#125;)</span><br></pre></td></tr></table></figure></p>
-
+<h2 id="异步执行"><a href="#异步执行" class="headerlink" title="异步执行"></a>异步执行</h2><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">代码<span class="number">1</span></span><br><span class="line">[<span class="number">1</span>,<span class="number">2</span>,<span class="number">3</span>,<span class="number">4</span>].<span class="title function_">forEach</span>(<span class="keyword">function</span> (<span class="params">i</span>) &#123;</span><br><span class="line">    <span class="variable language_">console</span>.<span class="title function_">log</span>(i)</span><br><span class="line">&#125;)</span><br><span class="line">代码<span class="number">2</span></span><br><span class="line">[<span class="number">1</span>,<span class="number">2</span>,<span class="number">3</span>,<span class="number">4</span>].<span class="title function_">forEach</span>(<span class="keyword">function</span> (<span class="params">i</span>) &#123;</span><br><span class="line">    <span class="built_in">setTimeout</span>(<span class="keyword">function</span> (<span class="params">i</span>) &#123;</span><br><span class="line">        <span class="variable language_">console</span>.<span class="title function_">log</span>(i)</span><br><span class="line">    &#125;, <span class="number">0</span>, i)</span><br><span class="line">&#125;)</span><br></pre></td></tr></table></figure>
+<p><code>分析</code><br>代码1中打印1，2，3，4 很明显它们都是直接在栈内执行console.log()输出的<br>代码2页打印相同的结果，但是不同的是每次console.log的执行都是通过setTImeout放入队列(queue)内再推入栈内执行的，这就通过浏览器资源和V8资源的区别实现了一段异步执行的代码<br>我们可以第二段代码改写成这样, 制作一个异步执行的forEach</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">function</span> <span class="title function_">asyncForEach</span>(<span class="params">arr, cb</span>) &#123;</span><br><span class="line">    arr.<span class="title function_">forEach</span>(<span class="keyword">function</span> (<span class="params">i</span>) &#123;</span><br><span class="line">        <span class="built_in">setTimeout</span>(cb, <span class="number">0</span>, i)</span><br><span class="line">    &#125;)</span><br><span class="line">&#125;</span><br><span class="line"><span class="title function_">asyncForEach</span>([<span class="number">1</span>,<span class="number">2</span>,<span class="number">3</span>,<span class="number">4</span>], <span class="keyword">function</span>(<span class="params">i</span>) &#123;</span><br><span class="line">    <span class="variable language_">console</span>.<span class="title function_">log</span>(i)</span><br><span class="line">&#125;)</span><br></pre></td></tr></table></figure>
             </div>
         </div>
     </article>
@@ -122,7 +145,7 @@
     
 <nav class="article-nav">
   
-    <a href="/2018/01/22/EventLoop事件循环中的 MacroTask与 MicroTask/" id="article-nav-newer" class="article-nav-link-wrap prev">
+    <a href="/2018/01/22/EventLoop%E4%BA%8B%E4%BB%B6%E5%BE%AA%E7%8E%AF%E4%B8%AD%E7%9A%84%20MacroTask%E4%B8%8E%20MicroTask/" id="article-nav-newer" class="article-nav-link-wrap prev">
       <strong class="article-nav-caption">Newer</strong>
       <div class="article-nav-title">
         
@@ -132,7 +155,7 @@
     </a>
   
   
-    <a href="/2018/01/22/http缓存/" id="article-nav-older" class="article-nav-link-wrap next">
+    <a href="/2018/01/22/http%E7%BC%93%E5%AD%98/" id="article-nav-older" class="article-nav-link-wrap next">
       <strong class="article-nav-caption">Older</strong>
       <div class="article-nav-title">http 缓存</div>
     </a>
@@ -153,7 +176,7 @@
   <div class="widget-wrap">
     <h3 class="widget-title">Tags</h3>
     <div class="widget-body">
-      <ul class="tag-list"><li class="tag-list-item"><a class="tag-list-link" href="/tags/JavaScript/">JavaScript</a><span class="tag-list-count">6</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/React/">React</a><span class="tag-list-count">5</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/React-Tips/">React Tips</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Redux/">Redux</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Vue/">Vue</a><span class="tag-list-count">4</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/css/">css</a><span class="tag-list-count">3</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/dom/">dom</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/http/">http</a><span class="tag-list-count">5</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/sftp/">sftp</a><span class="tag-list-count">1</span></li></ul>
+      <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/JavaScript/" rel="tag">JavaScript</a><span class="tag-list-count">6</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/React/" rel="tag">React</a><span class="tag-list-count">5</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/React-Tips/" rel="tag">React Tips</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Redux/" rel="tag">Redux</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Vue/" rel="tag">Vue</a><span class="tag-list-count">4</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/css/" rel="tag">css</a><span class="tag-list-count">3</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/dom/" rel="tag">dom</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/http/" rel="tag">http</a><span class="tag-list-count">5</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/sftp/" rel="tag">sftp</a><span class="tag-list-count">1</span></li></ul>
     </div>
   </div>
 
@@ -178,23 +201,23 @@
       <ul>
         
           <li>
-            <a href="/2018/10/28/编写React组件要点-单一责任原则/">编写React组件要点-单一责任原则</a>
+            <a href="/2018/10/28/%E7%BC%96%E5%86%99React%E7%BB%84%E4%BB%B6%E8%A6%81%E7%82%B9-%E5%8D%95%E4%B8%80%E8%B4%A3%E4%BB%BB%E5%8E%9F%E5%88%99/">编写React组件要点-单一责任原则</a>
           </li>
         
           <li>
-            <a href="/2018/10/26/HTTP相关系统知识/">HTTP相关系统知识</a>
+            <a href="/2018/10/26/HTTP%E7%9B%B8%E5%85%B3%E7%B3%BB%E7%BB%9F%E7%9F%A5%E8%AF%86/">HTTP相关系统知识</a>
           </li>
         
           <li>
-            <a href="/2018/04/17/JavaScript中的垃圾回收/">JavaScript 中的垃圾回收</a>
+            <a href="/2018/04/17/JavaScript%E4%B8%AD%E7%9A%84%E5%9E%83%E5%9C%BE%E5%9B%9E%E6%94%B6/">JavaScript 中的垃圾回收</a>
           </li>
         
           <li>
-            <a href="/2018/04/11/实现一个 Vue (1) 实现响应式原理/">实现一个 Vue (1) 实现响应式原理</a>
+            <a href="/2018/04/11/%E5%AE%9E%E7%8E%B0%E4%B8%80%E4%B8%AA%20Vue%20(1)%20%E5%AE%9E%E7%8E%B0%E5%93%8D%E5%BA%94%E5%BC%8F%E5%8E%9F%E7%90%86/">实现一个 Vue (1) 实现响应式原理</a>
           </li>
         
           <li>
-            <a href="/2018/04/03/学习并实现 redux(1) - 基础 API/">学习并实现 redux(1) - 基础 API</a>
+            <a href="/2018/04/03/%E5%AD%A6%E4%B9%A0%E5%B9%B6%E5%AE%9E%E7%8E%B0%20redux(1)%20-%20%E5%9F%BA%E7%A1%80%20API/">学习并实现 redux(1) - 基础 API</a>
           </li>
         
       </ul>
@@ -208,7 +231,7 @@
         <div class="site-info">
             <address>
                 &copy; 2014 <a href="http://yoursite.com">Minimalist</a> All Right Reserved. <br/>
-                Powered by <a href="http://hexo.io">Hexo</a>. Theme by <a href="http://zzoman.com">ZZOMAN</a>
+                Powered by <a target="_blank" rel="noopener" href="http://hexo.io">Hexo</a>. Theme by <a target="_blank" rel="noopener" href="http://zzoman.com">ZZOMAN</a>
             </address>
         </div>
     </footer>
