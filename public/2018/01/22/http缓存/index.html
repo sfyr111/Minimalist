@@ -71,9 +71,72 @@
             <div class="article-body">
                 <h2 id="4种缓存方式"><a href="#4种缓存方式" class="headerlink" title="4种缓存方式"></a>4种缓存方式</h2><p><a target="_blank" rel="noopener" href="http://imweb.io/topic/5795dcb6fb312541492eda8c">HTTP缓存控制参考</a></p>
 <h3 id="分类和区别"><a href="#分类和区别" class="headerlink" title="分类和区别"></a>分类和区别</h3><p>规定了过期时间：</p>
-<p>响应header|描述|常用响应返回内容|推荐|特点|缺点|场景<br>-|-<br>Cache-Control|在多少秒内进行缓存|public, max-age&#x3D;秒|是|固定时间||<br>Expires|在此时间前进行缓存|格林威治时间|否|绝对时间|受客户端时间影响|兼容http1.0</p>
+<table>
+<thead>
+<tr>
+<th>响应header</th>
+<th>描述</th>
+<th>常用响应返回内容</th>
+<th>推荐</th>
+<th>特点</th>
+<th>缺点</th>
+<th>场景</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Cache-Control</td>
+<td>在多少秒内进行缓存</td>
+<td>public, max-age&#x3D;秒</td>
+<td>是</td>
+<td>固定时间</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>Expires</td>
+<td>在此时间前进行缓存</td>
+<td>格林威治时间</td>
+<td>否</td>
+<td>绝对时间</td>
+<td>受客户端时间影响</td>
+<td>兼容http1.0</td>
+</tr>
+</tbody></table>
 <p>需进行比较，会返回304状态码：</p>
-<p>响应header|请求header|描述|常用响应返回内容|推荐|特点|缺点|场景<br>-|-<br>ETag|If-None-Match|固定字符串|md5|是|检测文件完整性||<br>Last-Modified|If-Modified-Since|在某时间后没再更改|格林威治时间|否|浏览器根据返回的时间自己决定缓存|浏览器差异|</p>
+<table>
+<thead>
+<tr>
+<th>响应header</th>
+<th>请求header</th>
+<th>描述</th>
+<th>常用响应返回内容</th>
+<th>推荐</th>
+<th>特点</th>
+<th>缺点</th>
+<th>场景</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>ETag</td>
+<td>If-None-Match</td>
+<td>固定字符串</td>
+<td>md5</td>
+<td>是</td>
+<td>检测文件完整性</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>Last-Modified</td>
+<td>If-Modified-Since</td>
+<td>在某时间后没再更改</td>
+<td>格林威治时间</td>
+<td>否</td>
+<td>浏览器根据返回的时间自己决定缓存</td>
+<td>浏览器差异</td>
+<td></td>
+</tr>
+</tbody></table>
 <p>Tips：<br><code>Cache-Control</code>与<code>Expires</code>一样，都是在某个时间未到来前进行缓存<br>默认第一个请求(主页)的请求头里会自动加上<code>Cache-Control: max-age=0</code>，这个请求无论响应头的<code>Cache-Control</code>是什么设置都不会缓存，减少请求次数同时减少下载次数<br><code>ETag</code>方式通过检查<code>request.headers</code>里的<code>if-None-Match</code>里的32位md5字符串来检测文件完整性决定是否更新, 如果md5匹配成功则返回304，只减少下载次数</p>
 <h3 id="Cache-Control-与-Last-Modified-if-Modified-Since-比较"><a href="#Cache-Control-与-Last-Modified-if-Modified-Since-比较" class="headerlink" title="Cache-Control 与 Last-Modified &#x2F; if-Modified-Since 比较"></a>Cache-Control 与 Last-Modified &#x2F; if-Modified-Since 比较</h3><blockquote>
 <p>对于所有可以缓存的资源都可以同时使用这两种策略进行缓存<br>Cache-Control&#x2F;Expires的优先级要高于Last-Modified&#x2F;ETag</p>
