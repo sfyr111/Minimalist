@@ -7,14 +7,14 @@ categories: Font-End Basis
 ## 问题来源
 在学习Promise时在stackoverflow上看到一个解释Promise运行顺序回答。
 之前在[学习异步编程](http://www.jianshu.com/p/dbd0329077fa)中讲解了MacroTask和MicroTask， 但在最近深入EventLoop后又有了更多的了解
-> ![](http://upload-images.jianshu.io/upload_images/2155778-56260f7068aaf973.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/620)
+> ![](/images/imagemogr2_auto_orient_strip_7cimageview2_2_w_620_6201694537070778.png)
 
 ## EventLoop、MacroTask、MicroTask之间的关系
 > + macrotasks 与 microtasks 各自的 API
 **macrotasks**: setTimeout, setInterval, setImmediate, requestAnimationFrame, I/O, UI rendering
 **microtasks**: process.nextTick, Promises, Object.observe, MutationObserver
 
-+ 一张图先了解microtasks 与macrotasks 在eventloop队列里的位置![](http://upload-images.jianshu.io/upload_images/2155778-b88b043ab349ff4b.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/620)![](http://upload-images.jianshu.io/upload_images/2155778-a00c309940108114.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/620)
++ 一张图先了解microtasks 与macrotasks 在eventloop队列里的位置![](/images/imagemogr2_auto_orient_strip_7cimageview2_2_w_620_6201694537071359.png)![](/images/imagemogr2_auto_orient_strip_7cimageview2_2_w_620_6201694537071945.png)
 这里用了上一章EventLoop 事件循环文章里的图，并在回调队列里标注里microtask的位置。
 
 ### microtasks 与macrotasks 在eventloop 里的流程

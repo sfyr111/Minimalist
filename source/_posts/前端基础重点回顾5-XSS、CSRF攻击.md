@@ -22,7 +22,7 @@ categories: Font-End Basis
 >+ 防止URL 上的参数在页面上展示 `http://url?code=<p onclick="alert(2)">诱导点击</p>` 这里的code query参数内容不得在页面中渲染
 
 ## CSRF
-![](http://upload-images.jianshu.io/upload_images/2155778-617054f296163894.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240)
+![](/images/imagemogr2_auto_orient_strip_7cimageview2_2_w_1240_12401694537034488.png)
 
 ##### 攻击原理
 >+ 利用用户已经登录的状态 伪造请求发送给服务器进行用户操作

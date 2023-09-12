@@ -40,9 +40,9 @@ console.log('script end');
 8. setTimeout
 ```
 #### 问题1 async1 start 在script 里执行是什么样的?
-先看下async 函数 babel 后样子![](http://upload-images.jianshu.io/upload_images/2155778-6ab70f19f9cb1798.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240)
+先看下async 函数 babel 后样子![](/images/imagemogr2_auto_orient_strip_7cimageview2_2_w_1240_12401694537005200.png)
 
-可以看出async 函数只是执行了_asyncToGenerator 这个函数,  再看下_asyncToGenerator![_asyncToGenerator](http://upload-images.jianshu.io/upload_images/2155778-07b03653b99e31e6.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240)
+可以看出async 函数只是执行了_asyncToGenerator 这个函数,  再看下_asyncToGenerator![_asyncToGenerator](/images/imagemogr2_auto_orient_strip_7cimageview2_2_w_1240_12401694537005913.png)
 
 原来_asyncToGenerator 函数只是返回了一个 new Promise()，async1() 的执行也就是在script 里执行里一个new Promise()
 
@@ -52,7 +52,7 @@ console.log('script end');
 >await 表达式会暂停当前 [`async function`](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Statements/async_function "调用 async 函数时会返回一个 Promise 对象。当这个 async 函数返回一个值时，Promise 的 resolve 方法将会处理这个值；当 async 函数抛出异常时，Promise 的 reject 方法将处理这个异常值。") 的执行，等待 Promise 处理完成。若 Promise 正常处理(fulfilled)，其处理结果作为 await 表达式的值，继续执行
  [`async function`](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Statements/async_function "调用 async 函数时会返回一个 Promise 对象。当这个 async 函数返回一个值时，Promise 的 resolve 方法将会处理这个值；当 async 函数抛出异常时，Promise 的 reject 方法将处理这个异常值。")。
 
-再看一下babel 后的![](http://upload-images.jianshu.io/upload_images/2155778-d18f7c4d45c8d2fd.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240)
+再看一下babel 后的![](/images/imagemogr2_auto_orient_strip_7cimageview2_2_w_1240_12401694537006498.png)
 babel 后只不过前面多了yield，await async()变成了yield new Promise()，yield 是一个暂停执行的标记而后面的语句是已经执行完了，async2 也就先于promise1 在script 中执行。
 
 #### 问题3 为什么async1 end 会在 promise2 后执行

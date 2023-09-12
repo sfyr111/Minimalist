@@ -8,8 +8,8 @@ categories: Font-End Basis
 ### 标准模型与IE模型的区别
 >计算高度宽度不同
 
-标准盒模型的width 是以盒模型的content 来计算的![box-sizing: content-box](http://upload-images.jianshu.io/upload_images/2155778-00f499576ed1fa63.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240)
-IE盒模型的width 是以盒模型的border + padding + content 来计算的![box-sizing: border-box](http://upload-images.jianshu.io/upload_images/2155778-b10e7570d675fbf6.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240)
+标准盒模型的width 是以盒模型的content 来计算的![box-sizing: content-box](/images/imagemogr2_auto_orient_strip_7cimageview2_2_w_1240_12401694537042369.png)
+IE盒模型的width 是以盒模型的border + padding + content 来计算的![box-sizing: border-box](/images/imagemogr2_auto_orient_strip_7cimageview2_2_w_1240_12401694537042963.png)
 
 ### CSS如何设置这两种模型
 >通过设置元素的box-sizing 属性
@@ -116,7 +116,7 @@ event.target // 可以用于事件委托，由父级注册事件
 event.currentTarget
 ```
 #### currentTarget vs target
-target在事件流的目标阶段；currentTarget在事件流的捕获，目标及冒泡阶段。只有当事件流处在目标阶段的时候，两个的指向才是一样的， 而当处于捕获和冒泡阶段的时候，target指向被单击的对象而currentTarget指向当前事件活动的对象（一般为父级）。![](http://upload-images.jianshu.io/upload_images/2155778-7c46033b92acc40a.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240)
+target在事件流的目标阶段；currentTarget在事件流的捕获，目标及冒泡阶段。只有当事件流处在目标阶段的时候，两个的指向才是一样的， 而当处于捕获和冒泡阶段的时候，target指向被单击的对象而currentTarget指向当前事件活动的对象（一般为父级）。![](/images/imagemogr2_auto_orient_strip_7cimageview2_2_w_1240_12401694537043529.png)
 
 ## 类型转换
 + 数据类型

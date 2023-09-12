@@ -4,7 +4,7 @@ date: 2018-01-22 13:05:18
 tags: Vue
 categories: Vue
 ---
-![](http://upload-images.jianshu.io/upload_images/2155778-26e10107aaec1030.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240)
+![](/images/imagemogr2_auto_orient_strip_7cimageview2_2_w_1240_12401694537053933.png)
 
 ## vue里的生命周期是什么？
 vue实例从创建到销毁的过程称之为vue的生命周期

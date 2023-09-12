@@ -43,11 +43,11 @@ class SubChild extends Component {
 > + 对于渲染多个组件(`children`)时 `children` 为数组，`__rendered` 标记每个`children` 元素
 > + `__rendered` 标记组件或dom
 
-**组件渲染树绝对不会出现下列情况**![](https://upload-images.jianshu.io/upload_images/2155778-9c25f514b14de01e.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/310)
+**组件渲染树绝对不会出现下列情况**![](/images/imagemogr2_auto_orient_strip_7cimageview2_2_w_310_3101694537015244.png)
 
-**渲染多个组件(children)时 必须用 dom 元素包裹**![](https://upload-images.jianshu.io/upload_images/2155778-6448d96ce772a95c.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/310)
+**渲染多个组件(children)时 必须用 dom 元素包裹**![](/images/imagemogr2_auto_orient_strip_7cimageview2_2_w_310_3101694537015910.png)
 
-**最后正确渲染后的Tree**![](https://upload-images.jianshu.io/upload_images/2155778-828550c40b3f9e71.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240)
+**最后正确渲染后的Tree**![](/images/imagemogr2_auto_orient_strip_7cimageview2_2_w_1240_12401694537016558.png)
 
 #### 改造render
 > + 为了复用组件 render 第四个参数由 olddom 改为 olddomOrComp 
@@ -174,7 +174,7 @@ class Child extends Component {
 > + 现在 __rendered 标识组件实例后再标识到 dom 节点就结束了。
 > + 现在需要实现 div.__rendered 关联 SubChild 组件
 
-![](https://upload-images.jianshu.io/upload_images/2155778-828550c40b3f9e71.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240)
+![](/images/imagemogr2_auto_orient_strip_7cimageview2_2_w_1240_12401694537017227.png)
 > + 确定__rendered 链的思想，当渲染的是dom 元素时(组件被根dom包裹), __rendered 为数组
 
 ```
@@ -292,4 +292,4 @@ function getDOMIndex(dom) {
 ```
 > 最后再看下这张图，setState 后也会尝试复用组件，完善 __rendered 链
 
-![](https://upload-images.jianshu.io/upload_images/2155778-828550c40b3f9e71.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240)
+![](/images/imagemogr2_auto_orient_strip_7cimageview2_2_w_1240_12401694537017849.png)

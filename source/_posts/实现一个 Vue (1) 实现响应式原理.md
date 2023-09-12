@@ -4,7 +4,7 @@ date: 2018-04-11 19:28:09
 tags: Vue
 categories: Vue
 ---
-![](https://upload-images.jianshu.io/upload_images/2155778-4554860907a963c2.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240)
+![](/images/imagemogr2_auto_orient_strip_7cimageview2_2_w_1240_12401694537009587.png)
 
 > + new Vue(options) 创建 Vue 实例
 
@@ -152,4 +152,4 @@ export default class Vue {
 }
 ```
 
-![](https://upload-images.jianshu.io/upload_images/2155778-35e7cc9960609709.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240)
+![](/images/imagemogr2_auto_orient_strip_7cimageview2_2_w_1240_12401694537010248.png)

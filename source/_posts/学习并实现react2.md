@@ -47,7 +47,7 @@ console.log("duration for render:", new Date().getTime() - startTime)
     }, 0)
   }
 ```
-在这里组件首次渲染(render)和更新状态(setState)后都将渲染10000 条列表, 用时平局150ms![](https://upload-images.jianshu.io/upload_images/2155778-364680721a893e65.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240)
+在这里组件首次渲染(render)和更新状态(setState)后都将渲染10000 条列表, 用时平局150ms![](/images/imagemogr2_auto_orient_strip_7cimageview2_2_w_1240_12401694537019979.png)
 
 ### DOM复用
 > react 的重点在于首次渲染和更新渲染，现在考虑更新渲染如何复用DOM 让渲染更有效率.
@@ -337,6 +337,6 @@ function diffAttrs(dom, { left: newProps, right: oldProps }) {
   })
 }
 ```
-![](https://upload-images.jianshu.io/upload_images/2155778-ae9c0b16acdbf251.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240)
+![](/images/imagemogr2_auto_orient_strip_7cimageview2_2_w_1240_12401694537020653.png)
 通过diffDOM 实现了复用 DOM 节点，更新渲染的速度更快。
 不过这里没实现react 的key 值比较，children 的属性依赖 olddom 的顺序。

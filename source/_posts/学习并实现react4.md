@@ -19,11 +19,11 @@ componentWillUnmount // 组件即将销毁
 
 > React 生命周期图
 
-![](https://upload-images.jianshu.io/upload_images/2155778-272700fd6657ca2c.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/620)
+![](/images/imagemogr2_auto_orient_strip_7cimageview2_2_w_620_6201694537012412.png)
 
 > React 子组件在父组件下的生命周期流程
 
-![](https://upload-images.jianshu.io/upload_images/2155778-dd4218cc505dc997.jpg?imageMogr2/auto-orient/strip%7CimageView2/2/w/620)
+![](/images/imagemogr2_auto_orient_strip_7cimageview2_2_w_620_6201694537013065.png)
 
 ### 实现 componentWillMount, componentDidMount, componentDidUpdate
 #### componentWillMount

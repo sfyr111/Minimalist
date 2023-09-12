@@ -5,7 +5,7 @@ tags: React
 categories: React
 ---
 
-![思维导图](https://upload-images.jianshu.io/upload_images/2155778-b46e2076c56fed80.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240)
+![思维导图](/images/imagemogr2_auto_orient_strip_7cimageview2_2_w_1240_12401694537003080.png)
 
 ## 什么是单一原则
 + 单一责任原则 SRP(Single responsibility principle) 是一种计算机编程原理，它规定每个模块或类应该对软件提供的单个功能负责。

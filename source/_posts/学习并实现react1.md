@@ -45,10 +45,10 @@ package.json
   ]
 }
 ```
-这样我们在写React 组件时 babel 会帮我们自动编译成![](http://upload-images.jianshu.io/upload_images/2155778-b80405e1ab2aa020.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/620)
+这样我们在写React 组件时 babel 会帮我们自动编译成![](/images/imagemogr2_auto_orient_strip_7cimageview2_2_w_620_6201694537022826.png)
 
 ### 实现一个 createElement
-.babelrc 文件中使用了`transform-react-jsx` 插件，告诉babel 解析 jsx 需要 `createElement`方法，也就是 babel 编译后的`React.createElement`![](http://upload-images.jianshu.io/upload_images/2155778-b80405e1ab2aa020.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/620)
+.babelrc 文件中使用了`transform-react-jsx` 插件，告诉babel 解析 jsx 需要 `createElement`方法，也就是 babel 编译后的`React.createElement`![](/images/imagemogr2_auto_orient_strip_7cimageview2_2_w_620_6201694537023414.png)
 
 createElement 有三个参数
 ```
@@ -88,7 +88,7 @@ class App extends React.Component {
 const app = new App().render()
 console.log(app)
 ```
-![](http://upload-images.jianshu.io/upload_images/2155778-8da00c5e8402a857.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/620)
+![](/images/imagemogr2_auto_orient_strip_7cimageview2_2_w_620_6201694537023977.png)
 
 `new App().render()` 这种格式跟 react 组件区别有些大，再实现一个`renderVDOM(<App />)` 的格式
 ```
@@ -172,7 +172,7 @@ class App extends React.Component {
 
 const app = renderVDOM(<App />)
 ```
-![](http://upload-images.jianshu.io/upload_images/2155778-2ec534f0b7128657.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/620)
+![](/images/imagemogr2_auto_orient_strip_7cimageview2_2_w_620_6201694537024583.png)
 结果中组件的文本内容、dom、组件实例都在children 数组里，React.render 时只需要识别这些children 就可以做到真实渲染
 
 ### 实现 render 
@@ -277,7 +277,7 @@ render(<App />, document.getElementById('app'))
   <script src="./app.js"></script>
 </body>
 ```
-![结果](http://upload-images.jianshu.io/upload_images/2155778-b60fd251a6287b11.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/620)
+![结果](/images/imagemogr2_auto_orient_strip_7cimageview2_2_w_620_6201694537025167.png)
 
 ### 实现props 和state
 ```

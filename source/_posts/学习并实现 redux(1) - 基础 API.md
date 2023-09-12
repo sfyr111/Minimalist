@@ -32,7 +32,7 @@ function counter(state = 0, action) {
 > + action 由store.dispatch(action) 触发通知 reducer 命中后更改store 的state
 
 ## redux 应用流程图
-![](https://upload-images.jianshu.io/upload_images/2155778-1a69fa7a1a6cb599.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240)
+![](/images/imagemogr2_auto_orient_strip_7cimageview2_2_w_1240_12401694537027273.png)
 
 ## 根据流程图实现 redux
 ```
@@ -108,6 +108,6 @@ store.dispatch({ type: SUB })
 ```
 > 控制台输出
 
-![](https://upload-images.jianshu.io/upload_images/2155778-934065760af5cee4.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/620)
+![](/images/imagemogr2_auto_orient_strip_7cimageview2_2_w_620_6201694537027913.png)
 
 

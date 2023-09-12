@@ -5,9 +5,9 @@ date: 2018-10-26 23:22:06
 tags: http
 categories: http
 ---
-![](https://upload-images.jianshu.io/upload_images/2155778-00f4024cb110f446.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240)
+![](/images/imagemogr2_auto_orient_strip_7cimageview2_2_w_1240_12401694537060066.png)
 
-![](https://upload-images.jianshu.io/upload_images/2155778-8233ea18c19cee84.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240)
+![](/images/imagemogr2_auto_orient_strip_7cimageview2_2_w_1240_12401694537060737.png)
 
 ## 因特网协议五层协议
 
@@ -76,7 +76,7 @@ hash: 文档片段、锚点定位
 
 ## HTTP 请求
 + 报文
-![](https://upload-images.jianshu.io/upload_images/2155778-0a44fcd3f9abd715.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240)
+![](/images/imagemogr2_auto_orient_strip_7cimageview2_2_w_1240_12401694537061376.png)
 
 + HTTP 方法
 用来定义对于资源的操作
@@ -113,7 +113,7 @@ XMLHttpRequestUpload 对象没有注册时间监听
 请求中没有使用 ReadableStream 对象
 
 ## HTTP 缓存
-![](https://upload-images.jianshu.io/upload_images/2155778-f66b44d1c430c628.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240)
+![](/images/imagemogr2_auto_orient_strip_7cimageview2_2_w_1240_12401694537062034.png)
 
 ### 强缓存 Cache-Control
 
@@ -190,9 +190,9 @@ http/1.1 无法并发，在网速慢的情况下还是会创建多个 Connection
 `zlib.gzipSync(buffer)`
 `Content-Encoding: gzip`
 没压缩前
-![没压缩前](https://upload-images.jianshu.io/upload_images/2155778-5afe01229914904e.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240)
+![没压缩前](/images/imagemogr2_auto_orient_strip_7cimageview2_2_w_1240_12401694537062679.png)
 压缩后
-![zip 压缩后](https://upload-images.jianshu.io/upload_images/2155778-956289a5b202cf8c.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240)
+![zip 压缩后](/images/imagemogr2_auto_orient_strip_7cimageview2_2_w_1240_12401694537063329.png)
 
 ### 文件数据协商
 `Content-Type: multipart/form-data`
@@ -210,15 +210,15 @@ http/1.1 无法并发，在网速慢的情况下还是会创建多个 Connection
 + 302 临时跳转
 请求 `/` 重定向到 `/new`
 每次后台都会收到两次请求
-![](https://upload-images.jianshu.io/upload_images/2155778-bb5a7cb72d262697.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240)
+![](/images/imagemogr2_auto_orient_strip_7cimageview2_2_w_1240_12401694537063983.png)
 
 + 301 永久跳转
-浏览器会尽量长的缓存 301 请求，需要慎重设置, 浏览器如果不清缓存会造成一直跳转![](https://upload-images.jianshu.io/upload_images/2155778-ffc8e98f9c1f3b8f.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240)
+浏览器会尽量长的缓存 301 请求，需要慎重设置, 浏览器如果不清缓存会造成一直跳转![](/images/imagemogr2_auto_orient_strip_7cimageview2_2_w_1240_12401694537064634.png)
 
 请求 `/` 重定向到 `/new`
 后台第一次会收到两次请求
 第二次只会收到`/new`
-![](https://upload-images.jianshu.io/upload_images/2155778-916b6f721227ff1e.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240)
+![](/images/imagemogr2_auto_orient_strip_7cimageview2_2_w_1240_12401694537065265.png)
 
 ## 内容安全策略 CSP
 `Content-Security-Policy: `
@@ -248,10 +248,10 @@ connect-src / img-src / style-src / script-src 等
 // meta 标签设置
   <meta http-equiv="Content-Security-Policy" content="default-src 'self'; form-action 'self'; report-uri /report">
 ```
-被 csp 禁止![](https://upload-images.jianshu.io/upload_images/2155778-d096021edee9b638.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240)
-![](https://upload-images.jianshu.io/upload_images/2155778-87c1a85a19d701bd.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240)
+被 csp 禁止![](/images/imagemogr2_auto_orient_strip_7cimageview2_2_w_1240_12401694537065934.png)
+![](/images/imagemogr2_auto_orient_strip_7cimageview2_2_w_1240_12401694537066578.png)
 
-设置 connect-src 可以限制 ajax 发送![](https://upload-images.jianshu.io/upload_images/2155778-bef2bd92061c5126.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240)
+设置 connect-src 可以限制 ajax 发送![](/images/imagemogr2_auto_orient_strip_7cimageview2_2_w_1240_12401694537067310.png)
 
 ## nginx
 
@@ -301,7 +301,7 @@ server {
 > + `Vary` 当 `req.header`: `X-Test-Cache` 为 1 时发送后，代理缓存了 `X-Test-Cache` 为 1 这个请求，下次其他客户端请求 `X-Test-Cache` 为 1 则使用代理服务器缓存。可以使用 **user-agent** 进行代理服务器的设备缓存。
 
 ## HTTPS
-![](https://upload-images.jianshu.io/upload_images/2155778-8fff24b9b3e28b3c.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240)
+![](/images/imagemogr2_auto_orient_strip_7cimageview2_2_w_1240_12401694537067972.png)
 
 ### 生成密钥
 ```
@@ -381,7 +381,7 @@ server {
 ```
 
 ### 推送结果
-![](https://upload-images.jianshu.io/upload_images/2155778-34c3f8e5f7461c30.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240)
+![](/images/imagemogr2_auto_orient_strip_7cimageview2_2_w_1240_12401694537068602.png)
 [测试 HTTP2 性能](https://http2.akamai.com/demo/http2-lab.html)
 ```
 $ curl -v https://yang.com 

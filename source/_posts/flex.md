@@ -4,7 +4,7 @@ date: 2018-01-22 12:02:11
 tags: [css]
 categories: css
 ---
-![](http://upload-images.jianshu.io/upload_images/2155778-b0a8d434ef520048.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240)
+![](/images/imagemogr2_auto_orient_strip_7cimageview2_2_w_1240_12401694537048645.png)
 
 ## flex之前
 *  文档流布局
@@ -19,11 +19,11 @@ categories: css
 *  适用于简单的线性布局
 
 ## 基本概念
-![](http://upload-images.jianshu.io/upload_images/2155778-e1aef49827558cb1.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240)
+![](/images/imagemogr2_auto_orient_strip_7cimageview2_2_w_1240_12401694537049229.png)
 [基本flex](http://js.jirengu.com/hobuditile/2/edit)
 
 ## flex container的六个属性(父元素)
-![](http://upload-images.jianshu.io/upload_images/2155778-da36cccc2d6e6b8e.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240)
+![](/images/imagemogr2_auto_orient_strip_7cimageview2_2_w_1240_12401694537049808.png)
  在下面demo的父元素里审查元素加上各种属性试试
 1[flex-direction](http://js.jirengu.com/hikakohaso/2/edit)
 2[flex-wrap & flex-direction](http://js.jirengu.com/fugiciyuga/4/edit)
@@ -33,7 +33,7 @@ categories: css
 5[align-items](http://js.jirengu.com/dicumiyiru/4/edit)
 6[align-content](http://js.jirengu.com/siqocafobi/34/edit)
 ## flex item的六个属性
-![](http://upload-images.jianshu.io/upload_images/2155778-94e31c42c9792f16.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240)
+![](/images/imagemogr2_auto_orient_strip_7cimageview2_2_w_1240_12401694537050777.png)
 1[flex-grow](http://js.jirengu.com/muxuwasoza/2/edit)
 2[flex-shrink](http://js.jirengu.com/qamidapuvu/10/edit)
 3[flex-basis](http://js.jirengu.com/qamidapuvu/15/edit)
