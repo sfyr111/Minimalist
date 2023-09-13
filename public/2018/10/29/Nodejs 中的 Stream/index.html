@@ -1,0 +1,320 @@
+<!doctype html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge">
+    <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    
+    <title>Nodejs 中的 Stream | Minimalist</title>
+    
+    <link rel="alternative" href="/atom.xml" title="Minimalist" type="application/atom+xml">
+    
+    
+<link rel="stylesheet" href="/css/style.css">
+
+    
+    <link rel="stylesheet" href="/libs/fancybox/jquery.fancybox.css" charset="utf-8">
+    
+    <!--[if lt IE 9]>
+    <script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
+    <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+    <![endif]-->
+<meta name="generator" content="Hexo 6.3.0"></head>
+<body class="site">
+    <header class="site-header">
+        <h1 class="site-title"><a href="/">Minimalist</a></h1>
+        <nav class="site-nav">
+            <ul class="nav">
+                
+                <li><a href="/archives">Archives</a></li>
+                
+                
+                <li><a target="_blank" rel="noopener" href="https://github.com/sfyr111" title="git">GITHUB</a></li>
+                
+                <li><a class="toggle-search" href="#search">search</a></li>
+            </ul>
+        </nav>
+        <div class="site-search" id="search">
+            <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><input type="hidden" name="sitesearch" value="http://yoursite.com"></form>
+        </div>
+        
+            <div class="site-header-background" style="background-image:url(http://reumia.github.io/hexo-theme-zzoman2015/images/background-zzoman2015.jpg)"></div>
+        
+    </header>
+    <div class="site-body">
+        <div class="global-width">
+    <article class="article" data-layout="post" data-slug="Nodejs 中的 Stream">
+        <div class="article-content">
+            
+            
+            <header class="article-header">
+                <div class="article-meta">
+                    <a href="/2018/10/29/Nodejs%20%E4%B8%AD%E7%9A%84%20Stream/" class="article-date">
+  <time datetime="2018-10-28T18:35:00.000Z">2018-10-29</time>
+</a>
+                    
+  <div class="article-category categories">
+    <a class="category-link" href="/categories/nodejs/">nodejs</a>
+  </div>
+
+                    
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/nodejs/" rel="tag">nodejs</a></li></ul>
+
+                </div>
+                
+    <h1 class="article-title" itemprop="name">
+      <a href="/2018/10/29/Nodejs%20%E4%B8%AD%E7%9A%84%20Stream/">Nodejs 中的 Stream</a>
+    </h1>
+
+            </header>
+            
+            <div class="article-body">
+                <h2 id="什么是-Stream"><a href="#什么是-Stream" class="headerlink" title="什么是 Stream"></a>什么是 Stream</h2><blockquote>
+<p>在 Linux 中，文件实际上可以看做是字节的序列。所有的 I&#x2F;O 设备也是用文件来表示的。</p>
+</blockquote>
+<blockquote>
+<p>为了区别不同文件的类型，会有一个 type 来进行区别：</p>
+<ul>
+<li>普通文件：包含任意数据</li>
+<li>目录：相关一组文件的索引</li>
+<li>套接字 Socket：和另一台机器上的进程通信的类型</li>
+</ul>
+</blockquote>
+<pre><code>&gt;  + 打开文件(open): 返回文件描述符(file descriptor) `注意这里文件的概念`
+     `fs.open(path, flags[, mode], callback) fs.openSync(path, flags[, mode])`
+     `0: standard input(stdin)`
+     `1: standard output(stdout)`
+     `2: standar error(stderr)`
+</code></pre>
+<blockquote>
+<ul>
+<li>关闭文件(close): 关闭文件描述符(file descriptor)<br>  <code>fs.close(fd, callback) fs.closeSync(fd)</code></li>
+</ul>
+</blockquote>
+<blockquote>
+<ul>
+<li>读取文件(read): 在打开和关闭之间就是读取文件，实际上就是把文件中对应的字节复制到内存中，并更新文件指针到变量中.<br>  <code>fs.read(fd, buffer, offset, length, position, callback)</code><br>  <code>fs.createReadStream(path[, options])</code></li>
+</ul>
+</blockquote>
+<blockquote>
+<ul>
+<li>写入文件(write): 是把内存中的数据复制到文件中，并更新文件指针<br>  <code>fs.write(fd, buffer[, offset[, length[, position]]], callback)</code><br>  <code>fs.createWriteStream(path[, options])</code></li>
+</ul>
+</blockquote>
+<blockquote>
+<ul>
+<li>元数据(stats): 元数据是用来描述数据的数据，由内核维护<br>  <code>fs.statSync(path[, options])</code></li>
+</ul>
+</blockquote>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line">Stats &#123;</span><br><span class="line">  dev: 2114, // Device</span><br><span class="line">  ino: 48064969, // inode</span><br><span class="line">  mode: 33188, // Protection &amp; file type</span><br><span class="line">  nlink: 1, // Number of hard links</span><br><span class="line">  uid: 85, // User ID of owner</span><br><span class="line">  gid: 100, // Group ID of owner</span><br><span class="line">  rdev: 0, // Device type (if inode device)</span><br><span class="line">  size: 527, // Total size, in bytes</span><br><span class="line">  blksize: 4096, // Blocksize for filesystem I/O</span><br><span class="line">  blocks: 8, // Number of blocks allocated</span><br><span class="line">  atimeMs: 1318289051000.1,</span><br><span class="line">  mtimeMs: 1318289051000.1,</span><br><span class="line">  ctimeMs: 1318289051000.1,</span><br><span class="line">  birthtimeMs: 1318289051000.1,</span><br><span class="line">  atime: Mon, 10 Oct 2011 23:24:11 GMT, // Time of last access</span><br><span class="line">  mtime: Mon, 10 Oct 2011 23:24:11 GMT, // Time of last modification</span><br><span class="line">  ctime: Mon, 10 Oct 2011 23:24:11 GMT, // Time of last change</span><br><span class="line">  birthtime: Mon, 10 Oct 2011 23:24:11 GMT &#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="重定向"><a href="#重定向" class="headerlink" title="重定向"></a>重定向</h3><p>参考<a target="_blank" rel="noopener" href="https://wdxtub.com/2016/04/16/thin-csapp-6/">操作系统输入输出</a></p>
+<blockquote>
+<p>了解了具体的结构之后，我们来看看内核是如何表示已打开的文件的。其实过程很简单，每个进程都有自己的描述符表(Descriptor table)，然后 Descriptor 1 指向终端，Descriptor 4 指向磁盘文件，如下图所示：<br><img src="/images/imagemogr2_auto_orient_strip_7cimageview2_2_w_1240_12401694615820021.png"></p>
+</blockquote>
+<blockquote>
+<p>这里有一个需要说明的情况，就是使用 fork。子进程实际上是会继承父进程打开的文件的。在 fork 之后，子进程实际上和父进程的指向是一样的，这里需要注意的是会把引用计数加 1，如下图所示<br><img src="/images/imagemogr2_auto_orient_strip_7cimageview2_2_w_1240_12401694615820691.png"></p>
+</blockquote>
+<blockquote>
+<p>了解了这个，我们我们就可以知道所谓的重定向是怎么实现的了。其实很简单，只要调用 dup2(oldfd, newfd) 函数即可。我们只要改变文件描述符指向的文件，也就完成了重定向的过程，下图中我们把原来指向终端的文件描述符指向了磁盘文件，也就把终端上的输出保存在了文件中：<br><img src="/images/imagemogr2_auto_orient_strip_7cimageview2_2_w_1240_12401694615821297.png"></p>
+</blockquote>
+<blockquote>
+<p>标准 IO 会用流(stream)的形式打开文件，所谓流(stream)实际上是文件描述符(file descriptor)和缓冲区(buffer)在内存中的抽象</p>
+</blockquote>
+<h2 id="Nodejs-中的-Stream"><a href="#Nodejs-中的-Stream" class="headerlink" title="Nodejs 中的 Stream"></a>Nodejs 中的 Stream</h2><p>Stream 模块在 nodejs 中只是处理流数据的抽象接口(abstract interface)，Stream 模块只提供了基础的 API，使用者可以使用这些 API 构建实现流接口的对象。</p>
+<h3 id="Stream-流的类型"><a href="#Stream-流的类型" class="headerlink" title="Stream 流的类型"></a>Stream 流的类型</h3><ul>
+<li>Readable - 可读的流 (例如 fs.createReadStream()).</li>
+<li>Writable - 可写的流 (例如 fs.createWriteStream()).</li>
+<li>Duplex - 可读写的流 (例如 net.Socket).</li>
+<li>Transform - 在读写过程中可以修改和变换数据的 Duplex 流 (例如 zlib.createDeflate()).<br>Stream 模块还包含 pipeline 和 finished 公用功能</li>
+</ul>
+<h3 id="nodejs-中使用到-Stream-接口的模块"><a href="#nodejs-中使用到-Stream-接口的模块" class="headerlink" title="nodejs 中使用到 Stream 接口的模块"></a>nodejs 中使用到 Stream 接口的模块</h3><blockquote>
+<p>nodejs程序一般以标准输入流（stdin）、标准输出流（stdout）、标准错误流（stderr）分别对应 process.stdin、process.stdout、process.stderr 开始的</p>
+</blockquote>
+<p><img src="/images/imagemogr2_auto_orient_strip_7cimageview2_2_w_1240_12401694615821896.png"></p>
+<h3 id="Stream-事件-event"><a href="#Stream-事件-event" class="headerlink" title="Stream 事件(event)"></a>Stream 事件(event)</h3><p>Stream 中 Readable 和 Writable<br><img src="/images/imagemogr2_auto_orient_strip_7cimageview2_2_w_1240_12401694615822501.png"></p>
+<ul>
+<li>Readable 发起的重要事件<ul>
+<li><code>data</code> 产生数据</li>
+<li><code>end</code> 产生数据结束</li>
+</ul>
+</li>
+<li>Writable 发起的重要事件<ul>
+<li><code>drain</code> 缓存区处理完毕</li>
+<li><code>finish</code> 处理结束</li>
+</ul>
+</li>
+</ul>
+<h2 id="可读流-Readable-Stream"><a href="#可读流-Readable-Stream" class="headerlink" title="可读流 Readable Stream"></a>可读流 Readable Stream</h2><h3 id="创建一个可读流"><a href="#创建一个可读流" class="headerlink" title="创建一个可读流"></a>创建一个可读流</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">const fs = require(&#x27;fs&#x27;)</span><br><span class="line">// 创建一个可读流</span><br><span class="line">const rs = fs.createReadStream(&#x27;./package-lock.json&#x27;, &#123;</span><br><span class="line">  // 相当于控制水桶大小</span><br><span class="line">  highWaterMark: 1024 // 控制流每次 on data 的大小，默认是16kb</span><br><span class="line">&#125;)</span><br><span class="line">let onDataCount = 0</span><br><span class="line">rs.on(&#x27;data&#x27;, chunk =&gt; &#123; // 每挑桶一次</span><br><span class="line">  console.log(chunk.toString(&#x27;utf-8&#x27;))</span><br><span class="line">  console.log(onDataCount++) // 挑桶多少次</span><br><span class="line">&#125;)</span><br><span class="line"></span><br><span class="line">rs.on(&#x27;end&#x27;, () =&gt; &#123;</span><br><span class="line">  console.log(&#x27;end&#x27;)</span><br><span class="line">&#125;)</span><br></pre></td></tr></table></figure>
+
+<h3 id="可读流的-flowing-paused-模式"><a href="#可读流的-flowing-paused-模式" class="headerlink" title="可读流的 flowing &#x2F; paused 模式"></a>可读流的 flowing &#x2F; paused 模式</h3><blockquote>
+<p>如果我们‘挑‘来的水是需要‘喝’的，每次用桶‘挑’来的水需要‘喝掉’后再去挑下一桶水，那么上一桶水才不会浪费，不然上一桶水没消耗掉就挑来下一桶造成了数据传输的浪费。也就是数据传输时需要考虑到数据消费者的消费速度才能保证高利用率，而发送数据端就是‘生产者’， 接收数据端处理数据是‘消费者’。<br>消费者有：http 请求处理，文件写入处理，数据库处理等。</p>
+</blockquote>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">`消费者示例1`</span><br><span class="line">const rs = process.stdin</span><br><span class="line"></span><br><span class="line">let count = 0</span><br><span class="line">rs.on(&#x27;data&#x27;, chunk =&gt; &#123;</span><br><span class="line">  console.log(chunk.toString())</span><br><span class="line">  rs.pause() // 每次接收到数据后都暂停</span><br><span class="line">  console.log(rs.isPaused())</span><br><span class="line">  console.log(&#x27;count: &#x27;, count++)</span><br><span class="line">  // 这里我们模拟每次接收的数据处理3 秒再回复flowing 模式</span><br><span class="line">  setTimeout(() =&gt; rs.resume(), 3000) </span><br><span class="line">&#125;)</span><br></pre></td></tr></table></figure>
+<p>上面的例子会导致每次在控制台输入数据后都需要等待3秒后, 再次输入的数据才能被可读流对象接收。在 pause 模式的这段时间里 rs 是不接收 onData 的数据的</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line">`消费者示例2`</span><br><span class="line">const fs = require(&#x27;fs&#x27;)</span><br><span class="line"></span><br><span class="line">const rs = fs.createReadStream(&#x27;./package-lock.json&#x27;, &#123;</span><br><span class="line">  highWaterMark: 1024</span><br><span class="line">&#125;)</span><br><span class="line"></span><br><span class="line">console.log(rs.isPaused()) // 检查可读流当前的模式，已经注册</span><br><span class="line"></span><br><span class="line">let onDataCount = 0</span><br><span class="line">rs.on(&#x27;data&#x27;, (data)  =&gt; &#123;</span><br><span class="line">  console.log(data.toString(&#x27;utf-8&#x27;))</span><br><span class="line">  console.log(onDataCount++)</span><br><span class="line">  rs.pause()</span><br><span class="line">  console.log(&#x27;on data=&gt;&#x27;, rs.isPaused())</span><br><span class="line">  setTimeout(() =&gt; rs.resume(), 3000) // 恢复，控制流速，解决背压问题</span><br><span class="line">&#125;)</span><br><span class="line"></span><br><span class="line">console.log(rs.isPaused())</span><br><span class="line"></span><br><span class="line">rs.on(&#x27;end&#x27;, () =&gt; &#123;</span><br><span class="line">  console.log(&#x27;end&#x27;)</span><br><span class="line">&#125;)</span><br></pre></td></tr></table></figure>
+<p>上面是读取文件的情况，会发现每次读取足够 highWaterMark 的数据后会等待3 秒进行消费，消费结束会才会进行下一次 onData 事件。</p>
+<h3 id="stream-的背压问题"><a href="#stream-的背压问题" class="headerlink" title="stream 的背压问题"></a>stream 的背压问题</h3><blockquote>
+<p>一个 stream 数据的生产速度远大于 stream 的消费的速度，就会造成数据的堆积。<br>比如不停增长的日志文件(1秒产生100条)作为流的生产者，有个服务处理日志文件(3秒处理100条到数据库)作为消费者，如果没有 pause &#x2F; flowing 模式就会撑爆内存造成浪费，让开发者对流的处理具有控制权。</p>
+</blockquote>
+<h3 id="readable-事件精确控制可读流"><a href="#readable-事件精确控制可读流" class="headerlink" title="readable 事件精确控制可读流"></a>readable 事件精确控制可读流</h3><blockquote>
+<p>readable 区别于 data 事件, readable 事件回调内 rs.read(size) 方法就好像从桶中用瓢再一点点的取水一样，可以更精确的控制流数据的读取。但在此事件回调中无法使用paused &#x2F; flowing 模式</p>
+</blockquote>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">// 此事件无法使用 paused resume， 因为不处理完是无法继续操作的.</span><br><span class="line">rs.on(&#x27;readable&#x27;, () =&gt; &#123;</span><br><span class="line">  // 一次处理完成</span><br><span class="line">  let dataChunk = rs.read()</span><br><span class="line">  if (dataChunk) &#123; // 判 null ，有数据后才开始读</span><br><span class="line">    console.log(dataChunk.toString())</span><br><span class="line">  &#125;</span><br><span class="line">&#125;)</span><br></pre></td></tr></table></figure>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">rs.on(&#x27;readable&#x27;, () =&gt; &#123;</span><br><span class="line">  // 精准读取</span><br><span class="line">  let dataChunk = rs.read(10)</span><br><span class="line">  while (dataChunk) &#123;</span><br><span class="line">    rs.read(10) // 每次挑水到后使用一个 10字节的瓢进行少量读取</span><br><span class="line">  &#125;</span><br><span class="line">&#125;)</span><br></pre></td></tr></table></figure>
+
+<h2 id="可写流-Writeable-Stream"><a href="#可写流-Writeable-Stream" class="headerlink" title="可写流 Writeable Stream"></a>可写流 Writeable Stream</h2><h3 id="创建一个可写流"><a href="#创建一个可写流" class="headerlink" title="创建一个可写流"></a>创建一个可写流</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">const fs = require(&#x27;fs&#x27;)</span><br><span class="line"></span><br><span class="line">const ws = fs.createWriteStream(&#x27;./out.txt&#x27;, &#123;</span><br><span class="line">  // highWaterMark: 3</span><br><span class="line">&#125;)</span><br><span class="line"></span><br><span class="line">for  (let i = 0; i &lt; 1000; i++) &#123;</span><br><span class="line">  const drained = ws.write(&#x27;hahahahaha\n&#x27;) // 一个状态，有没有排干，是否写完这一段, highWaterMark 的大小决定</span><br><span class="line">  console.log(drained) // 这个状态为false 时 highWaterMark 缓存已经满了，会发送 drain 事件</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+<h2 id="实现和使用-Stream-的各种流接口"><a href="#实现和使用-Stream-的各种流接口" class="headerlink" title="实现和使用 Stream 的各种流接口"></a>实现和使用 Stream 的各种流接口</h2><h3 id="可写流-Writeable"><a href="#可写流-Writeable" class="headerlink" title="可写流 Writeable"></a>可写流 Writeable</h3><h4 id="Writeable-使用"><a href="#Writeable-使用" class="headerlink" title="Writeable 使用"></a>Writeable 使用</h4><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">const &#123; Writable &#125; = require(&#x27;stream&#x27;);</span><br><span class="line">const outStream = new Writable(&#123; // 创建一个可写流实例</span><br><span class="line">  write(chunk, encoding, callback) &#123; // 定义写入数据的操作</span><br><span class="line">    console.log(chunk.toString());</span><br><span class="line">    callback();</span><br><span class="line">  &#125;</span><br><span class="line">&#125;);</span><br><span class="line">// process.stdin 可读流把控制台输入的数据通过 pipe 方法传输到 outStream 可写流里，调用 write 方法</span><br><span class="line">process.stdin.pipe(outStream); </span><br></pre></td></tr></table></figure>
+<ul>
+<li>write 方法有三个参数<ul>
+<li><strong>chunk</strong> 默认为写入数据的 buffer</li>
+<li><strong>encoding</strong> 写入数据的编码，通常忽略</li>
+<li><strong>callback</strong> 在处理完 chunk  后需要调用，它通知写入操作成功执行。</li>
+</ul>
+</li>
+</ul>
+<h4 id="自定义-Writeable-实现"><a href="#自定义-Writeable-实现" class="headerlink" title="自定义 Writeable 实现"></a>自定义 Writeable 实现</h4><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line">const &#123; Writable &#125;= require(&#x27;stream&#x27;)</span><br><span class="line">const fs = require(&#x27;fs&#x27;)</span><br><span class="line"></span><br><span class="line">class MyWriteable extends Writable &#123;</span><br><span class="line">  constructor (options) &#123;</span><br><span class="line">    super(options)</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  _write(chunk, encoding, callback) &#123;</span><br><span class="line">    fs.writeSync(1, chunk.toString() + &#x27;\n&#x27;) // 1 为写入到命令行 和 console.log 一样</span><br><span class="line">    setTimeout(() =&gt; callback(null), 100) // callback 传入 null 为正常，出错需要传入一个 Error 对象</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  _writev() &#123;&#125; // 并行写入，与_write 冲突</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">const ws = new MyWriteable()</span><br><span class="line"></span><br><span class="line">for (let i = 0; i &lt; 100; i++) &#123;</span><br><span class="line">  ws.write(&#x27;hahahahah&#x27;)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="可读流-Readable"><a href="#可读流-Readable" class="headerlink" title="可读流 Readable"></a>可读流 Readable</h3><h4 id="Readable-使用"><a href="#Readable-使用" class="headerlink" title="Readable 使用"></a>Readable 使用</h4><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">const &#123; Readable &#125; = require(&#x27;stream&#x27;); </span><br><span class="line">const inStream = new Readable(&#123;</span><br><span class="line">  read() &#123;&#125;</span><br><span class="line">&#125;);</span><br><span class="line">inStream.push(&#x27;ABCDEFGHIJKLM&#x27;);</span><br><span class="line">inStream.push(&#x27;NOPQRSTUVWXYZ&#x27;);</span><br><span class="line">inStream.push(null); // 通知可读流不再输入数据</span><br><span class="line">// inStream 可读流通过 pipe 输出到 process.stdout 可写流中输出到控制台上</span><br><span class="line">inStream.pipe(process.stdout); </span><br></pre></td></tr></table></figure>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">const inStream = new Readable(&#123;</span><br><span class="line">  // read 方法会在 inStream 可读流调用 pipe 建立通道时执行，不停的发送 data 事件</span><br><span class="line">  read(size) &#123;</span><br><span class="line">    this.push(String.fromCharCode(this.currentCharCode++));</span><br><span class="line">    if (this.currentCharCode &gt; 90) &#123;</span><br><span class="line">      this.push(null);</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;);</span><br><span class="line">inStream.currentCharCode = 65;</span><br><span class="line">inStream.pipe(process.stdout);</span><br></pre></td></tr></table></figure>
+
+<h4 id="自定义-Readable-实现"><a href="#自定义-Readable-实现" class="headerlink" title="自定义 Readable 实现"></a>自定义 Readable 实现</h4><blockquote>
+<p>自定义 Readable 只需要继承 Readable 并重写实现 _read() 方法就可以了</p>
+</blockquote>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line">const &#123; Readable &#125; = require(&#x27;stream&#x27;);</span><br><span class="line"></span><br><span class="line">// Readable里面有一个read()方法，默认掉_read()</span><br><span class="line">// Readable中提供了一个push方法你调用push方法就会触发data事件</span><br><span class="line">class MyReadable extends Readable &#123;</span><br><span class="line">  constructor(options) &#123;</span><br><span class="line">    super(options)</span><br><span class="line">    this.count = 0</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">    _read() &#123;</span><br><span class="line">      this.count++</span><br><span class="line">      if (this.count &gt; 10) &#123;</span><br><span class="line">        return this.push(null) // push null 就结束了</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">let rs = new MyReadable(); </span><br><span class="line">rs.on(&#x27;data&#x27;, function(data) &#123;  // 当 rs 注册 onData 时就开始调用 _reade()</span><br><span class="line">    console.log(data);</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
+
+<h2 id="背压-back-preesure"><a href="#背压-back-preesure" class="headerlink" title="背压 back preesure"></a>背压 back preesure</h2><p><a target="_blank" rel="noopener" href="https://en.wikipedia.org/wiki/Back_pressure#Backpressure_in_information_technology">wiki back presssure</a></p>
+<blockquote>
+<p>在数据传输过程中有一大堆数据在缓存之后积压着。每次当数据到达结尾又遇到复杂的运算，又或者无论什么原因它比预期的慢，这样累积下来，从源头来的数据就会变得很庞大，像一个塞子一样堵塞住。</p>
+</blockquote>
+<h3 id="实现背压"><a href="#实现背压" class="headerlink" title="实现背压"></a>实现背压</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br></pre></td><td class="code"><pre><span class="line">const &#123; Readable, Writable &#125;= require(&#x27;stream&#x27;)</span><br><span class="line">const colors = require(&#x27;colors&#x27;);</span><br><span class="line">const monent = require(&#x27;moment&#x27;)</span><br><span class="line"></span><br><span class="line">class MyReadable extends Readable &#123;</span><br><span class="line">  constructor(options) &#123;</span><br><span class="line">    super(options)</span><br><span class="line">    this.count = 0</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  _read(size) &#123;</span><br><span class="line">    if (this.count &gt; 1000) &#123;</span><br><span class="line">      return this.push(null) // push null 就结束了</span><br><span class="line">    &#125;</span><br><span class="line">    if (this.count === 0) console.log(colors.yellow(&#x27;建立连接, 第一次 push 没返回&#x27;))</span><br><span class="line">    this.count++</span><br><span class="line">    let r</span><br><span class="line">    setTimeout(() =&gt; &#123;</span><br><span class="line">      // push -&gt; readQueue highWaterMark 缓存池, flowing 模式下才触发 onData 清理此缓存池</span><br><span class="line">      r = this.push(&#x27;...&#x27; + this.count) // 是否到达 readable 水位</span><br><span class="line">      console.log(colors.yellow(&#x27;=======reading call push ret======:&#x27;, r, &#x27;count: &#x27;, this.count + &#x27; | &#x27; + monent().format(&#x27;mm:ss&#x27;)))</span><br><span class="line">    &#125;, 100)</span><br><span class="line"></span><br><span class="line">    if (!r) &#123;</span><br><span class="line">      // 暂停模式</span><br><span class="line">      // 如果生产者的桶满了可以控制生产, 比如通过 size 记录位置</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">class MyWriteable extends Writable &#123;</span><br><span class="line">  constructor (options) &#123;</span><br><span class="line">    super(options)</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  _write(chunk, encoding, cb) &#123;</span><br><span class="line">    console.log(colors.blue(&#x27;=======writing======:&#x27; + chunk.toString() + &#x27; | &#x27; + monent().format(&#x27;mm:ss&#x27;)))</span><br><span class="line">    setTimeout(() =&gt; &#123;</span><br><span class="line">      console.log(colors.blue(&#x27;=======write finish======:&#x27; + chunk.toString() + &#x27; | &#x27; + monent().format(&#x27;mm:ss&#x27;) + &#x27;\n&#x27;))</span><br><span class="line">      cb(null)</span><br><span class="line">    &#125;, 500) // 延迟写完数据</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">const rs = new MyReadable(&#123;</span><br><span class="line">  highWaterMark: 50</span><br><span class="line">&#125;)</span><br><span class="line">const ws = new MyWriteable(&#123;</span><br><span class="line">  highWaterMark: 50</span><br><span class="line">&#125;)</span><br><span class="line"></span><br><span class="line">rs.on(&#x27;data&#x27;, data =&gt; &#123;</span><br><span class="line">  console.log(&#x27;=======on data ready for write======:&#x27;, data.toString() + &#x27; | &#x27; + monent().format(&#x27;mm:ss&#x27;))</span><br><span class="line">  // write -&gt; writeQueue highWaterMark 缓存池, writeQueue 任务清理完毕才触发 onDrain</span><br><span class="line">  const drained = ws.write(data) // 返回 boolean 是否排空, rs 是否还能放更多的东西, 到达 ws 水位</span><br><span class="line">  if (!drained) &#123; // 没吸满20就暂停, 没排干, 桶里的水还没喝完</span><br><span class="line">    console.log(colors.red(&#x27;=======on data check drained is======:&#x27;, drained, data.toString() + &#x27; | &#x27; + monent().format(&#x27;mm:ss&#x27;)))</span><br><span class="line">    console.log(colors.red(&#x27;=======on data pause for read======:&#x27; + monent().format(&#x27;mm:ss&#x27;) + &#x27;\n&#x27;)</span><br><span class="line">    )</span><br><span class="line">    rs.pause()</span><br><span class="line">  &#125;</span><br><span class="line">&#125;)</span><br><span class="line"></span><br><span class="line">ws.on(&#x27;drain&#x27;, () =&gt; &#123;</span><br><span class="line">  console.log(colors.green(&#x27;=======on drain with resume for read======:&#x27; + monent().format(&#x27;mm:ss&#x27;) + &#x27;&#x27;)</span><br><span class="line">  )</span><br><span class="line">  rs.resume() // 吸满了，恢复</span><br><span class="line">&#125;)</span><br></pre></td></tr></table></figure>
+<p>执行结果<img src="/images/imagemogr2_auto_orient_strip_7cimageview2_2_w_1240_12401694615823098.png"><br>上面代码，我们让 生产者 100 毫秒生产一次数据 push 到可读流 highWaterMark 缓存池，触发 onData 执行 可写流 write 存放到可写流的 highWaterMark 缓存池，让消费者 500 毫秒消耗一次可写流缓存池的数据，消耗完可写流缓存池的数据后触发 onDrain。<br>这个过程中，消费者消耗的速度远大于生产者的生产速度，当可读流的缓存池满时使可写流进入 pause 状态停止触发 onData 事件，直到可写流缓存池消耗完毕触发 onDrain 后才恢复可读流 flowing 事件。</p>
+<h2 id="pipe-原理和实现"><a href="#pipe-原理和实现" class="headerlink" title="pipe 原理和实现"></a>pipe 原理和实现</h2><blockquote>
+<p>pipe 可以有不同的目的地，pipe 就是解决了背压问题，实现方式就是在可读流上注册一个 onData 事件，达到阈值后进行 pause<br><a target="_blank" rel="noopener" href="https://github.com/nodejs/node/blob/master/lib/_stream_readable.js#L663-L681">pipe 源码核心</a></p>
+</blockquote>
+<h3 id="使用-pipe"><a href="#使用-pipe" class="headerlink" title="使用 pipe"></a>使用 pipe</h3><blockquote>
+<p>pipe 最大的作用是解决了背压的细节</p>
+</blockquote>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">const fs = require(&#x27;fs&#x27;)</span><br><span class="line"></span><br><span class="line">const rs = fs.createReadStream(&#x27;./package.json&#x27;)</span><br><span class="line">const ws = fs.createWriteStream(&#x27;./out.txt&#x27;)</span><br><span class="line"></span><br><span class="line">rs.pipe(ws) // 解决了背压的细节</span><br></pre></td></tr></table></figure>
+
+<h3 id="实现-pipe"><a href="#实现-pipe" class="headerlink" title="实现 pipe"></a>实现 pipe</h3><p>看了 node 源码很简单，就是在可写流上注册 onData 和 onDrain 根据可写流的阈值和释放进行 pause flowing 的切换。因为实例是可写可读 pipe 到各个地方，这里的实例应该是个双工流</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">pipe(ws) &#123;</span><br><span class="line">    this.on(&#x27;data&#x27;, (chunk) =&gt; &#123;</span><br><span class="line">        let drained = ws.write(chunk);</span><br><span class="line">        if (!drained) &#123;</span><br><span class="line">            this.pause();</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;);</span><br><span class="line">    ws.on(&#x27;drain&#x27;, () =&gt; &#123;</span><br><span class="line">        this.resume();</span><br><span class="line">    &#125;)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="双工流-Duplex"><a href="#双工流-Duplex" class="headerlink" title="双工流 Duplex"></a>双工流 Duplex</h3><blockquote>
+<p>双工流结合了可写流和可读流，同时做到读写互不干扰<br><a target="_blank" rel="noopener" href="https://github.com/nodejs/node/blob/master/lib/_stream_duplex.js#L31-L42">双工流 duplex 源码</a><br>继承了 Readable 同时拥有Writeable 方法</p>
+</blockquote>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">const util = require(&#x27;util&#x27;);</span><br><span class="line">const Readable = require(&#x27;_stream_readable&#x27;);</span><br><span class="line">const Writable = require(&#x27;_stream_writable&#x27;);</span><br><span class="line"></span><br><span class="line">util.inherits(Duplex, Readable);</span><br><span class="line"></span><br><span class="line">var keys = Object.keys(Writable.prototype);</span><br><span class="line">for (var v = 0; v &lt; keys.length; v++) &#123;</span><br><span class="line">  var method = keys[v];</span><br><span class="line">  if (!Duplex.prototype[method])</span><br><span class="line">    Duplex.prototype[method] = Writable.prototype[method];</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h4 id="Duplex-使用"><a href="#Duplex-使用" class="headerlink" title="Duplex 使用"></a>Duplex 使用</h4><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line">const &#123; Duplex &#125; = require(&#x27;stream&#x27;);</span><br><span class="line"></span><br><span class="line">const inoutStream = new Duplex(&#123;</span><br><span class="line">  // 通过 pipe 通道进行写入操作时执行</span><br><span class="line">  write(chunk, encoding, callback) &#123;</span><br><span class="line">    console.log(&#x27;w-&#x27;, chunk.toString());</span><br><span class="line">    callback();</span><br><span class="line">  &#125;,</span><br><span class="line"></span><br><span class="line">  // 建立通道时执行 read</span><br><span class="line">  read(size) &#123;</span><br><span class="line">    this.push(String.fromCharCode(this.currentCharCode++));</span><br><span class="line">    if (this.currentCharCode &gt; 90) &#123;</span><br><span class="line">      this.push(null);</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;);</span><br><span class="line"></span><br><span class="line">inoutStream.currentCharCode = 65;</span><br><span class="line">process.stdin.pipe(inoutStream).pipe(process.stdout);</span><br></pre></td></tr></table></figure>
+
+<h3 id="转换流-Transform"><a href="#转换流-Transform" class="headerlink" title="转换流 Transform"></a>转换流 Transform</h3><blockquote>
+<p>转换流本质仍然是双工流，它的输入和输出是存在相互关联的，中间做了一次转换处理，它只需要实现一个transform方法用于转换。</p>
+</blockquote>
+<h4 id="Transform-使用"><a href="#Transform-使用" class="headerlink" title="Transform 使用"></a>Transform 使用</h4><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">const &#123; Transform &#125; = require(&#x27;stream&#x27;);</span><br><span class="line"></span><br><span class="line">const upperCaseTr = new Transform(&#123;</span><br><span class="line">  transform(chunk, encoding, callback) &#123;</span><br><span class="line">    this.push(chunk.toString().toUpperCase());</span><br><span class="line">    callback();</span><br><span class="line">  &#125;</span><br><span class="line">&#125;);</span><br><span class="line"></span><br><span class="line">process.stdin.pipe(upperCaseTr).pipe(process.stdout);</span><br></pre></td></tr></table></figure>
+
+<h3 id="Object-Mode-对象流"><a href="#Object-Mode-对象流" class="headerlink" title="Object Mode 对象流"></a>Object Mode 对象流</h3><p>默认 Stream 处理的数据是 Buffer 或者 String类型。我们可以设置 objectMode 让流可以接受任何JavaScript对象。</p>
+<h4 id="Object-Mode-模式的使用"><a href="#Object-Mode-模式的使用" class="headerlink" title="Object Mode 模式的使用"></a>Object Mode 模式的使用</h4><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><span class="line">const &#123; Transform &#125; = require(&#x27;stream&#x27;);</span><br><span class="line">const commaSplitter = new Transform(&#123;</span><br><span class="line">  readableObjectMode: true,</span><br><span class="line">  transform(chunk, encoding, callback) &#123;</span><br><span class="line">    this.push(chunk.toString().trim().split(&#x27;,&#x27;));</span><br><span class="line">    callback();</span><br><span class="line">  &#125;</span><br><span class="line">&#125;);</span><br><span class="line">const arrayToObject = new Transform(&#123;</span><br><span class="line">  readableObjectMode: true,</span><br><span class="line">  writableObjectMode: true,</span><br><span class="line">  transform(chunk, encoding, callback) &#123;</span><br><span class="line">    const obj = &#123;&#125;;</span><br><span class="line">    for(let i=0; i &lt; chunk.length; i+=2) &#123;</span><br><span class="line">      obj[chunk[i]] = chunk[i+1];</span><br><span class="line">    &#125;</span><br><span class="line">    this.push(obj);</span><br><span class="line">    callback();</span><br><span class="line">  &#125;</span><br><span class="line">&#125;);</span><br><span class="line">const objectToString = new Transform(&#123;</span><br><span class="line">  writableObjectMode: true,</span><br><span class="line">  transform(chunk, encoding, callback) &#123;</span><br><span class="line">    this.push(JSON.stringify(chunk) + &#x27;\n&#x27;);</span><br><span class="line">    callback();</span><br><span class="line">  &#125;</span><br><span class="line">&#125;);</span><br><span class="line">process.stdin</span><br><span class="line">  .pipe(commaSplitter)</span><br><span class="line">  .pipe(arrayToObject)</span><br><span class="line">  .pipe(objectToString)</span><br><span class="line">  .pipe(process.stdout)</span><br></pre></td></tr></table></figure>
+<ul>
+<li>参考<br><a target="_blank" rel="noopener" href="https://nodejs.org/dist/latest-v10.x/docs/api/stream.html">Stream 文档</a><br><a target="_blank" rel="noopener" href="https://nodejs.org/zh-cn/docs/guides/backpressuring-in-streams/">官方背压</a><br><a target="_blank" rel="noopener" href="https://wdxtub.com/2016/04/16/thin-csapp-6/">系统输入输出</a><br><a target="_blank" rel="noopener" href="https://medium.freecodecamp.org/node-js-streams-everything-you-need-to-know-c9141306be93">参考1</a><br><a target="_blank" rel="noopener" href="https://www.barretlee.com/blog/2017/06/06/dive-to-nodejs-at-stream-module/">参考2</a><br><a target="_blank" rel="noopener" href="https://segmentfault.com/a/1190000014148205">参考3-1</a><br><a target="_blank" rel="noopener" href="https://segmentfault.com/a/1190000014402530">参考3-2</a></li>
+</ul>
+
+            </div>
+        </div>
+    </article>
+
+    
+    
+<nav class="article-nav">
+  
+  
+    <a href="/2018/10/28/%E7%BC%96%E5%86%99React%E7%BB%84%E4%BB%B6%E8%A6%81%E7%82%B9-%E5%8D%95%E4%B8%80%E8%B4%A3%E4%BB%BB%E5%8E%9F%E5%88%99/" id="article-nav-older" class="article-nav-link-wrap next">
+      <strong class="article-nav-caption">Older</strong>
+      <div class="article-nav-title">编写React组件要点-单一责任原则</div>
+    </a>
+  
+</nav>
+
+    
+
+    
+</div>
+    </div>
+    <footer class="site-footer">
+        <div class="global-width">
+            <ul class="site-widget">
+                
+                <li class="widget widget-tag">
+                    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Tags</h3>
+    <div class="widget-body">
+      <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/JavaScript/" rel="tag">JavaScript</a><span class="tag-list-count">6</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/React/" rel="tag">React</a><span class="tag-list-count">5</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/React-Tips/" rel="tag">React Tips</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Redux/" rel="tag">Redux</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Vue/" rel="tag">Vue</a><span class="tag-list-count">4</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/css/" rel="tag">css</a><span class="tag-list-count">3</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/dom/" rel="tag">dom</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/http/" rel="tag">http</a><span class="tag-list-count">5</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/nodejs/" rel="tag">nodejs</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/sftp/" rel="tag">sftp</a><span class="tag-list-count">1</span></li></ul>
+    </div>
+  </div>
+
+                </li>
+                
+                <li class="widget widget-category">
+                    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Categories</h3>
+    <div class="widget-body">
+      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/Font-End-Basis/">Font-End Basis</a><span class="category-list-count">11</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/React/">React</a><span class="category-list-count">8</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Vue/">Vue</a><span class="category-list-count">4</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/css/">css</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/http/">http</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/network/">network</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/nodejs/">nodejs</a><span class="category-list-count">2</span></li></ul>
+    </div>
+  </div>
+
+                </li>
+                
+                <li class="widget widget-recent_posts">
+                    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Recents</h3>
+    <div class="widget-body">
+      <ul>
+        
+          <li>
+            <a href="/2018/10/29/Nodejs%20%E4%B8%AD%E7%9A%84%20Stream/">Nodejs 中的 Stream</a>
+          </li>
+        
+          <li>
+            <a href="/2018/10/28/%E7%BC%96%E5%86%99React%E7%BB%84%E4%BB%B6%E8%A6%81%E7%82%B9-%E5%8D%95%E4%B8%80%E8%B4%A3%E4%BB%BB%E5%8E%9F%E5%88%99/">编写React组件要点-单一责任原则</a>
+          </li>
+        
+          <li>
+            <a href="/2018/10/26/HTTP%E7%9B%B8%E5%85%B3%E7%B3%BB%E7%BB%9F%E7%9F%A5%E8%AF%86/">HTTP相关系统知识</a>
+          </li>
+        
+          <li>
+            <a href="/2018/09/07/nodejs%20%E7%9A%84%20Event%20Loop%20%E5%92%8C%20EventEmitter/">nodejs 的 Event Loop 和 EventEmitter</a>
+          </li>
+        
+          <li>
+            <a href="/2018/04/17/JavaScript%E4%B8%AD%E7%9A%84%E5%9E%83%E5%9C%BE%E5%9B%9E%E6%94%B6/">JavaScript 中的垃圾回收</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+                </li>
+                
+            </ul>
+        </div>
+        <div class="site-info">
+            <address>
+                &copy; 2014 <a href="http://yoursite.com">Minimalist</a> All Right Reserved. <br/>
+                Powered by <a target="_blank" rel="noopener" href="http://hexo.io">Hexo</a>. Theme by <a target="_blank" rel="noopener" href="http://zzoman.com">ZZOMAN</a>
+            </address>
+        </div>
+    </footer>
+    
+    <script src="/libs/jquery-1.11.3.min.js" type="text/javascript"></script>
+    
+    <script src="/libs/fancybox/jquery.fancybox.js" type="text/javascript"></script>
+    
+    <script src="/js/site_init.js" type="text/javascript"></script>
+    
+</body>
+</html>

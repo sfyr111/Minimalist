@@ -13,7 +13,9 @@ categories: Font-End Basis
 "concurrency": 并发
 "web-api": DOM, ajax, setTimeout...
 ## JS在浏览器中的环境
-先看一张图![](/images/imagemogr2_auto_orient_strip_7cimageview2_2_w_1240_12401694537074040.png)[图片出自](https://www.youtube.com/watch?v=6MXRNXXgP_0)
+先看一张图![](/images/imagemogr2_auto_orient_strip_7cimageview2_2_w_1240_12401694537074040.png)
+
+> 图片出自: https://www.youtube.com/watch?v=6MXRNXXgP_0
 
 ### V8引擎内的JS
 根据上图，首先可以得到的JS在V8引擎中有一个堆(heap)和栈(stack)的概念

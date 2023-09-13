@@ -33,6 +33,11 @@ async function processMdFile(file) {
 
   while ((matches = urlPattern.exec(content)) !== null) {
     const imageUrl = matches[1];
+
+    if (!imageUrl.startsWith('http://') && !imageUrl.startsWith('https://')) {
+      continue;
+    }
+
     const imageName = generateFilenameFromUrl(imageUrl);
     const outputPath = path.join(imagesPath, imageName);
 
