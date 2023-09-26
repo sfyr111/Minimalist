@@ -1,0 +1,344 @@
+<!doctype html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge">
+    <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    
+    <title>网络基础、TCP/IP 三次握手和四次挥手 | Minimalist</title>
+    
+    <link rel="alternative" href="/atom.xml" title="Minimalist" type="application/atom+xml">
+    
+    
+<link rel="stylesheet" href="/css/style.css">
+
+    
+    <link rel="stylesheet" href="/libs/fancybox/jquery.fancybox.css" charset="utf-8">
+    
+    <!--[if lt IE 9]>
+    <script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
+    <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+    <![endif]-->
+<meta name="generator" content="Hexo 6.3.0"></head>
+<body class="site">
+    <header class="site-header">
+        <h1 class="site-title"><a href="/">Minimalist</a></h1>
+        <nav class="site-nav">
+            <ul class="nav">
+                
+                <li><a href="/archives">Archives</a></li>
+                
+                
+                <li><a target="_blank" rel="noopener" href="https://github.com/sfyr111" title="git">GITHUB</a></li>
+                
+                <li><a class="toggle-search" href="#search">search</a></li>
+            </ul>
+        </nav>
+        <div class="site-search" id="search">
+            <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><input type="hidden" name="sitesearch" value="http://yoursite.com"></form>
+        </div>
+        
+            <div class="site-header-background" style="background-image:url(http://reumia.github.io/hexo-theme-zzoman2015/images/background-zzoman2015.jpg)"></div>
+        
+    </header>
+    <div class="site-body">
+        <div class="global-width">
+    <article class="article" data-layout="post" data-slug="网络基础、TCP|IP 三次握手和四次挥手 ">
+        <div class="article-content">
+            
+            
+            <header class="article-header">
+                <div class="article-meta">
+                    <a href="/2019/01/14/%E7%BD%91%E7%BB%9C%E5%9F%BA%E7%A1%80%E3%80%81TCP%7CIP%20%E4%B8%89%E6%AC%A1%E6%8F%A1%E6%89%8B%E5%92%8C%E5%9B%9B%E6%AC%A1%E6%8C%A5%E6%89%8B%20/" class="article-date">
+  <time datetime="2019-01-13T17:18:32.000Z">2019-01-14</time>
+</a>
+                    
+  <div class="article-category categories">
+    <a class="category-link" href="/categories/http/">http</a>
+  </div>
+
+                    
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/http/" rel="tag">http</a></li></ul>
+
+                </div>
+                
+    <h1 class="article-title" itemprop="name">
+      <a href="/2019/01/14/%E7%BD%91%E7%BB%9C%E5%9F%BA%E7%A1%80%E3%80%81TCP%7CIP%20%E4%B8%89%E6%AC%A1%E6%8F%A1%E6%89%8B%E5%92%8C%E5%9B%9B%E6%AC%A1%E6%8C%A5%E6%89%8B%20/">网络基础、TCP/IP 三次握手和四次挥手</a>
+    </h1>
+
+            </header>
+            
+            <div class="article-body">
+                <h2 id="网络知识点-OSI-开放式互联参考模型"><a href="#网络知识点-OSI-开放式互联参考模型" class="headerlink" title="网络知识点 OSI 开放式互联参考模型"></a>网络知识点 OSI 开放式互联参考模型</h2><h3 id="七层协议"><a href="#七层协议" class="headerlink" title="七层协议"></a>七层协议</h3><h4 id="1物理层"><a href="#1物理层" class="headerlink" title="1物理层"></a>1物理层</h4><ul>
+<li>解决：机器1向机器2发送比特流，机器2接收比特流。</li>
+<li>定义：物理设备的标准，网线类型，设备接口类型，各种传输介质的传输速率</li>
+<li>作用：传输比特流010101数据，将比特流转化为电流强弱信号，到达后再转化为0101机器码-&gt; 数模转换和模数转换。网卡定义在这一层</li>
+</ul>
+<h3 id="2数据链路层"><a href="#2数据链路层" class="headerlink" title="2数据链路层"></a>2数据链路层</h3><ul>
+<li>解决：传输比特流的过程中解决数据传输不完整的可能</li>
+<li>定义：如何格式化数据以进行传输以及对物理介质的访问</li>
+<li>作用：错误检测和纠正，确保数据传输的可靠性，将比特数据组成了帧，交换机工作在这层，对帧解码，根据帧中的数据发送到网络接收方</li>
+</ul>
+<h3 id="3网络层"><a href="#3网络层" class="headerlink" title="3网络层"></a>3网络层</h3><ul>
+<li>解决：找到目标节点选择最佳路径，帧数据点对点通信经过多个节点</li>
+<li>定义：将网络地址翻译成物理地址并决定将发送方路由到接收方，通过综合考虑选择优先权和最佳路径，TCP&#x2F;IP 路由器属于网络层，数据为数据包</li>
+<li>作用：将数据包切割为一个一个段落进行发送。</li>
+</ul>
+<h3 id="4传输层"><a href="#4传输层" class="headerlink" title="4传输层"></a>4传输层</h3><ul>
+<li>解决：数据丢失要不要重传，每个段落要按顺序达到么，解决了主机间的数据传输，传输质量的问题</li>
+<li>定义：传输协议，流量控制，速率，传输顺序, TCP、UDP</li>
+</ul>
+<h3 id="5-会话层"><a href="#5-会话层" class="headerlink" title="5 会话层"></a>5 会话层</h3><ul>
+<li>解决：建立和管理应用程序间的通信，解决不同系统之间通信语法的问题，再表示成网络能理解的方案格式化，方案也因为网络的类型不同而不同，</li>
+<li>定义： RPC 远程过程调用协议在此层</li>
+</ul>
+<h3 id="7-应用层"><a href="#7-应用层" class="headerlink" title="7 应用层"></a>7 应用层</h3><p>发送方发送的数据接收方是不知道他的字节数组和内容格式的</p>
+<ul>
+<li>解决：规定发送方接收方使用固定的消息头，规定头的组成，消息体的长度，用来正确解析发送的数据，应用从网络中接收到的数据。</li>
+<li>定义：TCP&#x2F;IP 协议对应的 HTTP HTTPS 协议</li>
+</ul>
+<h3 id="模型参考"><a href="#模型参考" class="headerlink" title="模型参考"></a>模型参考</h3><p><img src="/images/imagemogr2_auto_orient_strip_7cimageview2_2_w_1240_12401695050167419.png" alt="处理数据"><br>发送方解释数据，分段，分组成帧解释成比特流，通过电缆发送到目标方在向上解析传递。</p>
+<h2 id="TCP-IP-模型"><a href="#TCP-IP-模型" class="headerlink" title="TCP&#x2F;IP 模型"></a>TCP&#x2F;IP 模型</h2><p>OSI概念七层实现：TCP&#x2F;IP 四层模型<br>TCP&#x2F;IP 模型关注应用程序实现，OSI模型在协议开发之前设计的，具有通用性</p>
+<p><img src="/images/imagemogr2_auto_orient_strip_7cimageview2_2_w_1240_12401695050168070.png"><br><img src="/images/imagemogr2_auto_orient_strip_7cimageview2_2_w_1240_12401695050168665.png"></p>
+<h3 id="TCP-IP-解释"><a href="#TCP-IP-解释" class="headerlink" title="TCP&#x2F;IP 解释"></a>TCP&#x2F;IP 解释</h3><ul>
+<li><p>TCP 和 IP 协议<br>单独的 TCP IP 协议</p>
+</li>
+<li><p>TCP&#x2F;IP通信时用到的协议群-网ji协议群<br>TCP,UDP 都属于 TCP&#x2F;IP 协议<br><img src="/images/imagemogr2_auto_orient_strip_7cimageview2_2_w_1240_12401695050169234.png"></p>
+</li>
+</ul>
+<blockquote>
+<ul>
+<li>OSI模型注重通信协议必要的功能是什么</li>
+<li>TCP&#x2F;IP模型更强调在计算机上实现协议应该开发哪种程序<br>  一层层包裹在一层层解套出来</li>
+</ul>
+</blockquote>
+<h2 id="TCP-三次握手"><a href="#TCP-三次握手" class="headerlink" title="TCP 三次握手"></a>TCP 三次握手</h2><h2 id="传输控制协议TCP"><a href="#传输控制协议TCP" class="headerlink" title="传输控制协议TCP"></a>传输控制协议TCP</h2><ul>
+<li>面向连接、可靠、基于字节流的传输层通信协议</li>
+<li>将应用层的数据流分割成报文段并发送给目标节点的TCP层</li>
+<li>数据包有都有序号，对方接收到则发送ACK 确认，未收到则重传</li>
+<li>使用校验和检验数据在传输过程中是否有误</li>
+</ul>
+<h2 id="TCP-报文头"><a href="#TCP-报文头" class="headerlink" title="TCP 报文头"></a>TCP 报文头</h2><p><img src="/images/imagemogr2_auto_orient_strip_7cimageview2_2_w_1240_12401695050169805.png"></p>
+<ul>
+<li>传输中使用协议端口号，ip地址+协议+端口号产生唯一标识网络进程， 也成为套接字 socket。<br>source port 原端口，destination port 目的端口</li>
+<li>Sequence Number 序号字段占4字节<br>对每个字节标识，比如一段报文序号107携带100个字段，下一个报文段就是 107 + 100 &#x3D; 207 开始</li>
+<li>Acknowledgment Number 期望收到对方下个字节的序号<br>例如B收到A 301序号200字节大小的报文段，B接收500字节，B发送给A501 ACK Number，告诉A期望下次接收501序号的报文段</li>
+</ul>
+<h2 id="TCP-Flage"><a href="#TCP-Flage" class="headerlink" title="TCP Flage"></a>TCP Flage</h2><ul>
+<li>URG: 紧急指针标志 0忽略</li>
+<li>ACK：确认序号标志1</li>
+<li>PSH：push 标志 1就有push 将数据尽快交给应用程序而不是缓存区排队</li>
+<li>RST：重置连接标志</li>
+<li>SYN：同步序列号1，用户建立连接过程</li>
+<li>FIN:finish标志，用于释放连接</li>
+</ul>
+<h2 id="三次握手"><a href="#三次握手" class="headerlink" title="三次握手"></a>三次握手</h2><p>握手是为了建立连接，TCP 三次握手的流程<br><img src="/images/imagemogr2_auto_orient_strip_7cimageview2_2_w_1240_12401695050170373.png"></p>
+<h3 id="第一次握手"><a href="#第一次握手" class="headerlink" title="第一次握手"></a>第一次握手</h3><ul>
+<li>B服务器创建传输控制块TCP 时刻准备接收客户端进程发送的请求，进入 listen 状态</li>
+<li>A客户端创建传输控制块TCP向服务器发送连接请求报文 - sent 报文段，SYN同步序号1，seq报文段序号正整数值</li>
+<li>A客户端进入 SYN-SENT 同步已发送状态，发送的称为 sent 报文段, 不能携带数据，但是要消耗掉一个 seq 序号，这便是第一次握手</li>
+</ul>
+<h3 id="第二次握手"><a href="#第二次握手" class="headerlink" title="第二次握手"></a>第二次握手</h3><ul>
+<li>B服务器接收到请求后如果同意则发送确认接收报文</li>
+<li>接收报文包含 SYN1 ACK1 两个字段，而为自己的缓存初始化一个序列号 seq 确认报文序号为 y，ack期待报文序号为 x + 1，因为第一次握手 seq为x</li>
+<li>进入 SYN-RCVD 同步收到状态，这时候报文要不能携带数据需要消耗一个 序号</li>
+</ul>
+<h3 id="第三次握手"><a href="#第三次握手" class="headerlink" title="第三次握手"></a>第三次握手</h3><ul>
+<li>TCP 客户端进程A 收到确认报文后还要给服务进程一个报文</li>
+<li>确认报文 ACK&#x3D;1，seq&#x3D;x+1, ack&#x3D;y+1</li>
+<li>此时TCP 连接建立，客户端进入ESTAB-LISHED 已建立连接的状态，此时ACK报文段可以携带数据(不携带则不消耗序号),之前不可携带数据</li>
+<li>服务端进入 SETAB-LISHED 状态 双方就可以通信了。</li>
+</ul>
+<h2 id="Wireshark-抓包理解-TCP-三次握手"><a href="#Wireshark-抓包理解-TCP-三次握手" class="headerlink" title="Wireshark 抓包理解 TCP 三次握手"></a>Wireshark 抓包理解 TCP 三次握手</h2><p><img src="/images/imagemogr2_auto_orient_strip_7cimageview2_2_w_1240_12401695050170949.png"></p>
+<p>win 参数为滑动窗口，进行流量控制</p>
+<h2 id="总结三次握手"><a href="#总结三次握手" class="headerlink" title="总结三次握手"></a>总结三次握手</h2><p>在 TCP&#x2F;IP 协议中, TCP 采用三次握手建立可靠的连接。</p>
+<ul>
+<li>第一次握手<br>建立连接时客户端发送 SYN 包 syn&#x3D;1 到服务器并进入 SYN_SEND 状态 等待服务器确认</li>
+<li>第二次握手<br>服务器收到  SYN 包，必须给客户端发送确认包 ACK ack&#x3D;1，同时发送一个 SYN syn&#x3D;k，也就是 SYN+ACK 包，此时服务器进入 SYN_RECV 状态</li>
+<li>第三次握手<br>客户端收到服务器的 SYN+ACK 包后向服务器发送确认包 ACK ack&#x3D;k+1，此包发送完毕后客户端和服务端后进入 ESTABLISHED 状态，三次握手完毕<br><img src="/images/imagemogr2_auto_orient_strip_7cimageview2_2_w_1240_12401695050171514.png"></li>
+</ul>
+<h2 id="为什么要三次握手建立连接"><a href="#为什么要三次握手建立连接" class="headerlink" title="为什么要三次握手建立连接"></a>为什么要三次握手建立连接</h2><ul>
+<li>初始化 sequence number 的初始值<br>通信双方要通知双方 seq num，用来以后通信的序号，保证应用层接收到的数据不会因为网络传输问题导致乱序，TCP用序号拼接数据，而且还要发送确认报文 ack</li>
+</ul>
+<h2 id="SYN-超时隐患"><a href="#SYN-超时隐患" class="headerlink" title="SYN 超时隐患"></a>SYN 超时隐患</h2><p>首次握手出现</p>
+<h3 id="原因"><a href="#原因" class="headerlink" title="原因"></a>原因</h3><ul>
+<li>server 收到 client 的SYN 回复 SYN-ACK的时候未收到 ACK 确认</li>
+<li>server 不断重试直至超时，linux 默认63秒等待才断开<blockquote>
+<p>目前，Linux下默认会进行5次重发SYN-ACK包，重试的间隔时间从1s开始，下次的重试间隔时间是前一次的双倍，5次的重试时间间隔为1s, 2s, 4s, 8s, 16s, 总共31s, 称为指数退避，第5次发出后还要等32s才知道第5次也超时了，所以，总共需要 1s + 2s + 4s+ 8s+ 16s + 32s &#x3D; 63s, TCP才会把断开这个连接。由于，SYN超时需要63秒，那么就给攻击者一个攻击服务器的机会，攻击者在短时间内发送大量的SYN包给Server(俗称SYN flood攻击)，用于耗尽Server的SYN队列。</p>
+</blockquote>
+</li>
+</ul>
+<h3 id="恶意攻击-SYN-Flood"><a href="#恶意攻击-SYN-Flood" class="headerlink" title="恶意攻击 SYN Flood"></a>恶意攻击 SYN Flood</h3><p>发送SYN 而不回应，每次都等待63秒，让正常连接不能处理</p>
+<blockquote>
+<p>最基本的DoS攻击就是利用合理的服务请求来占用过多的服务资源，从而使合法用户无法得到服务的响应。syn flood属于Dos攻击的一种。<br>如果恶意的向某个服务器端口发送大量的SYN包，则可以使服务器打开大量的半开连接，分配TCB（Transmission Control Block）, 从而消耗大量的服务器资源，同时也使得正常的连接请求无法被相应。当开放了一个TCP端口后，该端口就处于Listening状态，不停地监视发到该端口的Syn报文，一 旦接收到Client发来的Syn报文，就需要为该请求分配一个TCB，通常一个TCB至少需要280个字节，在某些操作系统中TCB甚至需要1300个字节，并返回一个SYN ACK命令，立即转为SYN-RECEIVED即半开连接状态。系统会为此耗尽资源。</p>
+</blockquote>
+<h3 id="防护措施"><a href="#防护措施" class="headerlink" title="防护措施"></a>防护措施</h3><ul>
+<li><p>Syn Cache<br>服务端在收到SYN报文时，在一个专用HASH表中保存这种半连接信息，直到收到正确的回应ACK报文再分配TCB。这个开销远小于TCB的开销。还需要保存序列号。</p>
+</li>
+<li><p>Syn Cookie<br>1.使用对方的IP、端口、己方IP、端口的固定信息，生成 Sequence Number<br>2.SYN 队列满后，通过 tcp_syncookies 参数回发 SYN cookie<br>3.若为正常连接则 client 会回发 SYN cookie，直接建立连接分配 TCB 。<br>4.攻击者不会回复所以，正常的回复了SYN cookie 就可以在队列外直接建立</p>
+</li>
+</ul>
+<h3 id="建立后-client-出现故障"><a href="#建立后-client-出现故障" class="headerlink" title="建立后 client 出现故障"></a>建立后 client 出现故障</h3><ul>
+<li>保活机制<br>向对方发送保活探测报文，如果未收到响应则继续发送<br>尝试次数达到保活探测数仍未收到响应则中断</li>
+</ul>
+<h3 id="连接队列"><a href="#连接队列" class="headerlink" title="连接队列"></a>连接队列</h3><p><img src="/images/imagemogr2_auto_orient_strip_7cimageview2_2_w_1240_12401695050172085.png"></p>
+<blockquote>
+<p>在外部请求到达时，被服务程序最终感知到前，连接可能处于SYN_RCVD状态或是ESTABLISHED状态，但还未被应用程序接受。<br>对应地，服务器端也会维护两种队列，处于SYN_RCVD状态的半连接队列，而处于ESTABLISHED状态但仍未被应用程序accept的为全连接队列。如果这两个队列满了之后，就会出现各种丢包的情形。</p>
+</blockquote>
+<h3 id="sync-queue-半连接队列"><a href="#sync-queue-半连接队列" class="headerlink" title="sync queue (半连接队列)"></a>sync queue (半连接队列)</h3><ul>
+<li>sync queue 的作用<br>三次握手中，第一次握手服务端收到客户端的 SYN 包后，把相关信息放到半连接队列中，同时进行第二次握手回复客户端 SYN + ACK</li>
+<li>当 sync queue 满时<br>该队列保存服务器已收到客户端的 SYN 包，并向客户发出确认，正在等待客户的确认包。这些所标识的连接在服务器处于 SYN_RECV 状态，当服务器收到客户的确认包时，删除该 SYN 包的信息，服务器进入 ESTABLISHED 状态。</li>
+</ul>
+<h3 id="accept-queue-全连接队列"><a href="#accept-queue-全连接队列" class="headerlink" title="accept queue (全连接队列)"></a>accept queue (全连接队列)</h3><ul>
+<li><p>accept queue 作用<br>第三次握手时服务器收到客户端的 ack，如果这时全连接队列没满，那么从半连接队列拿出相关信息放入到全连接队列中，否则按 tcp_abort_on_overflow 指示的执行。</p>
+</li>
+<li><p>当 accept queue 满时<br>如果全连接队列满了并且 tcp_abort_on_overflow 是 0 直接丢弃该ACK，服务器会进行过一段时间再次进行第二次握手发送 SYN + ACK 给客户端，如果客户端超时等待比较短，就很容易异常。<br>tcp_abort_on_overflow 1 表示发送 RST(重置连接) 通知客户端</p>
+</li>
+</ul>
+<p><a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/53374516">参考1</a><br><a target="_blank" rel="noopener" href="http://jm.taobao.org/2017/05/25/525-1/">参考2</a></p>
+<h2 id="TCP-四次挥手"><a href="#TCP-四次挥手" class="headerlink" title="TCP 四次挥手"></a>TCP 四次挥手</h2><p>为了终止连接， 要发送四个包<br><img src="/images/imagemogr2_auto_orient_strip_7cimageview2_2_w_1240_12401695050172647.png"></p>
+<h3 id="1挥手"><a href="#1挥手" class="headerlink" title="1挥手"></a>1挥手</h3><ul>
+<li>server client 都处于 ESTAB-LISHED 状态</li>
+<li>client 主动关闭</li>
+<li>客户端发送连接释放报文并且停止发送数据</li>
+<li>释放报文 FIN&#x3D;1，seq&#x3D;u u是最后一个字节的序号+1， 不携带数据也要消耗序号</li>
+<li>客户端进入 FIN-WAIT-1</li>
+</ul>
+<h3 id="2挥手"><a href="#2挥手" class="headerlink" title="2挥手"></a>2挥手</h3><ul>
+<li>server 接收到释放报文 发出确认报文</li>
+<li>确认报文 ACK&#x3D;1,seq&#x3D;v,ack&#x3D;u+1</li>
+<li>进入CLOSE-WAIT状态（重要）半关闭状态，客户端不发送数据，但server 发送的数据 client 还是可以接收</li>
+</ul>
+<h3 id="3挥手"><a href="#3挥手" class="headerlink" title="3挥手"></a>3挥手</h3><ul>
+<li>client 接收到 server 的确认报文进入 FIN-WAIT-2 状态, 等待 server 发送释放连接报文（等待第三次挥手）</li>
+<li>此时 client 还要接收 server 发送的最后数据</li>
+<li>server 发送完最后数据后，发送连接释放报文，FIN&#x3D;1,ACK&#x3D;1,seq&#x3D;w,ack&#x3D;u+1</li>
+<li>server 进入 LAST-ACK 最后确认状态</li>
+</ul>
+<h3 id="4挥手"><a href="#4挥手" class="headerlink" title="4挥手"></a>4挥手</h3><ul>
+<li>client 收到释放报文后必须发送确认报文，ACK&#x3D;1,seq&#x3D;u+1,ack&#x3D;w+1</li>
+<li>client 进入 TIME-WAIT 状态，这时候 client TCP 连接还没释放，必须等待 2MSL(最长报文段寿命liux30s) 才释放</li>
+<li>server 收到 client 的确认报文后立即关闭，server 比client 稍早点关闭</li>
+</ul>
+<h2 id="四次挥手总结"><a href="#四次挥手总结" class="headerlink" title="四次挥手总结"></a>四次挥手总结</h2><ul>
+<li>第一次挥手<br>客户端发送一个 FIN 序号 seq&#x3D;u，用来关闭 客户端到服务器的数据传送，客户端进入 FIN_WAIT_1 状态</li>
+<li>第二次挥手<br>服务器收到 FIN 后，发送一个 ACK 给客户端，确认序号为收到的序号 ack&#x3D;u+1 FIN 也占一个序号 seq&#x3D;v，服务器进入 CLOSE_WAITE状态, 这时服务器要把剩下的数据发送完毕</li>
+<li>第三次挥手<br>服务器剩余数据发送完毕，发送一个 FIN seq&#x3D;w ack&#x3D;u+1，用来关闭服务器到客户端的数据传送，服务器进入 LAST_ACK 状态</li>
+<li>第四次挥手<br>客户端收到 FIN 后，客户端进入 TIME_WAIT 状态，接着发送一个 ACK 给服务器，确认序号为收到序号 ack&#x3D;w+1和 seq&#x3D;u+1，服务器进入 CLOSED 状态，客户端等待 2MSL 时间进入 CLOSED 结束。</li>
+</ul>
+<h2 id="client-TIME-WAIT-状态"><a href="#client-TIME-WAIT-状态" class="headerlink" title="client TIME_WAIT 状态"></a>client TIME_WAIT 状态</h2><p>等待 2MSL 时间</p>
+<ul>
+<li>保证让被动关闭方有足够的时间收到ACK包(确认报文)</li>
+<li>如果被动关闭方没有收到则重新发送 FIN 包，一来一回刚好 2MSL</li>
+<li>避免新旧连接混淆， 有的路由器缓存的连接跟新连接混淆</li>
+</ul>
+<h2 id="为什么要四次挥手才断开连接"><a href="#为什么要四次挥手才断开连接" class="headerlink" title="为什么要四次挥手才断开连接"></a>为什么要四次挥手才断开连接</h2><p>双工是允许双向发送，发送方和接收方都需要 FIN 报文和 ACK 报文<br>各自需要2次挥手，但是一方是被动的，才看上去是4次挥手</p>
+<h2 id="服务端出现大量-CLOSE-WAIT"><a href="#服务端出现大量-CLOSE-WAIT" class="headerlink" title="服务端出现大量 CLOSE_WAIT"></a>服务端出现大量 CLOSE_WAIT</h2><p>客户端一直请求，但是返回时异常的<br>当对方发送 FIN 报文后，应用没有返回 ACK<br>对方关闭 socket 连接，我方忙于读写，没有及时关闭<br>检查代码，释放资源代码<br>检查配置，处理请求的线程配置</p>
+
+            </div>
+        </div>
+    </article>
+
+    
+    
+<nav class="article-nav">
+  
+    <a href="/2019/01/14/TCP%20%E6%BB%91%E5%8A%A8%E7%AA%97%E5%8F%A3%E5%8E%9F%E7%90%86/" id="article-nav-newer" class="article-nav-link-wrap prev">
+      <strong class="article-nav-caption">Newer</strong>
+      <div class="article-nav-title">
+        
+          TCP 滑动窗口原理
+        
+      </div>
+    </a>
+  
+  
+    <a href="/2019/01/02/%E5%91%A8%E5%B8%B83%20%E7%AE%97%E6%B3%95%E9%A2%985%E9%81%93%E3%80%81react%20ssr%20%E8%A1%A5%E5%85%85%20/" id="article-nav-older" class="article-nav-link-wrap next">
+      <strong class="article-nav-caption">Older</strong>
+      <div class="article-nav-title">周常3 算法题5道、react ssr 补充</div>
+    </a>
+  
+</nav>
+
+    
+
+    
+</div>
+    </div>
+    <footer class="site-footer">
+        <div class="global-width">
+            <ul class="site-widget">
+                
+                <li class="widget widget-tag">
+                    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Tags</h3>
+    <div class="widget-body">
+      <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/JavaScript/" rel="tag">JavaScript</a><span class="tag-list-count">6</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/React/" rel="tag">React</a><span class="tag-list-count">5</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/React-Tips/" rel="tag">React Tips</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Redux/" rel="tag">Redux</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Vue/" rel="tag">Vue</a><span class="tag-list-count">4</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/css/" rel="tag">css</a><span class="tag-list-count">3</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/dom/" rel="tag">dom</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/http/" rel="tag">http</a><span class="tag-list-count">8</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/nodejs/" rel="tag">nodejs</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/react/" rel="tag">react</a><span class="tag-list-count">8</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/sftp/" rel="tag">sftp</a><span class="tag-list-count">1</span></li></ul>
+    </div>
+  </div>
+
+                </li>
+                
+                <li class="widget widget-category">
+                    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Categories</h3>
+    <div class="widget-body">
+      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/Font-End-Basis/">Font-End Basis</a><span class="category-list-count">11</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/React/">React</a><span class="category-list-count">8</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Vue/">Vue</a><span class="category-list-count">4</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/css/">css</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/http/">http</a><span class="category-list-count">5</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/network/">network</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/nodejs/">nodejs</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/react/">react</a><span class="category-list-count">2</span></li></ul>
+    </div>
+  </div>
+
+                </li>
+                
+                <li class="widget widget-recent_posts">
+                    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Recents</h3>
+    <div class="widget-body">
+      <ul>
+        
+          <li>
+            <a href="/2022/01/21/react%20%E5%86%85%E9%83%A8%E5%8E%9F%E7%90%86%20/">react 内部原理</a>
+          </li>
+        
+          <li>
+            <a href="/2020/05/04/React%20%E5%90%88%E6%88%90%E4%BA%8B%E4%BB%B6%20SyntheticEvent%20/">React 合成事件 SyntheticEvent</a>
+          </li>
+        
+          <li>
+            <a href="/2020/04/19/Vue3%20%E4%B8%BA%E4%BB%80%E4%B9%88%E8%A6%81%E7%94%A8%20Proxy%20%E4%BB%A3%E6%9B%BF%20Object.defineProperty%20%E5%AE%9E%E7%8E%B0%E5%93%8D%E5%BA%94%E5%BC%8F%20/">Vue3 为什么要用 Proxy 代替 Object-defineProperty 实现响应式</a>
+          </li>
+        
+          <li>
+            <a href="/2019/10/30/%E6%B5%8F%E8%A7%88%E5%99%A8%E8%BE%93%E5%85%A5%20URL%20%E5%88%B0%E9%A1%B5%E9%9D%A2%E5%91%88%E7%8E%B0%E5%8F%8A%E5%85%B6%E4%BC%98%E5%8C%96%20/">浏览器输入 URL 到页面呈现及其优化</a>
+          </li>
+        
+          <li>
+            <a href="/2019/08/23/React%20%E6%BA%90%E7%A0%81%E8%A7%A3%E6%9E%90%20-%20commitRoot%20%E6%9B%B4%E6%96%B0%E4%BB%BB%E5%8A%A1%20dom%20%E8%8A%82%E7%82%B9%20/">React 源码解析 - commitRoot 更新任务 dom 节点</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+                </li>
+                
+            </ul>
+        </div>
+        <div class="site-info">
+            <address>
+                &copy; 2014 <a href="http://yoursite.com">Minimalist</a> All Right Reserved. <br/>
+                Powered by <a target="_blank" rel="noopener" href="http://hexo.io">Hexo</a>. Theme by <a target="_blank" rel="noopener" href="http://zzoman.com">ZZOMAN</a>
+            </address>
+        </div>
+    </footer>
+    
+    <script src="/libs/jquery-1.11.3.min.js" type="text/javascript"></script>
+    
+    <script src="/libs/fancybox/jquery.fancybox.js" type="text/javascript"></script>
+    
+    <script src="/js/site_init.js" type="text/javascript"></script>
+    
+</body>
+</html>

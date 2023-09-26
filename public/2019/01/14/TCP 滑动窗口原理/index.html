@@ -1,0 +1,213 @@
+<!doctype html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge">
+    <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    
+    <title>TCP 滑动窗口原理 | Minimalist</title>
+    
+    <link rel="alternative" href="/atom.xml" title="Minimalist" type="application/atom+xml">
+    
+    
+<link rel="stylesheet" href="/css/style.css">
+
+    
+    <link rel="stylesheet" href="/libs/fancybox/jquery.fancybox.css" charset="utf-8">
+    
+    <!--[if lt IE 9]>
+    <script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
+    <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+    <![endif]-->
+<meta name="generator" content="Hexo 6.3.0"></head>
+<body class="site">
+    <header class="site-header">
+        <h1 class="site-title"><a href="/">Minimalist</a></h1>
+        <nav class="site-nav">
+            <ul class="nav">
+                
+                <li><a href="/archives">Archives</a></li>
+                
+                
+                <li><a target="_blank" rel="noopener" href="https://github.com/sfyr111" title="git">GITHUB</a></li>
+                
+                <li><a class="toggle-search" href="#search">search</a></li>
+            </ul>
+        </nav>
+        <div class="site-search" id="search">
+            <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><input type="hidden" name="sitesearch" value="http://yoursite.com"></form>
+        </div>
+        
+            <div class="site-header-background" style="background-image:url(http://reumia.github.io/hexo-theme-zzoman2015/images/background-zzoman2015.jpg)"></div>
+        
+    </header>
+    <div class="site-body">
+        <div class="global-width">
+    <article class="article" data-layout="post" data-slug="TCP 滑动窗口原理">
+        <div class="article-content">
+            
+            
+            <header class="article-header">
+                <div class="article-meta">
+                    <a href="/2019/01/14/TCP%20%E6%BB%91%E5%8A%A8%E7%AA%97%E5%8F%A3%E5%8E%9F%E7%90%86/" class="article-date">
+  <time datetime="2019-01-14T11:21:06.000Z">2019-01-14</time>
+</a>
+                    
+  <div class="article-category categories">
+    <a class="category-link" href="/categories/http/">http</a>
+  </div>
+
+                    
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/http/" rel="tag">http</a></li></ul>
+
+                </div>
+                
+    <h1 class="article-title" itemprop="name">
+      <a href="/2019/01/14/TCP%20%E6%BB%91%E5%8A%A8%E7%AA%97%E5%8F%A3%E5%8E%9F%E7%90%86/">TCP 滑动窗口原理</a>
+    </h1>
+
+            </header>
+            
+            <div class="article-body">
+                <h2 id="TCP-滑动窗口"><a href="#TCP-滑动窗口" class="headerlink" title="TCP 滑动窗口"></a>TCP 滑动窗口</h2><p>TCP 使用滑动窗口做流量控制与乱序重排</p>
+<h2 id="RTT-和-RTO"><a href="#RTT-和-RTO" class="headerlink" title="RTT 和 RTO"></a>RTT 和 RTO</h2><ul>
+<li><p>RTT<br>发送一个数据包到收到对应的 ACK，所花费的时间</p>
+</li>
+<li><p>RTO<br>定时器，重传时间间隔<br>没有回应 ACK 则等到 RTO 到期进行重传，根据 RTT 计算出来</p>
+</li>
+</ul>
+<h3 id="TCP-使用滑动窗口做流量控制与乱序重排"><a href="#TCP-使用滑动窗口做流量控制与乱序重排" class="headerlink" title="TCP 使用滑动窗口做流量控制与乱序重排"></a>TCP 使用滑动窗口做流量控制与乱序重排</h3><ul>
+<li>保证TCP 的可靠性</li>
+<li>保证TCP 的流量控制特性<br><img src="/images/imagemogr2_auto_orient_strip_7cimageview2_2_w_1240_12401695050200904.png" alt="Window 字段"><br>window 字段的流量控制：用于接收方通知发送方自己还有多少缓冲区可以接收数据，发送方根据接收方的处理能力来发送数据，不会导致接收方处理不过来。<br>滑动窗口机制体现了tcp面向字节流的设计</li>
+</ul>
+<h3 id="窗口数据的计算过程"><a href="#窗口数据的计算过程" class="headerlink" title="窗口数据的计算过程"></a>窗口数据的计算过程</h3><p>左右为发送方接收方缓冲区<br><img src="/images/imagemogr2_auto_orient_strip_7cimageview2_2_w_1240_12401695050201501.png"></p>
+<ul>
+<li><p>发送方<br>LastByteWritten: 发送方上层应用写出的数据长度<br>LastByteSent: 通过 TCP 最后发送到接收方的数据位置<br>LastByteAcked: 已经收到接收方的连续最大 ACK 的位置(二次握手)</p>
+</li>
+<li><p>接收方<br>MaxRcvBuffer: 最大缓冲区<br>LastByteRead: 接收方上层应用在 TCP 缓冲区中已经读完的最后一个字节的位置<br>NextByteExpected: 收到的连续最大 Seq 包的位置(排好序可以读的数据)<br>LastByteRcvd: 已收到的最后一个字节的位置<br>NextByteExpected 与 LastByteRcvd 之间会有部分空隙表示这些数据还无法读或者应用无法读到。</p>
+</li>
+<li><p>接收方窗口 AdvertisedWindow 接收方还能够接收的数据量<br>AdvertisedWindow &#x3D; MaxRcvBuffer – (LastByteRcvd - LastByteRead)<br>接收方把 AdvertisedWindow 告知发送方，发送方 LastByteSent - LastByteAcked 不能大于 AdvertisedWindow 接收方还能接收的量</p>
+</li>
+<li><p>发送方窗口 EffectiveWindow 发送方窗口内剩余可发送的大小<br>EffectiveWindow &#x3D; AdvertisedWindow - (LastByteSent - LastByteAcked) 保证接收方可以处理数据<br>LastByteSent - LastByteAcked 发送方可以发送的数据减去已经确认好可发送的数据就是发送方将要发送的数据，这个数据不能大于接收方还能够接收的数据量。</p>
+</li>
+</ul>
+<p>接收方还能够接收的数据量 AdvertisedWindow &#x3D; MaxRcvBuffer – (LastByteRcvd - LastByteRead)，接收方把 AdvertisedWindow 告知发送方，发送方 LastByteSent - LastByteAcked 不能大于 AdvertisedWindow 接收方还能接收的量。<br>发送方窗口内剩余可发送的大小 EffectiveWindow &#x3D; AdvertisedWindow - (LastByteSent - LastByteAcked) 保证接收方可以处理数据</p>
+<h2 id="滑动窗口基本原理"><a href="#滑动窗口基本原理" class="headerlink" title="滑动窗口基本原理"></a>滑动窗口基本原理</h2><h3 id="TCP-发送方"><a href="#TCP-发送方" class="headerlink" title="TCP 发送方"></a>TCP 发送方</h3><ul>
+<li>发送方来看数据分为四类<br>1.得到服务器确认且已经发送的<br>2.还没得到服务器确认但已经发送的<br>3.未发送但服务器允许发送的<br>4.未发送且因为达到了 window 的大小不允许发送的数据<br>[2-3]就是发送方的滑动窗口<br><img src="/images/imagemogr2_auto_orient_strip_7cimageview2_2_w_1240_12401695050202088.png"></li>
+<li>滑动窗口在被连续确认后才进行滑动<br>当 ACK 连续被确认，比如32-36连续确认4为后才开始把分类2的数据发送，同时扩大分类3向右的范围<br><img src="/images/imagemogr2_auto_orient_strip_7cimageview2_2_w_1240_12401695050202683.png"></li>
+</ul>
+<h3 id="TCP-接收方"><a href="#TCP-接收方" class="headerlink" title="TCP 接收方"></a>TCP 接收方</h3><ul>
+<li>接收方缓存内三种状态<br>1.已接收并且已经发送 ACK 回执的数据<br>2.未接收但可以接收状态 - 接收窗口 滑动方式一致<br>3.未接收且不能接收的状态 - 达到窗口阈值<br>ACK 直接由 TCP 回复，默认没有应用延迟，不存在已接收未回复 ACK 的状态<br>[2]就是接收窗口<br><img src="/images/imagemogr2_auto_orient_strip_7cimageview2_2_w_1240_12401695050203256.png"></li>
+</ul>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>TCP 最基本的传输可靠性来源于确认重传机制，TCP 的滑动窗口机制也是建立在确认重传基础上的。<br>发送窗口收到接收端对于本段窗口内字节的 ACK 确认才会移动发送窗口的左边界。<br>接收窗口只有在前面所有的段都确认的情况下才会移动左边界，当前面还有字节未接收但收到后面字节的情况下(乱序)窗口是不会移动的，并不对后续字节确认, 确保这段数据重传。<br>可以根据滑动窗口的调整进行流量控制。</p>
+<ul>
+<li>参考<br><a target="_blank" rel="noopener" href="https://monkeysayhi.github.io/2018/03/07/%E6%B5%85%E8%B0%88TCP%EF%BC%881%EF%BC%89%EF%BC%9A%E7%8A%B6%E6%80%81%E6%9C%BA%E4%B8%8E%E9%87%8D%E4%BC%A0%E6%9C%BA%E5%88%B6/">参考1</a><br><a target="_blank" rel="noopener" href="https://monkeysayhi.github.io/2018/03/07/%E6%B5%85%E8%B0%88TCP%EF%BC%882%EF%BC%89%EF%BC%9A%E6%B5%81%E9%87%8F%E6%8E%A7%E5%88%B6%E4%B8%8E%E6%8B%A5%E5%A1%9E%E6%8E%A7%E5%88%B6/">参考2</a></li>
+</ul>
+
+            </div>
+        </div>
+    </article>
+
+    
+    
+<nav class="article-nav">
+  
+    <a href="/2019/02/02/React%20%E6%BA%90%E7%A0%81%E8%A7%A3%E6%9E%90%20React%20%E7%9A%84%E6%9B%B4%E6%96%B0%20/" id="article-nav-newer" class="article-nav-link-wrap prev">
+      <strong class="article-nav-caption">Newer</strong>
+      <div class="article-nav-title">
+        
+          React 源码解析 React 的更新
+        
+      </div>
+    </a>
+  
+  
+    <a href="/2019/01/14/%E7%BD%91%E7%BB%9C%E5%9F%BA%E7%A1%80%E3%80%81TCP%7CIP%20%E4%B8%89%E6%AC%A1%E6%8F%A1%E6%89%8B%E5%92%8C%E5%9B%9B%E6%AC%A1%E6%8C%A5%E6%89%8B%20/" id="article-nav-older" class="article-nav-link-wrap next">
+      <strong class="article-nav-caption">Older</strong>
+      <div class="article-nav-title">网络基础、TCP/IP 三次握手和四次挥手</div>
+    </a>
+  
+</nav>
+
+    
+
+    
+</div>
+    </div>
+    <footer class="site-footer">
+        <div class="global-width">
+            <ul class="site-widget">
+                
+                <li class="widget widget-tag">
+                    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Tags</h3>
+    <div class="widget-body">
+      <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/JavaScript/" rel="tag">JavaScript</a><span class="tag-list-count">6</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/React/" rel="tag">React</a><span class="tag-list-count">5</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/React-Tips/" rel="tag">React Tips</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Redux/" rel="tag">Redux</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Vue/" rel="tag">Vue</a><span class="tag-list-count">4</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/css/" rel="tag">css</a><span class="tag-list-count">3</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/dom/" rel="tag">dom</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/http/" rel="tag">http</a><span class="tag-list-count">8</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/nodejs/" rel="tag">nodejs</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/react/" rel="tag">react</a><span class="tag-list-count">8</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/sftp/" rel="tag">sftp</a><span class="tag-list-count">1</span></li></ul>
+    </div>
+  </div>
+
+                </li>
+                
+                <li class="widget widget-category">
+                    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Categories</h3>
+    <div class="widget-body">
+      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/Font-End-Basis/">Font-End Basis</a><span class="category-list-count">11</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/React/">React</a><span class="category-list-count">8</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Vue/">Vue</a><span class="category-list-count">4</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/css/">css</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/http/">http</a><span class="category-list-count">5</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/network/">network</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/nodejs/">nodejs</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/react/">react</a><span class="category-list-count">2</span></li></ul>
+    </div>
+  </div>
+
+                </li>
+                
+                <li class="widget widget-recent_posts">
+                    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Recents</h3>
+    <div class="widget-body">
+      <ul>
+        
+          <li>
+            <a href="/2022/01/21/react%20%E5%86%85%E9%83%A8%E5%8E%9F%E7%90%86%20/">react 内部原理</a>
+          </li>
+        
+          <li>
+            <a href="/2020/05/04/React%20%E5%90%88%E6%88%90%E4%BA%8B%E4%BB%B6%20SyntheticEvent%20/">React 合成事件 SyntheticEvent</a>
+          </li>
+        
+          <li>
+            <a href="/2020/04/19/Vue3%20%E4%B8%BA%E4%BB%80%E4%B9%88%E8%A6%81%E7%94%A8%20Proxy%20%E4%BB%A3%E6%9B%BF%20Object.defineProperty%20%E5%AE%9E%E7%8E%B0%E5%93%8D%E5%BA%94%E5%BC%8F%20/">Vue3 为什么要用 Proxy 代替 Object-defineProperty 实现响应式</a>
+          </li>
+        
+          <li>
+            <a href="/2019/10/30/%E6%B5%8F%E8%A7%88%E5%99%A8%E8%BE%93%E5%85%A5%20URL%20%E5%88%B0%E9%A1%B5%E9%9D%A2%E5%91%88%E7%8E%B0%E5%8F%8A%E5%85%B6%E4%BC%98%E5%8C%96%20/">浏览器输入 URL 到页面呈现及其优化</a>
+          </li>
+        
+          <li>
+            <a href="/2019/08/23/React%20%E6%BA%90%E7%A0%81%E8%A7%A3%E6%9E%90%20-%20commitRoot%20%E6%9B%B4%E6%96%B0%E4%BB%BB%E5%8A%A1%20dom%20%E8%8A%82%E7%82%B9%20/">React 源码解析 - commitRoot 更新任务 dom 节点</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+                </li>
+                
+            </ul>
+        </div>
+        <div class="site-info">
+            <address>
+                &copy; 2014 <a href="http://yoursite.com">Minimalist</a> All Right Reserved. <br/>
+                Powered by <a target="_blank" rel="noopener" href="http://hexo.io">Hexo</a>. Theme by <a target="_blank" rel="noopener" href="http://zzoman.com">ZZOMAN</a>
+            </address>
+        </div>
+    </footer>
+    
+    <script src="/libs/jquery-1.11.3.min.js" type="text/javascript"></script>
+    
+    <script src="/libs/fancybox/jquery.fancybox.js" type="text/javascript"></script>
+    
+    <script src="/js/site_init.js" type="text/javascript"></script>
+    
+</body>
+</html>

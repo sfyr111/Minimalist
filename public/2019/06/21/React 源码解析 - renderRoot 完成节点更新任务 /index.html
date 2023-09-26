@@ -1,0 +1,295 @@
+<!doctype html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge">
+    <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    
+    <title>React 源码解析 - renderRoot 完成节点更新任务 | Minimalist</title>
+    
+    <link rel="alternative" href="/atom.xml" title="Minimalist" type="application/atom+xml">
+    
+    
+<link rel="stylesheet" href="/css/style.css">
+
+    
+    <link rel="stylesheet" href="/libs/fancybox/jquery.fancybox.css" charset="utf-8">
+    
+    <!--[if lt IE 9]>
+    <script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
+    <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+    <![endif]-->
+<meta name="generator" content="Hexo 6.3.0"></head>
+<body class="site">
+    <header class="site-header">
+        <h1 class="site-title"><a href="/">Minimalist</a></h1>
+        <nav class="site-nav">
+            <ul class="nav">
+                
+                <li><a href="/archives">Archives</a></li>
+                
+                
+                <li><a target="_blank" rel="noopener" href="https://github.com/sfyr111" title="git">GITHUB</a></li>
+                
+                <li><a class="toggle-search" href="#search">search</a></li>
+            </ul>
+        </nav>
+        <div class="site-search" id="search">
+            <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><input type="hidden" name="sitesearch" value="http://yoursite.com"></form>
+        </div>
+        
+            <div class="site-header-background" style="background-image:url(http://reumia.github.io/hexo-theme-zzoman2015/images/background-zzoman2015.jpg)"></div>
+        
+    </header>
+    <div class="site-body">
+        <div class="global-width">
+    <article class="article" data-layout="post" data-slug="React 源码解析 - renderRoot 完成节点更新任务 ">
+        <div class="article-content">
+            
+            
+            <header class="article-header">
+                <div class="article-meta">
+                    <a href="/2019/06/21/React%20%E6%BA%90%E7%A0%81%E8%A7%A3%E6%9E%90%20-%20renderRoot%20%E5%AE%8C%E6%88%90%E8%8A%82%E7%82%B9%E6%9B%B4%E6%96%B0%E4%BB%BB%E5%8A%A1%20/" class="article-date">
+  <time datetime="2019-06-21T10:08:07.000Z">2019-06-21</time>
+</a>
+                    
+                    
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/react/" rel="tag">react</a></li></ul>
+
+                </div>
+                
+    <h1 class="article-title" itemprop="name">
+      <a href="/2019/06/21/React%20%E6%BA%90%E7%A0%81%E8%A7%A3%E6%9E%90%20-%20renderRoot%20%E5%AE%8C%E6%88%90%E8%8A%82%E7%82%B9%E6%9B%B4%E6%96%B0%E4%BB%BB%E5%8A%A1%20/">React 源码解析 - renderRoot 完成节点更新任务</a>
+    </h1>
+
+            </header>
+            
+            <div class="article-body">
+                <h2 id="completeUnitOfWork"><a href="#completeUnitOfWork" class="headerlink" title="completeUnitOfWork"></a>completeUnitOfWork</h2><p>当 beginWork 遍历到 fiber 树的单侧最下方时 next 为 null，这时候就会调用 completeUnitOfWork 完成节点并按遍历顺序设置新的 next 进行操作<img src="/images/imagemogr2_auto_orient_strip_7cimageview2_2_w_1240_12401695136696835.png"></p>
+<h3 id="performUnitOfWork-遍历-fiber-树的顺序"><a href="#performUnitOfWork-遍历-fiber-树的顺序" class="headerlink" title="performUnitOfWork 遍历 fiber 树的顺序"></a>performUnitOfWork 遍历 fiber 树的顺序</h3><p><img src="/images/imagemogr2_auto_orient_strip_7cimageview2_2_w_660_6601695136697475.png"></p>
+<h3 id="核心功能"><a href="#核心功能" class="headerlink" title="核心功能"></a>核心功能</h3><ul>
+<li>根据是否中断调用不同的处理方法</li>
+<li>当一侧的子节点被 beginWork 更新组件完了执行</li>
+<li>beginWork 完成各个组件的 update，然后返回他的 child</li>
+<li>判断是否有兄弟节点来执行不同的操作</li>
+<li>完成节点之后复 effect 链</li>
+</ul>
+<h2 id="completeUnitOfWork-没有报错的处理流程"><a href="#completeUnitOfWork-没有报错的处理流程" class="headerlink" title="completeUnitOfWork 没有报错的处理流程"></a>completeUnitOfWork 没有报错的处理流程</h2><ul>
+<li>当 workInProgress.effectTag 标记的不是 Incomplete，没有错误捕获<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">if ((workInProgress.effectTag &amp; Incomplete) === NoEffect) &#123; //.. &#125;</span><br></pre></td></tr></table></figure></li>
+<li>completetWork 完成节点更新</li>
+<li>resetChildExpirationTime 重置 childExpirationTime</li>
+<li>构建 effect 链</li>
+<li>按照遍历 fiber 树的顺序确定下 next 节点</li>
+</ul>
+<h3 id="resetChildExpirationTime-重置-workInProgress-childExpirationTime"><a href="#resetChildExpirationTime-重置-workInProgress-childExpirationTime" class="headerlink" title="resetChildExpirationTime 重置 workInProgress.childExpirationTime"></a>resetChildExpirationTime 重置 workInProgress.childExpirationTime</h3><ul>
+<li>在 completeWork 完成节点更新后执行</li>
+<li>重置的是 workInProgress 上的 childExpirationTime 属性</li>
+<li>在当前节点上找到子节点把所有子节点中不是 NoWork 的最早过期时间赋值给当前节点的 childExpirationTime</li>
+<li>childExpirationTime 来表示当前节点所有子节点中最高的更新的优先级<img src="/images/imagemogr2_auto_orient_strip_7cimageview2_2_w_1240_12401695136698102.png"></li>
+</ul>
+<h2 id="completeWork-完成节点更新"><a href="#completeWork-完成节点更新" class="headerlink" title="completeWork 完成节点更新"></a>completeWork 完成节点更新</h2><h3 id="核心功能-1"><a href="#核心功能-1" class="headerlink" title="核心功能"></a>核心功能</h3><ul>
+<li>pop 出各种 context 相关功能</li>
+<li>对 HostComponent 进行初始化</li>
+<li>初始化监听事件</li>
+<li>对大部分 tag 不进行操作或者只是 pop context</li>
+<li>只有 HostComponent, HostText, SuspenseComponent 有操作</li>
+</ul>
+<h2 id="HostComponent-tag-的更新"><a href="#HostComponent-tag-的更新" class="headerlink" title="HostComponent tag 的更新"></a>HostComponent tag 的更新</h2><p>tag 为 HostComponent 表示普通 dom 节点，如: div</p>
+<h3 id="核心功能-2"><a href="#核心功能-2" class="headerlink" title="核心功能"></a>核心功能</h3><ul>
+<li>diffProperties 计算需要更新的内容</li>
+<li>vdom 进行对比是否真的要更新</li>
+<li>不同 dom property 处理方式不同</li>
+<li>根据 current 原 fiber 节点和 workInProgress.stateNode 当前 dom 判断首次渲染还是更新渲染</li>
+</ul>
+<h3 id="初始更新"><a href="#初始更新" class="headerlink" title="初始更新"></a>初始更新</h3><ul>
+<li>createInstance 根据当前更新的节点创建新的 dom 对象并记录创建的 fiber 和 props 属性</li>
+<li>appendAllChildren 构建 dom 树，遍历顺序是从底向上只构建第一层的 child, child.sibling</li>
+<li>finalizeInitialChildren 初始化属性，初始化事件监听</li>
+<li>markUpdate 标记 effect &#x3D; UPDATE，在 workInProgress.stateNode 上记录 instance <img src="/images/imagemogr2_auto_orient_strip_7cimageview2_2_w_1240_12401695136698917.png"></li>
+</ul>
+<h3 id="createInstance-创建-dom"><a href="#createInstance-创建-dom" class="headerlink" title="createInstance 创建 dom"></a>createInstance 创建 dom</h3><ul>
+<li>创建 dom 节点</li>
+<li>在 dom 节点对象上记录此次创建的 fiber 和 props 信息<img src="/images/imagemogr2_auto_orient_strip_7cimageview2_2_w_1240_12401695136699630.png"></li>
+<li>createElement 创建 dom 对象<img src="/images/imagemogr2_auto_orient_strip_7cimageview2_2_w_1240_12401695136700391.png"></li>
+</ul>
+<h3 id="appendAllChildren-构建-dom-树"><a href="#appendAllChildren-构建-dom-树" class="headerlink" title="appendAllChildren 构建 dom 树"></a>appendAllChildren 构建 dom 树</h3><p>构建 dom 树， 都是 append 第一层 child 和 child.sibling，不会 append 嵌套的，嵌套的会在他自己是 workInProgress 时 append<img src="/images/imagemogr2_auto_orient_strip_7cimageview2_2_w_1240_12401695136701089.png"></p>
+<h3 id="finalizeInitialChildren-初始化属性，初始化事件监听"><a href="#finalizeInitialChildren-初始化属性，初始化事件监听" class="headerlink" title="finalizeInitialChildren 初始化属性，初始化事件监听"></a>finalizeInitialChildren 初始化属性，初始化事件监听</h3><ul>
+<li>事件监听初始化</li>
+<li>执行 setInitialProperties</li>
+<li>返回 shouldAutoFocusHostComponent 告知是否需要 auto focus</li>
+<li>switch 必要标签的操作</li>
+<li>绑定事件 trapBubbledEvent, 区分事件类型实现不同的事件绑定</li>
+<li>input option select textarea 交互组件有不同的操作<br><a target="_blank" rel="noopener" href="https://upload-images.jianshu.io/upload_images/2155778-259ae7a1673dc7da.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240"></a></li>
+<li>执行 setInitialProperties 对应不同标签绑定事件<img src="/images/imagemogr2_auto_orient_strip_7cimageview2_2_w_1240_12401695136701883.png"></li>
+<li>再执行 setInitialDOMProperties<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">// ...</span><br><span class="line">  setInitialDOMProperties(</span><br><span class="line">    tag,</span><br><span class="line">    domElement,</span><br><span class="line">    rootContainerElement,</span><br><span class="line">    props,</span><br><span class="line">    isCustomComponentTag,</span><br><span class="line">  );</span><br></pre></td></tr></table></figure></li>
+<li>setInitialDOMProperties 设置属性和事件绑定 <img src="/images/imagemogr2_auto_orient_strip_7cimageview2_2_w_1240_12401695136702651.png"></li>
+<li>ensureListeningTo 事件绑定<img src="/images/imagemogr2_auto_orient_strip_7cimageview2_2_w_1240_12401695136703403.png"></li>
+<li>listenTo 进行绑定事件<img src="/images/imagemogr2_auto_orient_strip_7cimageview2_2_w_1240_12401695136704190.png"></li>
+</ul>
+<h2 id="HostComponent-更新-DOM-时进行的-diff-判断"><a href="#HostComponent-更新-DOM-时进行的-diff-判断" class="headerlink" title="HostComponent 更新 DOM 时进行的 diff 判断"></a>HostComponent 更新 DOM 时进行的 diff 判断</h2><p><img src="/images/imagemogr2_auto_orient_strip_7cimageview2_2_w_1240_12401695136704955.png"></p>
+<h3 id="updateHostComponent"><a href="#updateHostComponent" class="headerlink" title="updateHostComponent"></a>updateHostComponent</h3><p><img src="/images/imagemogr2_auto_orient_strip_7cimageview2_2_w_1240_12401695136706089.png"></p>
+<h3 id="diffProperties"><a href="#diffProperties" class="headerlink" title="diffProperties"></a>diffProperties</h3><ul>
+<li>根据不同的节点做不同的操作</li>
+<li>生成 updatePayload 赋值给 workInProgress.updateQueue</li>
+<li>最后标记 workInProgress.effect &#x3D; UPDATE</li>
+<li>虚拟 dom 就是根据 props 描述生成的 dom 对象</li>
+<li>根据不同标签节点提取新老 props 准备比较<img src="/images/imagemogr2_auto_orient_strip_7cimageview2_2_w_1240_12401695136706875.png"></li>
+<li>第一次遍历老 props 把要删除的属性都设置为 null<img src="/images/imagemogr2_auto_orient_strip_7cimageview2_2_w_1240_12401695136707659.png"></li>
+<li>第二次遍历新 props<img src="/images/imagemogr2_auto_orient_strip_7cimageview2_2_w_1240_12401695136708436.png"></li>
+<li>比较 style 样式对象, 最后<code>(updatePayload = updatePayload || []).push(STYLE, styleUpdates);</code><img src="/images/imagemogr2_auto_orient_strip_7cimageview2_2_w_1240_12401695136709212.png"></li>
+<li>最后 return  updatePayload:  <code>[k1,v1,k2,v2,k3,v3]</code> 的属性</li>
+</ul>
+<h2 id="completeWork-对于-HostText-的更新"><a href="#completeWork-对于-HostText-的更新" class="headerlink" title="completeWork 对于 HostText 的更新"></a>completeWork 对于 HostText 的更新</h2><ul>
+<li>核心是 document.createTextNode<img src="/images/imagemogr2_auto_orient_strip_7cimageview2_2_w_1240_12401695136709998.png"></li>
+</ul>
+<h2 id="renderRoot-错误处理"><a href="#renderRoot-错误处理" class="headerlink" title="renderRoot 错误处理"></a>renderRoot 错误处理</h2><p><img src="/images/imagemogr2_auto_orient_strip_7cimageview2_2_w_1240_12401695136710777.png"></p>
+<h3 id="核心"><a href="#核心" class="headerlink" title="核心"></a>核心</h3><ul>
+<li>给报错的节点增加 Incomplete 副作用 effect</li>
+<li>给父链上具有 error boundary 的节点增加副作用</li>
+<li>创建错误相关的更新</li>
+</ul>
+<h3 id="onUncaughtError"><a href="#onUncaughtError" class="headerlink" title="onUncaughtError"></a>onUncaughtError</h3><ul>
+<li>致命错误设置为 NoWork，不构建 effect 链</li>
+<li>nextFlushedRoot.expirationTime &#x3D; NoWork;  取消当前 root 的更新</li>
+</ul>
+<h3 id="throwException"><a href="#throwException" class="headerlink" title="throwException"></a>throwException</h3><ul>
+<li>错误处理 给报错节点组件 增加 Incomplete effect，</li>
+<li>清空报错节点的 effect 链</li>
+<li>suspened 异步组件抛出的 promise</li>
+<li>构建错误对象<img src="/images/imagemogr2_auto_orient_strip_7cimageview2_2_w_1240_12401695136711564.png"></li>
+</ul>
+<h3 id="throwException-处理错误节点"><a href="#throwException-处理错误节点" class="headerlink" title="throwException 处理错误节点"></a>throwException 处理错误节点</h3><ul>
+<li>向上遍历 class 组件找可以处理错误的 class 组件生命周期</li>
+<li>一直找到 Root 节点执行内置错误处理</li>
+<li>给能处理错误的节点组件的 effect 都加了 ShouldCapture</li>
+<li>创建错误更新，入 workInProgress.updateQueue 更新队列来更新</li>
+<li>getDerivedStateFromError 生命周期直接赋值在 update.payload 上</li>
+<li>componentDidCatch 生命周期作为 callback 处理<img src="/images/imagemogr2_auto_orient_strip_7cimageview2_2_w_1240_12401695136712257.png"></li>
+<li>createClassErrorUpdate 创建 class 组件处理错误的 update<img src="/images/imagemogr2_auto_orient_strip_7cimageview2_2_w_1240_12401695136713014.png"></li>
+<li>createRootErrorUpdate 创建 root 节点处理错误的 update<img src="/images/imagemogr2_auto_orient_strip_7cimageview2_2_w_1240_12401695136713782.png"></li>
+<li>最后 enqueueCaptureUpdate，类似 enqueueUpdate 交给 react 更新</li>
+</ul>
+<h2 id="completeUnitOfWork-处理报错节点"><a href="#completeUnitOfWork-处理报错节点" class="headerlink" title="completeUnitOfWork 处理报错节点"></a>completeUnitOfWork 处理报错节点</h2><ul>
+<li>报错的节点直接进入 completeUnitOfWork 完成</li>
+<li>不渲染子节点</li>
+<li>报错节点在 completeUnitOfWork 内走 unwindWork 流程<br><img src="/images/imagemogr2_auto_orient_strip_7cimageview2_2_w_1240_12401695136714572.png"></li>
+</ul>
+<h3 id="unwindWork-的处理"><a href="#unwindWork-的处理" class="headerlink" title="unwindWork 的处理"></a>unwindWork 的处理</h3><ul>
+<li>类似 completeWork 对不同组件进行处理</li>
+<li>对 shouldCapture 组件设置 DidCapture effect 副作用</li>
+<li>大部分没动作， 其余也多是 pop context</li>
+<li>只有 HostComponent, HostText, SuspenseComponent 有操作</li>
+<li>与 completeWork 最大的区别就是会判断 ShouldCapture</li>
+<li>throwException 处理错误节点时给能处理错误的节点组件的 effect 都加了 ShouldCapture<br><img src="/images/imagemogr2_auto_orient_strip_7cimageview2_2_w_1240_12401695136715262.png"></li>
+</ul>
+<h3 id="当前报错组件能处理错误重新标记-effect"><a href="#当前报错组件能处理错误重新标记-effect" class="headerlink" title="当前报错组件能处理错误重新标记 effect"></a>当前报错组件能处理错误重新标记 effect</h3><ul>
+<li>next 存在能处理错误保留 HostEffectMask 以上的 effect<img src="/images/imagemogr2_auto_orient_strip_7cimageview2_2_w_600_6001695136716022.png"></li>
+</ul>
+
+            </div>
+        </div>
+    </article>
+
+    
+    
+<nav class="article-nav">
+  
+    <a href="/2019/08/23/React%20%E6%BA%90%E7%A0%81%E8%A7%A3%E6%9E%90%20-%20commitRoot%20%E6%9B%B4%E6%96%B0%E4%BB%BB%E5%8A%A1%20dom%20%E8%8A%82%E7%82%B9%20/" id="article-nav-newer" class="article-nav-link-wrap prev">
+      <strong class="article-nav-caption">Newer</strong>
+      <div class="article-nav-title">
+        
+          React 源码解析 - commitRoot 更新任务 dom 节点
+        
+      </div>
+    </a>
+  
+  
+    <a href="/2019/06/03/React%20%E6%BA%90%E7%A0%81%E8%A7%A3%E6%9E%90%20-%20%E6%9B%B4%E6%96%B0%E6%B5%81%E7%A8%8B%20renderRoot%20%E6%B8%B2%E6%9F%93%E9%98%B6%E6%AE%B5%20/" id="article-nav-older" class="article-nav-link-wrap next">
+      <strong class="article-nav-caption">Older</strong>
+      <div class="article-nav-title">React 源码解析 - 更新流程 renderRoot 渲染阶段</div>
+    </a>
+  
+</nav>
+
+    
+
+    
+</div>
+    </div>
+    <footer class="site-footer">
+        <div class="global-width">
+            <ul class="site-widget">
+                
+                <li class="widget widget-tag">
+                    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Tags</h3>
+    <div class="widget-body">
+      <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/JavaScript/" rel="tag">JavaScript</a><span class="tag-list-count">6</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/React/" rel="tag">React</a><span class="tag-list-count">5</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/React-Tips/" rel="tag">React Tips</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Redux/" rel="tag">Redux</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Vue/" rel="tag">Vue</a><span class="tag-list-count">4</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/css/" rel="tag">css</a><span class="tag-list-count">3</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/dom/" rel="tag">dom</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/http/" rel="tag">http</a><span class="tag-list-count">8</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/nodejs/" rel="tag">nodejs</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/react/" rel="tag">react</a><span class="tag-list-count">8</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/sftp/" rel="tag">sftp</a><span class="tag-list-count">1</span></li></ul>
+    </div>
+  </div>
+
+                </li>
+                
+                <li class="widget widget-category">
+                    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Categories</h3>
+    <div class="widget-body">
+      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/Font-End-Basis/">Font-End Basis</a><span class="category-list-count">11</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/React/">React</a><span class="category-list-count">8</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Vue/">Vue</a><span class="category-list-count">4</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/css/">css</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/http/">http</a><span class="category-list-count">5</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/network/">network</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/nodejs/">nodejs</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/react/">react</a><span class="category-list-count">2</span></li></ul>
+    </div>
+  </div>
+
+                </li>
+                
+                <li class="widget widget-recent_posts">
+                    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Recents</h3>
+    <div class="widget-body">
+      <ul>
+        
+          <li>
+            <a href="/2022/01/21/react%20%E5%86%85%E9%83%A8%E5%8E%9F%E7%90%86%20/">react 内部原理</a>
+          </li>
+        
+          <li>
+            <a href="/2020/05/04/React%20%E5%90%88%E6%88%90%E4%BA%8B%E4%BB%B6%20SyntheticEvent%20/">React 合成事件 SyntheticEvent</a>
+          </li>
+        
+          <li>
+            <a href="/2020/04/19/Vue3%20%E4%B8%BA%E4%BB%80%E4%B9%88%E8%A6%81%E7%94%A8%20Proxy%20%E4%BB%A3%E6%9B%BF%20Object.defineProperty%20%E5%AE%9E%E7%8E%B0%E5%93%8D%E5%BA%94%E5%BC%8F%20/">Vue3 为什么要用 Proxy 代替 Object-defineProperty 实现响应式</a>
+          </li>
+        
+          <li>
+            <a href="/2019/10/30/%E6%B5%8F%E8%A7%88%E5%99%A8%E8%BE%93%E5%85%A5%20URL%20%E5%88%B0%E9%A1%B5%E9%9D%A2%E5%91%88%E7%8E%B0%E5%8F%8A%E5%85%B6%E4%BC%98%E5%8C%96%20/">浏览器输入 URL 到页面呈现及其优化</a>
+          </li>
+        
+          <li>
+            <a href="/2019/08/23/React%20%E6%BA%90%E7%A0%81%E8%A7%A3%E6%9E%90%20-%20commitRoot%20%E6%9B%B4%E6%96%B0%E4%BB%BB%E5%8A%A1%20dom%20%E8%8A%82%E7%82%B9%20/">React 源码解析 - commitRoot 更新任务 dom 节点</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+                </li>
+                
+            </ul>
+        </div>
+        <div class="site-info">
+            <address>
+                &copy; 2014 <a href="http://yoursite.com">Minimalist</a> All Right Reserved. <br/>
+                Powered by <a target="_blank" rel="noopener" href="http://hexo.io">Hexo</a>. Theme by <a target="_blank" rel="noopener" href="http://zzoman.com">ZZOMAN</a>
+            </address>
+        </div>
+    </footer>
+    
+    <script src="/libs/jquery-1.11.3.min.js" type="text/javascript"></script>
+    
+    <script src="/libs/fancybox/jquery.fancybox.js" type="text/javascript"></script>
+    
+    <script src="/js/site_init.js" type="text/javascript"></script>
+    
+</body>
+</html>

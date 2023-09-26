@@ -1,0 +1,290 @@
+<!doctype html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge">
+    <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    
+    <title>React 源码解析 - React 创建更新回顾和 React 的批量更新 | Minimalist</title>
+    
+    <link rel="alternative" href="/atom.xml" title="Minimalist" type="application/atom+xml">
+    
+    
+<link rel="stylesheet" href="/css/style.css">
+
+    
+    <link rel="stylesheet" href="/libs/fancybox/jquery.fancybox.css" charset="utf-8">
+    
+    <!--[if lt IE 9]>
+    <script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
+    <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+    <![endif]-->
+<meta name="generator" content="Hexo 6.3.0"></head>
+<body class="site">
+    <header class="site-header">
+        <h1 class="site-title"><a href="/">Minimalist</a></h1>
+        <nav class="site-nav">
+            <ul class="nav">
+                
+                <li><a href="/archives">Archives</a></li>
+                
+                
+                <li><a target="_blank" rel="noopener" href="https://github.com/sfyr111" title="git">GITHUB</a></li>
+                
+                <li><a class="toggle-search" href="#search">search</a></li>
+            </ul>
+        </nav>
+        <div class="site-search" id="search">
+            <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><input type="hidden" name="sitesearch" value="http://yoursite.com"></form>
+        </div>
+        
+            <div class="site-header-background" style="background-image:url(http://reumia.github.io/hexo-theme-zzoman2015/images/background-zzoman2015.jpg)"></div>
+        
+    </header>
+    <div class="site-body">
+        <div class="global-width">
+    <article class="article" data-layout="post" data-slug="React 源码解析 - React 创建更新回顾和 React 的批量更新 ">
+        <div class="article-content">
+            
+            
+            <header class="article-header">
+                <div class="article-meta">
+                    <a href="/2019/02/23/React%20%E6%BA%90%E7%A0%81%E8%A7%A3%E6%9E%90%20-%20React%20%E5%88%9B%E5%BB%BA%E6%9B%B4%E6%96%B0%E5%9B%9E%E9%A1%BE%E5%92%8C%20React%20%E7%9A%84%E6%89%B9%E9%87%8F%E6%9B%B4%E6%96%B0%20/" class="article-date">
+  <time datetime="2019-02-23T15:23:53.000Z">2019-02-23</time>
+</a>
+                    
+                    
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/react/" rel="tag">react</a></li></ul>
+
+                </div>
+                
+    <h1 class="article-title" itemprop="name">
+      <a href="/2019/02/23/React%20%E6%BA%90%E7%A0%81%E8%A7%A3%E6%9E%90%20-%20React%20%E5%88%9B%E5%BB%BA%E6%9B%B4%E6%96%B0%E5%9B%9E%E9%A1%BE%E5%92%8C%20React%20%E7%9A%84%E6%89%B9%E9%87%8F%E6%9B%B4%E6%96%B0%20/">React 源码解析 - React 创建更新回顾和 React 的批量更新</a>
+    </h1>
+
+            </header>
+            
+            <div class="article-body">
+                <h2 id="回顾-React-更新"><a href="#回顾-React-更新" class="headerlink" title="回顾 React 更新"></a>回顾 React 更新</h2><h3 id="创建更新"><a href="#创建更新" class="headerlink" title="创建更新"></a>创建更新</h3><ul>
+<li><p>ReactDOM.render 初始渲染<br>每次调用都通过传入的 <code>&lt;App /&gt;, getElementById(&#39;app&#39;)</code> 构建 root 节点，每个 rootFiber 都有独立的 updateQueue 和 fiberTree，最后调用 ReactRoot.prototypye.render 来创建更新。</p>
+</li>
+<li><p>setState &amp; forceUpdate 更新渲染<br>都是 Component 构造函数的原型方法，目的都是给节点的 fiber 对象上创建更新，区别在于更新的类型不同。<br>创建更新 update，记录当前时间，计算 expirationTime，设置当前更新的 payload，再把 update 推入 fiber 对象的 updateQueue 属性上, 之后进入调度流程。<br></p>
+</li>
+</ul>
+<h3 id="expirationTime"><a href="#expirationTime" class="headerlink" title="expirationTime"></a>expirationTime</h3><p>由 ReactFiberReconciler.js 包，updateContainer 中的 <code> const expirationTime = computeExpirationForFiber(currentTime, current);</code> 计算出</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">function computeExpirationForFiber(currentTime: ExpirationTime, fiber: Fiber) &#123;</span><br><span class="line">  let expirationTime;</span><br><span class="line">// ...</span><br><span class="line">    if (fiber.mode &amp; ConcurrentMode) &#123;</span><br><span class="line">      if (isBatchingInteractiveUpdates) &#123;</span><br><span class="line">        // This is an interactive update 高优先级</span><br><span class="line">        expirationTime = computeInteractiveExpiration(currentTime);</span><br><span class="line">      &#125; else &#123;</span><br><span class="line">        // This is an async update 低优先级</span><br><span class="line">        expirationTime = computeAsyncExpiration(currentTime);</span><br><span class="line">      &#125;</span><br><span class="line">    &#125; else &#123;</span><br><span class="line">      // This is a sync update</span><br><span class="line">      expirationTime = Sync;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<ul>
+<li>简化 computeExpirationForFiber 函数</li>
+<li>发现 expirationTime 正常情况是 Sync &#x3D; 1 同步的</li>
+<li>只有在 fiber.mode 存在并且使用 ConcurrentMode 新版本的异步更新模式时才会真正的计算 expirationTime</li>
+<li>ConcurrentMode 模式下还会根据 isBatchingInteractiveUpdates 全局变量判断当前更新的上下文环境来决定 expirationTime 是高优先级还是低优先级的运算结果。(isBatchingInteractiveUpdates 在 batchedUpdates 中讲解）</li>
+</ul>
+<h2 id="scheduleWork-开始调度"><a href="#scheduleWork-开始调度" class="headerlink" title="scheduleWork 开始调度"></a>scheduleWork 开始调度</h2><h3 id="核心功能"><a href="#核心功能" class="headerlink" title="核心功能"></a>核心功能</h3><ul>
+<li>找到更新对应的 FiberRoot 节点<br>setState 时传入的都是组件的 Fiber 节点而不是 FiberRoot 节点</li>
+<li>符合条件时 - 重置 stack<br>具有公共变量，用于调度和更新</li>
+<li>符合条件时 - 请求工作调度</li>
+</ul>
+<h3 id="回顾-FiberTree"><a href="#回顾-FiberTree" class="headerlink" title="回顾 FiberTree"></a>回顾 FiberTree</h3><ul>
+<li><p>FiberTree 属性<br>1 child 为第一个子节点<br>2 sibling 为兄弟节点<br>3 return 为父节点，只有 RootFiber 对象 renturn 为 null<br>4 FiberRoot.current 和 RootFiber.stateNode 互相引用</p>
+</li>
+<li><p><img src="/images/imagemogr2_auto_orient_strip_7cimageview2_2_w_1240_12401695136743025.png"></p>
+</li>
+<li><p>执行操作时的 Fiber 对象<br>1 点击组件上的元素<br>2 执行组件的原型方法调用 setState<br>3 把 RootFiber 加入到调度中</p>
+</li>
+<li><p><img src="/images/imagemogr2_auto_orient_strip_7cimageview2_2_w_1240_12401695136743666.png"></p>
+</li>
+</ul>
+<h3 id="scheduleWork-进入调度队列"><a href="#scheduleWork-进入调度队列" class="headerlink" title="scheduleWork 进入调度队列"></a>scheduleWork 进入调度队列</h3><blockquote>
+<p>每一次进入调度队列的只有 FiberRoot 对象, 更新也是从 FiberRoot 对象上开始的。</p>
+</blockquote>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><span class="line">function scheduleWork(fiber: Fiber, expirationTime: ExpirationTime) &#123;</span><br><span class="line">  // 找到 root 更新 FiberTree 上的所有 expirationTime</span><br><span class="line">  const root = scheduleWorkToRoot(fiber, expirationTime);</span><br><span class="line">  if (root === null) &#123; // 没有 FiberRoot 暂停</span><br><span class="line">    return;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  if (</span><br><span class="line">    !isWorking &amp;&amp; // 没有执行渲染</span><br><span class="line">    nextRenderExpirationTime !== NoWork &amp;&amp; // 任务是个异步的，执行到一半了，交还给浏览器执行</span><br><span class="line">    expirationTime &lt; nextRenderExpirationTime // 新的任务优先级高于现在的任务</span><br><span class="line">  ) &#123;</span><br><span class="line">    // This is an interruption. (Used for performance tracking.)</span><br><span class="line">    interruptedBy = fiber; // 记录</span><br><span class="line">    resetStack(); // 优先执行高优先级任务</span><br><span class="line">  &#125;</span><br><span class="line">  markPendingPriorityLevel(root, expirationTime);</span><br><span class="line">  if (</span><br><span class="line">    !isWorking || // 没有正在工作</span><br><span class="line">    isCommitting || // 或者正在提交，也就是更新dom 树的渲染阶段</span><br><span class="line">    nextRoot !== root // 不同的 root 一般不存在不同</span><br><span class="line">  ) &#123;</span><br><span class="line">    const rootExpirationTime = root.expirationTime;</span><br><span class="line">    requestWork(root, rootExpirationTime); // 请求工作</span><br><span class="line">  &#125;</span><br><span class="line">  if (nestedUpdateCount &gt; NESTED_UPDATE_LIMIT) &#123;</span><br><span class="line">    // Reset this back to zero so subsequent updates don&#x27;t throw.</span><br><span class="line">    nestedUpdateCount = 0;</span><br><span class="line">    invariant( false, 超出最大更新深度。 当组件在componentWillUpdate或componentDidUpdate中重复调用setState时，可能会发生这种情况。 React限制嵌套更新的数量以防止无限循环。  );</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="scheduleWorkToRoot-通过-Fiber-对象找到-RootFiber-对象进行调度"><a href="#scheduleWorkToRoot-通过-Fiber-对象找到-RootFiber-对象进行调度" class="headerlink" title="scheduleWorkToRoot 通过 Fiber 对象找到 RootFiber 对象进行调度"></a>scheduleWorkToRoot 通过 Fiber 对象找到 RootFiber 对象进行调度</h3><blockquote>
+<ul>
+<li>根据传入的 Fiber 对象向上寻找到 RootFiber 对象</li>
+<li>同时更新所有子树上面的 expirationTime</li>
+</ul>
+</blockquote>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br></pre></td><td class="code"><pre><span class="line">function scheduleWorkToRoot(fiber: Fiber, expirationTime): FiberRoot | null &#123;</span><br><span class="line">  // ...</span><br><span class="line">  if (  // 更新 fiber 对象上 expirationTime</span><br><span class="line">    fiber.expirationTime === NoWork || // 没有任何更新操作的</span><br><span class="line">    fiber.expirationTime &gt; expirationTime // 有更新产生，但是优先级低于新计算的 expirationTime</span><br><span class="line">  ) &#123; // 设置成最新的 expirationTime</span><br><span class="line">    fiber.expirationTime = expirationTime;</span><br><span class="line">  &#125;</span><br><span class="line">  let alternate = fiber.alternate;</span><br><span class="line">  if (</span><br><span class="line">    alternate !== null &amp;&amp;</span><br><span class="line">    (alternate.expirationTime === NoWork ||</span><br><span class="line">      alternate.expirationTime &gt; expirationTime)</span><br><span class="line">  ) &#123;</span><br><span class="line">    // 逻辑和上面一样，更新 alternate 的expirationTime</span><br><span class="line">    alternate.expirationTime = expirationTime;</span><br><span class="line">  &#125;</span><br><span class="line"> // 通过 FiberTree 的属性向上寻找 FiberRoot 并更新每个子 fiber 对象的 expirationTime</span><br><span class="line">  let node = fiber.return; // renturn 父节点，</span><br><span class="line">  let root = null;</span><br><span class="line">  // node === null 就是 FiberRoot 对象</span><br><span class="line">  if (node === null &amp;&amp; fiber.tag === HostRoot) &#123;</span><br><span class="line">    root = fiber.stateNode;</span><br><span class="line">  &#125; else &#123;</span><br><span class="line">    // 循环查找 FiberRoot</span><br><span class="line">    while (node !== null) &#123;</span><br><span class="line">      alternate = node.alternate;</span><br><span class="line">      if ( // 更新 expirationTime</span><br><span class="line">        node.childExpirationTime === NoWork ||</span><br><span class="line">        node.childExpirationTime &gt; expirationTime</span><br><span class="line">      ) &#123;</span><br><span class="line">        node.childExpirationTime = expirationTime;</span><br><span class="line">        if (</span><br><span class="line">          alternate !== null &amp;&amp;</span><br><span class="line">          (alternate.childExpirationTime === NoWork ||</span><br><span class="line">            alternate.childExpirationTime &gt; expirationTime)</span><br><span class="line">        ) &#123;</span><br><span class="line">          alternate.childExpirationTime = expirationTime;</span><br><span class="line">        &#125;</span><br><span class="line">      &#125; else if (</span><br><span class="line">        alternate !== null &amp;&amp;</span><br><span class="line">        (alternate.childExpirationTime === NoWork ||</span><br><span class="line">          alternate.childExpirationTime &gt; expirationTime)</span><br><span class="line">      ) &#123;</span><br><span class="line">        alternate.childExpirationTime = expirationTime;</span><br><span class="line">      &#125;</span><br><span class="line">      // 找到 FiberRoot 结束循环</span><br><span class="line">      if (node.return === null &amp;&amp; node.tag === HostRoot) &#123;</span><br><span class="line">        root = node.stateNode;</span><br><span class="line">        break;</span><br><span class="line">      &#125;</span><br><span class="line">      // 继续向父节点查找</span><br><span class="line">      node = node.return;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="resetStack"><a href="#resetStack" class="headerlink" title="resetStack"></a>resetStack</h3><blockquote>
+<ul>
+<li>当发现当前任务的优先级大于下一个任务的优先级时，把下个任务的优先级重置执行当前任务</li>
+<li>resetStack 在重置下个任务时，会先记录这个任务，等待以后执行，并且使用 unwindInterruptedWork 来重置这个任务 fiber 上级的状态</li>
+</ul>
+</blockquote>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">if (</span><br><span class="line">  !isWorking &amp;&amp; // 没有执行渲染</span><br><span class="line">  nextRenderExpirationTime !== NoWork &amp;&amp; // 任务是个异步的，执行到一半了，交还给浏览器执行</span><br><span class="line">  expirationTime &lt; nextRenderExpirationTime // 新的任务优先级高于现在的任务</span><br><span class="line">) &#123;</span><br><span class="line">  // This is an interruption. (Used for performance tracking.)</span><br><span class="line">  interruptedBy = fiber; // 记录</span><br><span class="line">  resetStack(); // 优先执行高优先级任务</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line">function resetStack() &#123;</span><br><span class="line">  // nextUnitOfWork 被打断的任务</span><br><span class="line">  if (nextUnitOfWork !== null) &#123;</span><br><span class="line">    // 记录，等待以后执行</span><br><span class="line">    let interruptedWork = nextUnitOfWork.return;</span><br><span class="line">    while (interruptedWork !== null) &#123;</span><br><span class="line">      // 退回任务</span><br><span class="line">      unwindInterruptedWork(interruptedWork);</span><br><span class="line">      interruptedWork = interruptedWork.return;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  // 变回初始值，进行新任务更新</span><br><span class="line">  nextRoot = null;</span><br><span class="line">  nextRenderExpirationTime = NoWork;</span><br><span class="line">  nextLatestAbsoluteTimeoutMs = -1;</span><br><span class="line">  nextRenderDidError = false;</span><br><span class="line">  nextUnitOfWork = null;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="何时执行-requestWork"><a href="#何时执行-requestWork" class="headerlink" title="何时执行 requestWork"></a>何时执行 requestWork</h2><p>isWorking, isCommitting 是 react 渲染的两个不同阶段，</p>
+<ul>
+<li>isWorking<br>working 包含 committing(不可打断)</li>
+<li>isCommitting<br>fiberTree 的更新已经结束，正在提交也就是更新dom 树的渲染阶段, 不可打断<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">if (</span><br><span class="line">  !isWorking || // 没有正在工作</span><br><span class="line">  isCommitting || // 或者正在提交，也就是更新dom 树的渲染阶段</span><br><span class="line">  nextRoot !== root // 不同的 root 一般不存在不同</span><br><span class="line">) &#123;</span><br><span class="line">  const rootExpirationTime = root.expirationTime; // 重新查找 root expirationTime，因为可能会改变</span><br><span class="line">  requestWork(root, rootExpirationTime); // 请求工作</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
+</ul>
+<h2 id="requestWork"><a href="#requestWork" class="headerlink" title="requestWork"></a>requestWork</h2><h3 id="核心功能-1"><a href="#核心功能-1" class="headerlink" title="核心功能"></a>核心功能</h3><ul>
+<li>将 root 节点加入到 root调度队列中</li>
+<li>判断是否是批量更新</li>
+<li>最后根据 expirationTime 的类型判断调度的类型</li>
+</ul>
+<h3 id="requestWork-流程"><a href="#requestWork-流程" class="headerlink" title="requestWork 流程"></a>requestWork 流程</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line">function requestWork(root: FiberRoot, expirationTime: ExpirationTime) &#123;</span><br><span class="line">  addRootToSchedule(root, expirationTime); // 把当前 root设置为最高优先级</span><br><span class="line">  // isRendering 调度已经在执行了, 循环已经开始了</span><br><span class="line">  if (isRendering) &#123;</span><br><span class="line">    return;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  // 批量处理相关</span><br><span class="line">  // 调用 setState 时在 enqueueUpdates 前 batchedUpdates 会把 isBatchingUpdates 设置成 true</span><br><span class="line">  if (isBatchingUpdates) &#123;</span><br><span class="line">    // Flush work at the end of the batch.</span><br><span class="line">    if (isUnbatchingUpdates) &#123;</span><br><span class="line">      // ...unless we&#x27;re inside unbatchedUpdates, in which case we should</span><br><span class="line">      // flush it now.</span><br><span class="line">      nextFlushedRoot = root;</span><br><span class="line">      nextFlushedExpirationTime = Sync;</span><br><span class="line">      performWorkOnRoot(root, Sync, true);</span><br><span class="line">    &#125;</span><br><span class="line">    return; // isBatchingUpdates true // 普通的 setState 在进入 enqueueUpdates 时在这里直接不执行了，下面其实没进入调度</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  // TODO: Get rid of Sync and use current time?</span><br><span class="line">  if (expirationTime === Sync) &#123; // 同步的调用 js 代码</span><br><span class="line">    performSyncWork();</span><br><span class="line">  &#125; else &#123; // 异步调度 独立的 react 模块包，利用浏览器有空闲的时候进行执行，设置 deadline 在此之前执行</span><br><span class="line">    scheduleCallbackWithExpirationTime(root, expirationTime); // 在 secheduler 文件夹下的单独模块</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="addRootToSchedule"><a href="#addRootToSchedule" class="headerlink" title="addRootToSchedule"></a>addRootToSchedule</h3><blockquote>
+<ul>
+<li>判断当前 root 是否调度过,  单个或多个 root 构建成单向链表结构</li>
+<li>如果调度过，设置当前任务优先级最高</li>
+</ul>
+</blockquote>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line">function addRootToSchedule(root: FiberRoot, expirationTime: ExpirationTime) &#123;</span><br><span class="line">  // root.nextScheduledRoot 用来判断是否有异步任务正在调度, 为 null 时会增加 nextScheduledRoot</span><br><span class="line">  // 这个 root 还没有进入过调度</span><br><span class="line">  if (root.nextScheduledRoot === null) &#123;</span><br><span class="line">    root.expirationTime = expirationTime;</span><br><span class="line">    // lastScheduledRoot firstScheduledRoot 是单向链表结构，表示多个 root 更新</span><br><span class="line">    // 这里只有一个 root 只会在这里执行</span><br><span class="line">    if (lastScheduledRoot === null) &#123;</span><br><span class="line">      firstScheduledRoot = lastScheduledRoot = root;</span><br><span class="line">      root.nextScheduledRoot = root;</span><br><span class="line">    &#125; else &#123; // 有个多个root 时进行单向链表的插入操作</span><br><span class="line">      lastScheduledRoot.nextScheduledRoot = root;</span><br><span class="line">      lastScheduledRoot = root;</span><br><span class="line">      lastScheduledRoot.nextScheduledRoot = firstScheduledRoot;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125; else &#123; </span><br><span class="line">    // 传入的 root 已经进入过调度, 把 root 的优先级设置最高</span><br><span class="line">    const remainingExpirationTime = root.expirationTime;</span><br><span class="line">    // 如果 root 的 expirationTime 是同步或者优先级低，增加为计算出的最高优先级</span><br><span class="line">    if (</span><br><span class="line">      remainingExpirationTime === NoWork ||</span><br><span class="line">      expirationTime &lt; remainingExpirationTime</span><br><span class="line">    ) &#123;</span><br><span class="line">      root.expirationTime = expirationTime; // 把当前 root 的优先级设置为当前优先级最高的</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="batchedUpdates-批量更新"><a href="#batchedUpdates-批量更新" class="headerlink" title="batchedUpdates 批量更新"></a>batchedUpdates 批量更新</h2><blockquote>
+<ul>
+<li>每次 react 创建更新都会执行 requestWork。如: setState</li>
+<li>在 requestWork 中决定 react 的更新是异步调度还是同步执行</li>
+</ul>
+</blockquote>
+<h3 id="setState-的调用"><a href="#setState-的调用" class="headerlink" title="setState 的调用"></a>setState 的调用</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br></pre></td><td class="code"><pre><span class="line">import React from &#x27;react&#x27;</span><br><span class="line">import &#123; unstable_batchedUpdates as batchedUpdates &#125; from &#x27;react-dom&#x27;</span><br><span class="line"></span><br><span class="line">export default class BatchedDemo extends React.Component &#123;</span><br><span class="line">  state = &#123;</span><br><span class="line">    number: 0,</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  handleClick = () =&gt; &#123;</span><br><span class="line">    // 方法一</span><br><span class="line">    // 事件处理函数自带`batchedUpdates`</span><br><span class="line">    // this.countNumber() // 执行的结果是 0, 0, 0</span><br><span class="line"></span><br><span class="line">    // 方法二</span><br><span class="line">    // 主动`batchedUpdates`</span><br><span class="line">   setTimeout(() =&gt; &#123;</span><br><span class="line">      this.countNumber() // 执行的结果是 1，2，3</span><br><span class="line">    &#125;, 0)</span><br><span class="line">    // 方法三</span><br><span class="line">    // setTimeout中没有`batchedUpdates`</span><br><span class="line">    // setTimeout(() =&gt; &#123;</span><br><span class="line">    //   batchedUpdates(() =&gt; this.countNumber())  // 执行的结果是 0, 0, 0</span><br><span class="line">    // &#125;, 0)</span><br><span class="line"></span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  countNumber() &#123;</span><br><span class="line">    const num = this.state.number</span><br><span class="line">    this.setState(&#123;</span><br><span class="line">      number: num + 1,</span><br><span class="line">    &#125;)</span><br><span class="line">    console.log(this.state.number)</span><br><span class="line">    this.setState(&#123;</span><br><span class="line">      number: num + 2,</span><br><span class="line">    &#125;)</span><br><span class="line">    console.log(this.state.number)</span><br><span class="line">    this.setState(&#123;</span><br><span class="line">      number: num + 3,</span><br><span class="line">    &#125;)</span><br><span class="line">    console.log(this.state.number)</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  render() &#123;</span><br><span class="line">    return &lt;button onClick=&#123;this.handleClick&#125;&gt;Num: &#123;this.state.number&#125;&lt;/button&gt;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h4 id="requestWork-1"><a href="#requestWork-1" class="headerlink" title="requestWork"></a>requestWork</h4><ul>
+<li>当 setState 创建更新后进入调度，执行到 requestWork 里时会判断一个 isBatchingUpdates 的全局变量。 </li>
+<li>在 requestWork 中断点<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line">function requestWork(root: FiberRoot, expirationTime: ExpirationTime) &#123;</span><br><span class="line">  debugger</span><br><span class="line">  // ...</span><br><span class="line">  if (isRendering) &#123;</span><br><span class="line">    return;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  // 批量处理相关</span><br><span class="line">  // 调用 setState 时在 enqueueUpdates 前 batchedUpdates 会把 isBatchingUpdates 设置成 true</span><br><span class="line">  if (isBatchingUpdates) &#123;</span><br><span class="line">    if (isUnbatchingUpdates) &#123;</span><br><span class="line">      nextFlushedRoot = root;</span><br><span class="line">      nextFlushedExpirationTime = Sync;</span><br><span class="line">      performWorkOnRoot(root, Sync, true);</span><br><span class="line">    &#125;</span><br><span class="line">    return; // isBatchingUpdates true // 普通的 setState 在进入 enqueueUpdates 时在这里直接不执行了，下面其实没进入调度</span><br><span class="line">  &#125;</span><br><span class="line">  // 只有异步模式任务时才会执行</span><br><span class="line">  &#125;</span><br></pre></td></tr></table></figure></li>
+<li>在 requestWork 中断点，发现在判断 isBatchingUpdates 变量时就直接返回了，虽然 expirationTime 是 Sync 但是下面的 performSyncWork() 并不会执行。</li>
+<li>setState 时先执行了一个 batchedUpdates 的函数。<br><img src="/images/imagemogr2_auto_orient_strip_7cimageview2_2_w_1240_12401695136744298.png"></li>
+<li>多次的 setState 在 enqueueUpdates 函数中，fiber 对象的 baseState 仍然是 0, 但是 fiber 对象上的 updateQueue 更新队列上已经记录好了多次 update 对象将要更新 state 的 payload。<br><img src="/images/imagemogr2_auto_orient_strip_7cimageview2_2_w_1240_12401695136744966.png"></li>
+</ul>
+<h3 id="batchedUpdates-的源码"><a href="#batchedUpdates-的源码" class="headerlink" title="batchedUpdates 的源码"></a>batchedUpdates 的源码</h3><ul>
+<li>setState 在 batchedUpdates 中先把 isBatchingUpdates 暂存为 previousIsBatchingUpdates, 再设置为 true 防止在 requestWork 中执行。</li>
+<li>在 try 代码块中执行组件的方法 fn，fn 不论执行多少次 setState  执行完了都会通过 finally 进入把 isBatchingUpdates 再设置回 false。</li>
+<li>最后通过执行 performSyncWork() 方法，而不是在 requestWork 中调用。<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">function batchedUpdates&lt;A, R&gt;(fn: (a: A) =&gt; R, a: A): R &#123;</span><br><span class="line">  const previousIsBatchingUpdates = isBatchingUpdates; // 初始为 false</span><br><span class="line">  isBatchingUpdates = true;</span><br><span class="line">  try &#123;</span><br><span class="line">    return fn(a); // 执行组件绑定的方法, 走到 requestWork 里</span><br><span class="line">  &#125; finally &#123;</span><br><span class="line">    // setState 最终 enqueueUpdates 全部走到 requestWork 后变回 false 再一同 performSyncWork 才真正的执行并改变 state</span><br><span class="line">    isBatchingUpdates = previousIsBatchingUpdates; // 变回 false</span><br><span class="line">    // 如果是 setTimeout(() =&gt; &#123; this.setState &#125;) setTimeout 走到这里后才执行 this.setState 这时上下文环境是 window isBatchingUpdates 已经 false，setState 就是同步的</span><br><span class="line">    if (!isBatchingUpdates &amp;&amp; !isRendering) &#123;</span><br><span class="line">      performSyncWork(); // 当所有 setState 执行完全部enqueueUpdates 后代替 requestWork 来调度</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
+</ul>
+<h4 id="方法二-setTimout-执行方式"><a href="#方法二-setTimout-执行方式" class="headerlink" title="方法二 setTimout 执行方式"></a>方法二 setTimout 执行方式</h4><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">setTimeout(() =&gt; &#123;</span><br><span class="line">  batchedUpdates(() =&gt; this.countNumber())</span><br><span class="line">&#125;, 0)</span><br></pre></td></tr></table></figure>
+<ul>
+<li>setTimeout 等浏览器 API 执行的方式结果都会把三次 setState 结算的结果打印出来，像是一种同步的执行方式</li>
+<li>再次 debugger ，这时在 batchedUpdates 函数中的 fn 的执行内容只是 setTimeout。</li>
+<li>当 setTimeout 执行完后直接进入了 finally 代码块中，isBatchingUpdates 变回了 false<img src="/images/imagemogr2_auto_orient_strip_7cimageview2_2_w_1240_12401695136745608.png"></li>
+<li>当 setTimeout 结束执行回调中的 setState 进入 requestWork 时 isBatchingUpdates 已经变为 false，requestWork 将会执行下去，最终执行自己 performSyncWork()</li>
+<li>三次 setState 都会通过 requestWork 执行 performSyncWork()，而不是之前通过 batchedUpdates 执行一次，所以每次 setState 的 update 都会立刻改变 state，结果也是同步的输出。<img src="/images/imagemogr2_auto_orient_strip_7cimageview2_2_w_1240_12401695136746243.png"></li>
+</ul>
+<h4 id="方法三-使用-batchedUpdates-API"><a href="#方法三-使用-batchedUpdates-API" class="headerlink" title="方法三 使用 batchedUpdates API"></a>方法三 使用 batchedUpdates API</h4><blockquote>
+<p>batchedUpdates 让 setState 的更新仍然为批量更新</p>
+</blockquote>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">setTimeout(() =&gt; &#123;</span><br><span class="line">  batchedUpdates(() =&gt; this.countNumber())</span><br><span class="line">&#125;, 0)</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>batchedUpdates API 其实就是 batchedUpdates 函数</li>
+<li>setTimeout 执行回调时 batchedUpdates API 又把 isBatchingUpdates 设置为 true，让 多次的 setState 又能进行批量更新。<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">function batchedUpdates&lt;A, R&gt;(fn: (a: A) =&gt; R, a: A): R &#123;</span><br><span class="line">  const previousIsBatchingUpdates = isBatchingUpdates; // 初始为 false</span><br><span class="line">  isBatchingUpdates = true;</span><br><span class="line">  try &#123;</span><br><span class="line">    return fn(a); // 执行组件绑定的方法, 走到 requestWork 里</span><br><span class="line">  &#125; finally &#123;</span><br><span class="line">    isBatchingUpdates = previousIsBatchingUpdates; // 变回 false</span><br><span class="line">    if (!isBatchingUpdates &amp;&amp; !isRendering) &#123;</span><br><span class="line">      performSyncWork(); // 当所有 setState 执行完全部enqueueUpdates 后代替 requestWork 来调度</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
+</ul>
+<h2 id="总结-setState-是同步还是异步"><a href="#总结-setState-是同步还是异步" class="headerlink" title="总结 setState 是同步还是异步"></a>总结 setState 是同步还是异步</h2><blockquote>
+<ul>
+<li>setState 本身的方法调用时同步的，但是调用 setState 不表示 state 立即更新的，state 的更新是根据我们执行环境的上下文来判断的。</li>
+<li>如果处于批量更新的情况下 state 就不是立即更新的，如果不处于批量更新情况下有可能立即更新.</li>
+<li>现在有 asyncMode 异步渲染的情况，state 也不是立即更新的，需要进入异步调度的过程。</li>
+</ul>
+</blockquote>
+
+            </div>
+        </div>
+    </article>
+
+    
+    
+<nav class="article-nav">
+  
+    <a href="/2019/02/27/React%20%E6%BA%90%E7%A0%81%E8%A7%A3%E6%9E%90%20-%20reactScheduler%20%E5%BC%82%E6%AD%A5%E4%BB%BB%E5%8A%A1%E8%B0%83%E5%BA%A6%20/" id="article-nav-newer" class="article-nav-link-wrap prev">
+      <strong class="article-nav-caption">Newer</strong>
+      <div class="article-nav-title">
+        
+          React 源码解析 - reactScheduler 异步任务调度
+        
+      </div>
+    </a>
+  
+  
+    <a href="/2019/02/02/React%20%E6%BA%90%E7%A0%81%E8%A7%A3%E6%9E%90%20React%20%E7%9A%84%E6%9B%B4%E6%96%B0%20/" id="article-nav-older" class="article-nav-link-wrap next">
+      <strong class="article-nav-caption">Older</strong>
+      <div class="article-nav-title">React 源码解析 React 的更新</div>
+    </a>
+  
+</nav>
+
+    
+
+    
+</div>
+    </div>
+    <footer class="site-footer">
+        <div class="global-width">
+            <ul class="site-widget">
+                
+                <li class="widget widget-tag">
+                    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Tags</h3>
+    <div class="widget-body">
+      <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/JavaScript/" rel="tag">JavaScript</a><span class="tag-list-count">6</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/React/" rel="tag">React</a><span class="tag-list-count">5</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/React-Tips/" rel="tag">React Tips</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Redux/" rel="tag">Redux</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Vue/" rel="tag">Vue</a><span class="tag-list-count">4</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/css/" rel="tag">css</a><span class="tag-list-count">3</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/dom/" rel="tag">dom</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/http/" rel="tag">http</a><span class="tag-list-count">8</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/nodejs/" rel="tag">nodejs</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/react/" rel="tag">react</a><span class="tag-list-count">8</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/sftp/" rel="tag">sftp</a><span class="tag-list-count">1</span></li></ul>
+    </div>
+  </div>
+
+                </li>
+                
+                <li class="widget widget-category">
+                    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Categories</h3>
+    <div class="widget-body">
+      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/Font-End-Basis/">Font-End Basis</a><span class="category-list-count">11</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/React/">React</a><span class="category-list-count">8</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Vue/">Vue</a><span class="category-list-count">4</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/css/">css</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/http/">http</a><span class="category-list-count">5</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/network/">network</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/nodejs/">nodejs</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/react/">react</a><span class="category-list-count">2</span></li></ul>
+    </div>
+  </div>
+
+                </li>
+                
+                <li class="widget widget-recent_posts">
+                    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Recents</h3>
+    <div class="widget-body">
+      <ul>
+        
+          <li>
+            <a href="/2022/01/21/react%20%E5%86%85%E9%83%A8%E5%8E%9F%E7%90%86%20/">react 内部原理</a>
+          </li>
+        
+          <li>
+            <a href="/2020/05/04/React%20%E5%90%88%E6%88%90%E4%BA%8B%E4%BB%B6%20SyntheticEvent%20/">React 合成事件 SyntheticEvent</a>
+          </li>
+        
+          <li>
+            <a href="/2020/04/19/Vue3%20%E4%B8%BA%E4%BB%80%E4%B9%88%E8%A6%81%E7%94%A8%20Proxy%20%E4%BB%A3%E6%9B%BF%20Object.defineProperty%20%E5%AE%9E%E7%8E%B0%E5%93%8D%E5%BA%94%E5%BC%8F%20/">Vue3 为什么要用 Proxy 代替 Object-defineProperty 实现响应式</a>
+          </li>
+        
+          <li>
+            <a href="/2019/10/30/%E6%B5%8F%E8%A7%88%E5%99%A8%E8%BE%93%E5%85%A5%20URL%20%E5%88%B0%E9%A1%B5%E9%9D%A2%E5%91%88%E7%8E%B0%E5%8F%8A%E5%85%B6%E4%BC%98%E5%8C%96%20/">浏览器输入 URL 到页面呈现及其优化</a>
+          </li>
+        
+          <li>
+            <a href="/2019/08/23/React%20%E6%BA%90%E7%A0%81%E8%A7%A3%E6%9E%90%20-%20commitRoot%20%E6%9B%B4%E6%96%B0%E4%BB%BB%E5%8A%A1%20dom%20%E8%8A%82%E7%82%B9%20/">React 源码解析 - commitRoot 更新任务 dom 节点</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+                </li>
+                
+            </ul>
+        </div>
+        <div class="site-info">
+            <address>
+                &copy; 2014 <a href="http://yoursite.com">Minimalist</a> All Right Reserved. <br/>
+                Powered by <a target="_blank" rel="noopener" href="http://hexo.io">Hexo</a>. Theme by <a target="_blank" rel="noopener" href="http://zzoman.com">ZZOMAN</a>
+            </address>
+        </div>
+    </footer>
+    
+    <script src="/libs/jquery-1.11.3.min.js" type="text/javascript"></script>
+    
+    <script src="/libs/fancybox/jquery.fancybox.js" type="text/javascript"></script>
+    
+    <script src="/js/site_init.js" type="text/javascript"></script>
+    
+</body>
+</html>

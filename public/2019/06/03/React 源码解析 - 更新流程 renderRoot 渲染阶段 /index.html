@@ -1,0 +1,439 @@
+<!doctype html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge">
+    <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    
+    <title>React 源码解析 - 更新流程 renderRoot 渲染阶段 | Minimalist</title>
+    
+    <link rel="alternative" href="/atom.xml" title="Minimalist" type="application/atom+xml">
+    
+    
+<link rel="stylesheet" href="/css/style.css">
+
+    
+    <link rel="stylesheet" href="/libs/fancybox/jquery.fancybox.css" charset="utf-8">
+    
+    <!--[if lt IE 9]>
+    <script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
+    <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+    <![endif]-->
+<meta name="generator" content="Hexo 6.3.0"></head>
+<body class="site">
+    <header class="site-header">
+        <h1 class="site-title"><a href="/">Minimalist</a></h1>
+        <nav class="site-nav">
+            <ul class="nav">
+                
+                <li><a href="/archives">Archives</a></li>
+                
+                
+                <li><a target="_blank" rel="noopener" href="https://github.com/sfyr111" title="git">GITHUB</a></li>
+                
+                <li><a class="toggle-search" href="#search">search</a></li>
+            </ul>
+        </nav>
+        <div class="site-search" id="search">
+            <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><input type="hidden" name="sitesearch" value="http://yoursite.com"></form>
+        </div>
+        
+            <div class="site-header-background" style="background-image:url(http://reumia.github.io/hexo-theme-zzoman2015/images/background-zzoman2015.jpg)"></div>
+        
+    </header>
+    <div class="site-body">
+        <div class="global-width">
+    <article class="article" data-layout="post" data-slug="React 源码解析 - 更新流程 renderRoot 渲染阶段 ">
+        <div class="article-content">
+            
+            
+            <header class="article-header">
+                <div class="article-meta">
+                    <a href="/2019/06/03/React%20%E6%BA%90%E7%A0%81%E8%A7%A3%E6%9E%90%20-%20%E6%9B%B4%E6%96%B0%E6%B5%81%E7%A8%8B%20renderRoot%20%E6%B8%B2%E6%9F%93%E9%98%B6%E6%AE%B5%20/" class="article-date">
+  <time datetime="2019-06-03T10:05:11.000Z">2019-06-03</time>
+</a>
+                    
+                    
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/react/" rel="tag">react</a></li></ul>
+
+                </div>
+                
+    <h1 class="article-title" itemprop="name">
+      <a href="/2019/06/03/React%20%E6%BA%90%E7%A0%81%E8%A7%A3%E6%9E%90%20-%20%E6%9B%B4%E6%96%B0%E6%B5%81%E7%A8%8B%20renderRoot%20%E6%B8%B2%E6%9F%93%E9%98%B6%E6%AE%B5%20/">React 源码解析 - 更新流程 renderRoot 渲染阶段</a>
+    </h1>
+
+            </header>
+            
+            <div class="article-body">
+                <h2 id="往期回顾"><a href="#往期回顾" class="headerlink" title="往期回顾"></a>往期回顾</h2><p><a target="_blank" rel="noopener" href="https://www.jianshu.com/p/bd3fd953167a">React 源码解析 React 的更新
+</a><br><a target="_blank" rel="noopener" href="https://www.jianshu.com/p/e18fbb17b900">React 源码解析 - React 创建更新回顾和 React 的批量更新
+</a><br><a target="_blank" rel="noopener" href="https://www.jianshu.com/p/87533d64626a">React 源码解析 - 调度模块原理 - 实现 requestIdleCallback 
+</a><br><a target="_blank" rel="noopener" href="https://www.jianshu.com/p/4a3a09925a28">React 源码解析 - reactScheduler 异步任务调度
+</a></p>
+<h2 id="renderRoot-入口"><a href="#renderRoot-入口" class="headerlink" title="renderRoot 入口"></a>renderRoot 入口</h2><ul>
+<li>ReactFiberScheduler.js<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line">function renderRoot(root: FiberRoot, isYieldy: boolean, isExpired: boolean) &#123;</span><br><span class="line">  // ...</span><br><span class="line">  if ( // 将要执行的任务 root 和 expirationTime 和 nextRenderExpirationTime、nextRoot 预期的不一样， 应该是之前任务被高优先级的任务打断了。</span><br><span class="line">    expirationTime !== nextRenderExpirationTime ||</span><br><span class="line">    root !== nextRoot ||</span><br><span class="line">    nextUnitOfWork === null // 更新结束 fiber 的 child，下一个节点, 首次 = null</span><br><span class="line">  ) &#123;</span><br><span class="line">  // 初始化的内容</span><br><span class="line">    resetStack(); // 重置</span><br><span class="line">    nextRoot = root;</span><br><span class="line">    nextRenderExpirationTime = expirationTime; // root.nextExpirationTimeToWorkOn;</span><br><span class="line">    nextUnitOfWork = createWorkInProgress( // 拷贝了一份 fiber 对象操作</span><br><span class="line">      nextRoot.current,</span><br><span class="line">      null,</span><br><span class="line">      nextRenderExpirationTime,</span><br><span class="line">    );</span><br><span class="line">    root.pendingCommitExpirationTime = NoWork; // 设置成 NoWork</span><br><span class="line">  // ...</span><br><span class="line">  &#125;</span><br><span class="line">// 开始进入 workLoop </span><br><span class="line">  do &#123;</span><br><span class="line">    try &#123;</span><br><span class="line">      workLoop(isYieldy); // 进行每个节点的更新</span><br><span class="line">    &#125; catch (thrownValue) &#123;</span><br><span class="line">      // ...</span><br><span class="line">      break; // 遇到了某种错误跳出</span><br><span class="line">    &#125;   while(true)</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+workLoop 中所有发生的错误都会被 render 阶段 catch，render 阶段会根据捕获的错误具体内容进行相应的操作<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">function workLoop(isYieldy) &#123;</span><br><span class="line">  if (!isYieldy) &#123; // 不可中断 Sync 和 超时任务不可中断</span><br><span class="line">    // Flush work without yielding</span><br><span class="line">    // nextUnitOfWork 是 fiber 对象，为 null 已经是 root 节点 fiber return 的 null 了</span><br><span class="line">    // 用于记录render阶段Fiber树遍历过程中下一个需要执行的节点。在resetStack中分别被重置,他只会指向workInProgress</span><br><span class="line">    while (nextUnitOfWork !== null) &#123; // 不停的更新，不为 null 就不停执行 next 的 child 的更新</span><br><span class="line">      nextUnitOfWork = performUnitOfWork(nextUnitOfWork); // 进行更新</span><br><span class="line">    &#125;</span><br><span class="line">  &#125; else &#123;</span><br><span class="line">    // Flush asynchronous work until the deadline runs out of time.</span><br><span class="line">    while (nextUnitOfWork !== null &amp;&amp; !shouldYield()) &#123; // 判断 shouldYield = false 当前时间片是否有时间更新</span><br><span class="line">      nextUnitOfWork = performUnitOfWork(nextUnitOfWork);</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+workLoop 只是根据时间片是否有任务调用 performUnitOfWork 进行更新,  只有当 nextUnitOfWork &#x3D;&#x3D;&#x3D; null 时才代表任务已经更新完了<br><img src="/images/imagemogr2_auto_orient_strip_7cimageview2_2_w_1240_12401695136654833.png"><br>performUnitOfWork 在 beginWork 中对当前 fiber 进行更新，更新到此 fiber 的最后时会去找兄弟节点，最后返回给 workLoop 中的 while(nextUnitOfWork) 中继续执行</li>
+</ul>
+<h2 id="beginWork"><a href="#beginWork" class="headerlink" title="beginWork"></a>beginWork</h2><h3 id="核心功能"><a href="#核心功能" class="headerlink" title="核心功能"></a>核心功能</h3><ul>
+<li>验证当前 fiber 树是否需要更新</li>
+<li>更新传入的节点类型进行对应的更新</li>
+<li>更新后调和子节点</li>
+</ul>
+<h3 id="第一步验证当前-fiber-树是否需要更新"><a href="#第一步验证当前-fiber-树是否需要更新" class="headerlink" title="第一步验证当前 fiber 树是否需要更新"></a>第一步验证当前 fiber 树是否需要更新</h3><ul>
+<li>比较当前节点 props 是否有变化</li>
+<li>检查当前节点是否有更新或是否比当前 root 的更新优先级大</li>
+<li>没更新或优先级低就跳过，bailoutOnAlreadyFinishedWork</li>
+<li>bailoutOnAlreadyFinishedWork 可以判断 current 是否有 child 更新<br><img src="/images/imagemogr2_auto_orient_strip_7cimageview2_2_w_1240_12401695136655465.png"></li>
+<li>bailoutOnAlreadyFinishedWork 会判断这个 fiber 的子树是否需要更新，如果有需要更新会 clone 一份到 workInProgress.child 返回到 workLoop 的 nextUnitOfWork, 否则为 null<br><img src="/images/imagemogr2_auto_orient_strip_7cimageview2_2_w_1240_12401695136656226.png"></li>
+</ul>
+<h3 id="根据-fiber-的-tag-类型进行更新"><a href="#根据-fiber-的-tag-类型进行更新" class="headerlink" title="根据 fiber 的 tag 类型进行更新"></a>根据 fiber 的 tag 类型进行更新</h3><p>进行更新先把当前 fiber 的 expirationTime 设置为 NoWork，根据 tag 进行不同组件的更新<br><img src="/images/imagemogr2_auto_orient_strip_7cimageview2_2_w_660_6601695136657013.png"></p>
+<ul>
+<li>ClassComponent: class 组件</li>
+<li>HostRoot: <div id="root" /></li>
+<li>HostComponent: html 标签</li>
+<li>HostText: 文本内容<br>…</li>
+</ul>
+<h2 id="workInProgress-更新所用到的-fiber-对象属性"><a href="#workInProgress-更新所用到的-fiber-对象属性" class="headerlink" title="workInProgress 更新所用到的 fiber 对象属性"></a>workInProgress 更新所用到的 fiber 对象属性</h2><ul>
+<li>type<br>当函数组件时是 function<br>当为 class 组件时就是 class 构造函数<br>当 dom 原生组件时就是标签 div 这种字符串</li>
+<li>pendingProps<br>fiber 更新带来的新 props</li>
+</ul>
+<h3 id="更新函数会用到的参数"><a href="#更新函数会用到的参数" class="headerlink" title="更新函数会用到的参数"></a>更新函数会用到的参数</h3><ul>
+<li>current<br>workInProgress.alternate，指向当前 fiber 没更新的对象</li>
+<li>Component<br>workInProgress.type，此时 fiber 节点组件的类型，function，class，标签 字符串</li>
+<li>nextProps<br>workInProgress.pendingProps，此次更新带来的新 props</li>
+<li>renderExpirationTime<br>fiberRoot.expirationTime，fiberRoot 上最大优先级的值</li>
+</ul>
+<h2 id="FunctionComponent-更新"><a href="#FunctionComponent-更新" class="headerlink" title="FunctionComponent 更新"></a>FunctionComponent 更新</h2><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line">function updateFunctionComponent(</span><br><span class="line">  current,</span><br><span class="line">  workInProgress,</span><br><span class="line">  Component,</span><br><span class="line">  nextProps: any,</span><br><span class="line">  renderExpirationTime,</span><br><span class="line">) &#123;</span><br><span class="line">  // ... context 相关</span><br><span class="line">  let nextChildren;</span><br><span class="line">  // Component 组件方法，这里就是我们声明组件的方式 function(props, context) &#123;&#125;</span><br><span class="line">  nextChildren = Component(nextProps, context); </span><br><span class="line">  // 把 nextChildren 这些 ReactElement 变成 Fiber 对象, 在 workInProgress.child 挂载 fiber  </span><br><span class="line">  reconcileChildren( </span><br><span class="line">    current,</span><br><span class="line">    workInProgress,</span><br><span class="line">    nextChildren,</span><br><span class="line">    renderExpirationTime,</span><br><span class="line">  );</span><br><span class="line">  return workInProgress.child;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="reconcileChildren"><a href="#reconcileChildren" class="headerlink" title="reconcileChildren"></a>reconcileChildren</h2><h3 id="核心点"><a href="#核心点" class="headerlink" title="核心点"></a>核心点</h3><ul>
+<li>根据 props.children 生成 fiber 子树</li>
+<li>判断 fiber 对象是否可以复用, 在第一次渲染就渲染了 fiber 子树，state 变化可能会导致不能复用，但是大部分是可以复用的</li>
+<li>列表根据 key 优化</li>
+</ul>
+<h3 id="根据首次渲染或更新渲染进行操作"><a href="#根据首次渲染或更新渲染进行操作" class="headerlink" title="根据首次渲染或更新渲染进行操作"></a>根据首次渲染或更新渲染进行操作</h3><ul>
+<li>current &#x3D;&#x3D;&#x3D; null 首次渲染, mountChildFibers</li>
+<li>current !&#x3D;&#x3D; null 更新渲染, reconcileChildFibers<br><img src="/images/imagemogr2_auto_orient_strip_7cimageview2_2_w_660_6601695136657780.png"></li>
+<li>mountChildFibers 和 reconcileChildFibers 都是由 ChildReconciler 返回的函数，区别只在参数不同<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">export const reconcileChildFibers = ChildReconciler(true);</span><br><span class="line">export const mountChildFibers = ChildReconciler(false);</span><br></pre></td></tr></table></figure></li>
+</ul>
+<h3 id="reconcileChildFibers"><a href="#reconcileChildFibers" class="headerlink" title="reconcileChildFibers"></a>reconcileChildFibers</h3><ul>
+<li>reconcileChildFibers 是 ChildReconciler 返回的最终函数</li>
+<li>先判断 newChild 是不是 Fragment 节点</li>
+<li>typeof newChild &#x3D;&#x3D;&#x3D; object 是函数组件和 class 组件返回的 jsx - reconcileSingleElement</li>
+<li>typeof newChild &#x3D;&#x3D;&#x3D; string 是 textNode - reconcileSingleTextNode</li>
+<li>判断 newChild 是个数组</li>
+<li>判断是 iterator 函数</li>
+<li>都不符合抛错</li>
+<li>提醒组件没有合法的返回值</li>
+<li>最后删除所有的节点 return deleteRemainingChildren(returnFiber: new, currentFirstChild: old);<img src="/images/imagemogr2_auto_orient_strip_7cimageview2_2_w_1240_12401695136658541.png"></li>
+</ul>
+<h3 id="placeSingleChild"><a href="#placeSingleChild" class="headerlink" title="placeSingleChild"></a>placeSingleChild</h3><p><img src="/images/imagemogr2_auto_orient_strip_7cimageview2_2_w_660_6601695136659528.png"><br>更新渲染时 placeSingleChild 会把新创建的 fiber 节点标记为 Placement, 待到提交阶段处理<br><img src="/images/imagemogr2_auto_orient_strip_7cimageview2_2_w_660_6601695136660355.png"><br>其中 ReactElement, Portal, TextNode 三种类型的节点需要进行处理x</p>
+<h3 id="reconcileSingleElement-更新-ReactElement"><a href="#reconcileSingleElement-更新-ReactElement" class="headerlink" title="reconcileSingleElement 更新 ReactElement"></a>reconcileSingleElement 更新 ReactElement</h3><p>调和单个子节点</p>
+<h3 id="第一段逻辑，从原-fiber-节点的兄弟节点遍历，比较-fiber-节点和-nextChilren-key-值"><a href="#第一段逻辑，从原-fiber-节点的兄弟节点遍历，比较-fiber-节点和-nextChilren-key-值" class="headerlink" title="第一段逻辑，从原 fiber 节点的兄弟节点遍历，比较 fiber 节点和 nextChilren key 值"></a>第一段逻辑，从原 fiber 节点的兄弟节点遍历，比较 fiber 节点和 nextChilren key 值</h3><p><img src="/images/imagemogr2_auto_orient_strip_7cimageview2_2_w_800_8001695136661179.png"></p>
+<ul>
+<li>符合复用条件，标记此 fiber 节点的所有兄弟节点 effect 在提交阶段删除达到只复用干净的这个 fiber 节点的目的，返回这个可以复用的节点</li>
+<li>如果 key 相等，不符合复用条件直接跳出, 进入第二段逻辑</li>
+<li>如果 key 不相等逐渐标记删除遍历的 fiber 节点, 进入第二段逻辑</li>
+<li>这里调和单个子节点, 如果 key 不存在为 null 我们也认为他是相等的，判断 type 和 elementType 来看他们是否一是个组件函数</li>
+<li>deleteChild 标记删除<img src="/images/imagemogr2_auto_orient_strip_7cimageview2_2_w_1240_12401695136662002.png"></li>
+<li>deleteRemainingChildren 删除多余的兄弟节点<img src="/images/imagemogr2_auto_orient_strip_7cimageview2_2_w_1240_12401695136663121.png"></li>
+</ul>
+<h4 id="第二段逻辑，没有可以复用的节点，根据-elment-nextChildren-的类型创建-Fragment-或者-Element-类型的-fiber。"><a href="#第二段逻辑，没有可以复用的节点，根据-elment-nextChildren-的类型创建-Fragment-或者-Element-类型的-fiber。" class="headerlink" title="第二段逻辑，没有可以复用的节点，根据 elment nextChildren 的类型创建 Fragment 或者 Element 类型的 fiber。"></a>第二段逻辑，没有可以复用的节点，根据 elment nextChildren 的类型创建 Fragment 或者 Element 类型的 fiber。</h4><p><img src="/images/imagemogr2_auto_orient_strip_7cimageview2_2_w_660_6601695136663929.png"></p>
+<h3 id="reconcileSingleTextNode-更新-textNode"><a href="#reconcileSingleTextNode-更新-textNode" class="headerlink" title="reconcileSingleTextNode 更新 textNode"></a>reconcileSingleTextNode 更新 textNode</h3><p><img src="/images/imagemogr2_auto_orient_strip_7cimageview2_2_w_660_6601695136664756.png"></p>
+<ul>
+<li>currentFirstChild 原 fiber 节点 child 是文本节点符合复用条件</li>
+<li>currentFirstChild 不是文本节点，现在要更新为文本节点删除后重新创建</li>
+</ul>
+<h3 id="useFiber-创建复用的节点"><a href="#useFiber-创建复用的节点" class="headerlink" title="useFiber 创建复用的节点"></a>useFiber 创建复用的节点</h3><p><img src="/images/imagemogr2_auto_orient_strip_7cimageview2_2_w_660_6601695136665530.png"><br><img src="/images/imagemogr2_auto_orient_strip_7cimageview2_2_w_660_6601695136666282.png"></p>
+<h2 id="reconcileChildrenArray-调和数组-children"><a href="#reconcileChildrenArray-调和数组-children" class="headerlink" title="reconcileChildrenArray  调和数组 children"></a>reconcileChildrenArray  调和数组 children</h2><ul>
+<li>react 新老 children 对比的过程算法</li>
+<li>尽量减少节点的遍历次数来达到判断节点是否可复用的过程</li>
+</ul>
+<h3 id="第一次遍历-优化加速"><a href="#第一次遍历-优化加速" class="headerlink" title="第一次遍历(优化加速)"></a>第一次遍历(优化加速)</h3><ul>
+<li>找到新老节点中不能复用的节点才跳出</li>
+<li>判断新老节点的 index</li>
+<li>判断新老 key 是否相同来复用</li>
+<li>不能复用就 break 跳出当前遍历</li>
+<li>能复用就构建链表结构<br><img src="/images/imagemogr2_auto_orient_strip_7cimageview2_2_w_1240_12401695136667055.png"></li>
+</ul>
+<h3 id="updateSlot"><a href="#updateSlot" class="headerlink" title="updateSlot"></a>updateSlot</h3><ul>
+<li>根据 newChild 的类型和 oldChild.key 进行判断操作</li>
+<li>返回 null 表示后面都不能复用了直接跳出</li>
+</ul>
+<h4 id="textNode-文本节点"><a href="#textNode-文本节点" class="headerlink" title="textNode 文本节点"></a>textNode 文本节点</h4><ul>
+<li>oldFiber 不是 textNode 还有 key 值，是在数组里的，新的 textNode 不能复用返回 null<img src="/images/imagemogr2_auto_orient_strip_7cimageview2_2_w_660_6601695136667853.png"></li>
+<li>oldFiber 不是 textNode 创建新的 textNode 否则直接更新 textNode 内容<img src="/images/imagemogr2_auto_orient_strip_7cimageview2_2_w_660_6601695136668656.png"></li>
+</ul>
+<h4 id="ReactElement-节点和-isArray-数组节点"><a href="#ReactElement-节点和-isArray-数组节点" class="headerlink" title="ReactElement 节点和 isArray 数组节点"></a>ReactElement 节点和 isArray 数组节点</h4><p><img src="/images/imagemogr2_auto_orient_strip_7cimageview2_2_w_660_6601695136669462.png"></p>
+<ul>
+<li><p>ReactElement 时 updateElement<img src="/images/imagemogr2_auto_orient_strip_7cimageview2_2_w_660_6601695136670233.png"></p>
+</li>
+<li><p>Fragment 时与 ReactElement 的处理相似，复用处理的内容为 newChild.props.children</p>
+</li>
+</ul>
+<h3 id="break-或者遍历完毕后的情况"><a href="#break-或者遍历完毕后的情况" class="headerlink" title="break 或者遍历完毕后的情况"></a>break 或者遍历完毕后的情况</h3><ul>
+<li>newIdx &#x3D;&#x3D;&#x3D; newChildren.length</li>
+<li>新的 children 已经在 updateSlot 中创建新的对象了, 新数组操作完成了, 所有新节点都已经创建</li>
+<li>oldFiber &#x3D;&#x3D;&#x3D; null</li>
+<li>老的已经被复用完了, 新的节点还有部分没有创建, 找到最后没有能复用的节点了</li>
+<li>直接创建剩下的新节点构建链表</li>
+</ul>
+<h4 id="情况一"><a href="#情况一" class="headerlink" title="情况一"></a>情况一</h4><ul>
+<li>按新数组 newChildren.length 的长度遍历完了</li>
+<li>这时 updateSlot 没有返回 null，所有节点都复用或新建的，都标记好了位置</li>
+<li>这个情况是最快的，如果 oldFiber 老节点还有没遍历完的就删掉<img src="/images/imagemogr2_auto_orient_strip_7cimageview2_2_w_1240_12401695136671024.png"></li>
+</ul>
+<h4 id="情况二"><a href="#情况二" class="headerlink" title="情况二"></a>情况二</h4><ul>
+<li>老的节点已经被复用完了, 新的节点还有部分没有创建, 遍历到最后没有能复用的节点了</li>
+<li>newChildren 剩下的节点就直接创建，同时进行同样的 place 标记构建链表结构<img src="/images/imagemogr2_auto_orient_strip_7cimageview2_2_w_660_6601695136671831.png"></li>
+</ul>
+<h3 id="核心通用操作，构建-map-复用"><a href="#核心通用操作，构建-map-复用" class="headerlink" title="核心通用操作，构建 map 复用"></a>核心通用操作，构建 map 复用</h3><ul>
+<li>newChildren 没有创建完，oldFiber 又有兄弟节点，数组存在顺序的变</li>
+<li>根据老节点的 key 或 index 构建 map 对象</li>
+<li>遍历剩下的 newChildren</li>
+<li>根据 key 或 index 直接在 map 里找可以复用的对象或创建新的对象</li>
+<li>再构建链表<img src="/images/imagemogr2_auto_orient_strip_7cimageview2_2_w_1240_12401695136672628.png"></li>
+</ul>
+<h2 id="更新-classComponent-组件"><a href="#更新-classComponent-组件" class="headerlink" title="更新 classComponent 组件"></a>更新 classComponent 组件</h2><p><img src="/images/imagemogr2_auto_orient_strip_7cimageview2_2_w_1240_12401695136673443.png"></p>
+<ul>
+<li>首次渲染 instance &#x3D;&#x3D;&#x3D; null<ul>
+<li>constructClassInstance 生成实例</li>
+<li>mountClassInstance 挂载实例</li>
+</ul>
+</li>
+<li>渲染被中断 instance !&#x3D;&#x3D; null, current &#x3D;&#x3D;&#x3D; null<ul>
+<li>resumeMountClassInstance 复用实例但还是调用首次渲染的生命周期</li>
+</ul>
+</li>
+<li>更新渲染 instance !&#x3D;&#x3D; null, current !&#x3D;&#x3D; null<ul>
+<li>updateClassInstance，调用 didUpdate 和 componentWillReceiveProp 生命周期</li>
+</ul>
+</li>
+<li>都是复用或创建 instance，通过 processUpdateQueue 计算新的 state 赋值到 fiber workInProgress.memoizedState 和 instance 上面记录</li>
+<li>最终执行 finishClassComponent, 进行错误判断的处理和判断是否可以跳过更新的过程，重新调和子节点 reconcileChildren</li>
+</ul>
+<h3 id="首次渲染-class-组件"><a href="#首次渲染-class-组件" class="headerlink" title="首次渲染 class 组件"></a>首次渲染 class 组件</h3><ul>
+<li>instance &#x3D;&#x3D;&#x3D; null</li>
+</ul>
+<h4 id="constructClassInstance-创建实例"><a href="#constructClassInstance-创建实例" class="headerlink" title="constructClassInstance 创建实例"></a>constructClassInstance 创建实例</h4><ul>
+<li>instance 赋值在 workInProgress.stateNode 上<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">function constructClassInstance(</span><br><span class="line">  workInProgress: Fiber,</span><br><span class="line">  ctor: any,</span><br><span class="line">  props: any,</span><br><span class="line">  renderExpirationTime: ExpirationTime,</span><br><span class="line">): any &#123;</span><br><span class="line">  // ...</span><br><span class="line">  // 从这里开始，ctor 就是 element.type 的 Compnent，这里生成 class 组件实例</span><br><span class="line">  const instance = new ctor(props, context);</span><br><span class="line">  const state = (workInProgress.memoizedState = // memoizedState 为实例的 state, 没有就为 null</span><br><span class="line">    instance.state !== null &amp;&amp; instance.state !== undefined</span><br><span class="line">      ? instance.state</span><br><span class="line">      : null);</span><br><span class="line">  adoptClassInstance(workInProgress, instance);</span><br><span class="line">  // ...</span><br><span class="line">  return instance;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
+<li>为 instance.updater 赋值 classComponentUpdater, 用于组件通过何种方式进行 ReactDOM.render 和 setState 进行更新<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">// 为实例确定 updater 对象</span><br><span class="line">function adoptClassInstance(workInProgress: Fiber, instance: any): void &#123;</span><br><span class="line">  instance.updater = classComponentUpdater; // 给 class 组件实例的 updater 设置</span><br><span class="line">  workInProgress.stateNode = instance; // instance 赋值给当前 workInProgress.stateNode</span><br><span class="line">  ReactInstanceMap.set(instance, workInProgress); // 给 instance._reactInternalFiber 赋值当前的 fiber 对象</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
+</ul>
+<h4 id="mountClassInstance-首次挂载实例"><a href="#mountClassInstance-首次挂载实例" class="headerlink" title="mountClassInstance 首次挂载实例"></a>mountClassInstance 首次挂载实例</h4><p><img src="/images/imagemogr2_auto_orient_strip_7cimageview2_2_w_1240_12401695136674214.png"></p>
+<ul>
+<li>初始化 class 组件创建 updateQueue 计算更新 state</li>
+<li>判断和执行 getDerivedStateFromProps, componentWillMount  生命周期，都会更新当前 state</li>
+<li>可以看到 componentWillMount 完全可以进行 setState，会创建 updateQueue 计算更新当前 state</li>
+<li>最后标记 componentDidMount 生命周期，待到提交阶段更新完 dom 后执行</li>
+</ul>
+<h4 id="processUpdateQueue-计算更新-state"><a href="#processUpdateQueue-计算更新-state" class="headerlink" title="processUpdateQueue 计算更新 state"></a>processUpdateQueue 计算更新 state</h4><ul>
+<li>updateQueue 的更新都是通过 baseState 计算的，执行 queue 的更新会检查这次更新的优先级，优先级低待到下次更新<img src="/images/imagemogr2_auto_orient_strip_7cimageview2_2_w_660_6601695136674971.png"></li>
+<li>每个 update 都会计算出当前的 state 结果，如果 setState 有第二个参数 callback 会标记 effect 待到提交阶段执行，这样 callback 就能得到准确的 state<img src="/images/imagemogr2_auto_orient_strip_7cimageview2_2_w_660_6601695136675744.png"></li>
+<li>getStateFromUpdate 根据 update.tag 计算 state 的结果，会判断 setState 传入的函数或对象两种情况<br>1 函数时会指定上下文，传入 prevState, nextProps<br>2 对象时就是最终要更新的 state 对象<br>3 最后通过 Object.assign 生成新的 state 对象<br><img src="/images/imagemogr2_auto_orient_strip_7cimageview2_2_w_660_6601695136676511.png"></li>
+</ul>
+<h4 id="resumeMountClassInstance-复用实例"><a href="#resumeMountClassInstance-复用实例" class="headerlink" title="resumeMountClassInstance 复用实例"></a>resumeMountClassInstance 复用实例</h4><ul>
+<li>中断后恢复的组件复用实例仍然按新组件挂载来执行<img src="/images/imagemogr2_auto_orient_strip_7cimageview2_2_w_660_6601695136677303.png"></li>
+<li>检查得到 shouldUpdate，执行 willMount 和标记 didMount <img src="/images/imagemogr2_auto_orient_strip_7cimageview2_2_w_660_6601695136678089.png"></li>
+<li>shouldUpdate 由组件的 shouldComponentUpdate 判断，pureComponent 会自动比较 props<img src="/images/imagemogr2_auto_orient_strip_7cimageview2_2_w_660_6601695136678882.png"></li>
+</ul>
+<h4 id="updateClassInstance-更新实例"><a href="#updateClassInstance-更新实例" class="headerlink" title="updateClassInstance 更新实例"></a>updateClassInstance 更新实例</h4><ul>
+<li>过程与 resumeMountClassInstance 相似, 不过执行的是 willUpdate, 标记 didUpdate, getSnapshotBeforeUpdate<br><img src="/images/imagemogr2_auto_orient_strip_7cimageview2_2_w_660_6601695136679690.png"></li>
+</ul>
+<h3 id="finishClassComponent-完成-class-组件更新"><a href="#finishClassComponent-完成-class-组件更新" class="headerlink" title="finishClassComponent 完成 class 组件更新"></a>finishClassComponent 完成 class 组件更新</h3><h4 id="没错误捕获又不需要更新"><a href="#没错误捕获又不需要更新" class="headerlink" title="没错误捕获又不需要更新"></a>没错误捕获又不需要更新</h4><ul>
+<li>没错误捕获也没更新直接跳过</li>
+<li>effect 的错误标记会在外侧 catch 中添加<img src="/images/imagemogr2_auto_orient_strip_7cimageview2_2_w_800_8001695136680458.png"></li>
+</ul>
+<h4 id="捕获错误的操作"><a href="#捕获错误的操作" class="headerlink" title="捕获错误的操作"></a>捕获错误的操作</h4><ul>
+<li>class 组件没有 getDerivedStateFromError， nextChildren &#x3D; null</li>
+<li>class 组件有 getDerivedStateFromError ，直接执行 instance.render() 获得最新的 nextChildren, getDerivedStateFromError 在函数外 catch 到错误并且执行立即更新为正确的 state, 所以可以执行 instance.render()</li>
+<li>没捕获错误 执行 instance.render()<br><img src="/images/imagemogr2_auto_orient_strip_7cimageview2_2_w_1240_12401695136681261.png"></li>
+</ul>
+<h4 id="最后执行的-reconcileChildren"><a href="#最后执行的-reconcileChildren" class="headerlink" title="最后执行的 reconcileChildren"></a>最后执行的 reconcileChildren</h4><p><img src="/images/imagemogr2_auto_orient_strip_7cimageview2_2_w_660_6601695136682153.png"></p>
+<h2 id="IndeterminateComponent-更新"><a href="#IndeterminateComponent-更新" class="headerlink" title="IndeterminateComponent 更新"></a>IndeterminateComponent 更新</h2><ul>
+<li>fiber 刚创建的时候 fiberTag 都为 IndeterminateComponent 类型，只有当 class 组件有 construct 才为 class 组件类型<img src="/images/imagemogr2_auto_orient_strip_7cimageview2_2_w_660_6601695136682999.png"></li>
+<li>符合 class 组件条件按 class 组件更新<img src="/images/imagemogr2_auto_orient_strip_7cimageview2_2_w_660_6601695136683816.png"></li>
+<li>否则就按函数组件类型更新<img src="/images/imagemogr2_auto_orient_strip_7cimageview2_2_w_660_6601695136684581.png"></li>
+<li>只存在于首次更新的时候，只有首次更新的时候不确定 fiberTag 类型</li>
+</ul>
+<h2 id="更新-HostComponent-原生-dom-标签"><a href="#更新-HostComponent-原生-dom-标签" class="headerlink" title="更新 HostComponent 原生 dom 标签"></a>更新 HostComponent 原生 dom 标签</h2><ul>
+<li>原生标签 小写的 标签</li>
+<li>判断标签内容是不是纯文本</li>
+<li>是纯文本没子节点，不是纯文本根据之前的 props 标记更新</li>
+<li>跟 classCompnent 一样有 makeRef 能使用 ref</li>
+</ul>
+<h3 id="updateHostComponent"><a href="#updateHostComponent" class="headerlink" title="updateHostComponent"></a>updateHostComponent</h3><p><img src="/images/imagemogr2_auto_orient_strip_7cimageview2_2_w_1240_12401695136685346.png"></p>
+<ul>
+<li>dom 标签内是纯文本 nextChildren 为 null，直接渲染文本内容</li>
+<li>原 props 是文本，现在换成节点标记 effect  提交阶段操作</li>
+<li>和 classComponent 一样可以使用 ref 的原因是都有 markRef</li>
+<li>判断 concurrentMode 异步组件是否有 hidden 属性，异步组件 hidden 永不更新</li>
+<li>最后进行 reconcileChildren</li>
+</ul>
+<h3 id="shouldSetTextContent"><a href="#shouldSetTextContent" class="headerlink" title="shouldSetTextContent"></a>shouldSetTextContent</h3><p><img src="/images/imagemogr2_auto_orient_strip_7cimageview2_2_w_1240_12401695136686165.png"></p>
+<ul>
+<li>特殊标签 textarea，option，noscript 直接渲染文本</li>
+<li>props.children 为 string，number 直接渲染</li>
+<li>dangerouslySetInnerHTML 属性 直接渲染</li>
+</ul>
+<h2 id="HostText-文本节点"><a href="#HostText-文本节点" class="headerlink" title="HostText 文本节点"></a>HostText 文本节点</h2><h3 id="updateHostText"><a href="#updateHostText" class="headerlink" title="updateHostText"></a>updateHostText</h3><p>文本内容不需要构建 fiber 结构，直接在提交阶段更新就行了</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">function updateHostText(current, workInProgress) &#123;</span><br><span class="line">  if (current === null) &#123;</span><br><span class="line">    tryToClaimNextHydratableInstance(workInProgress);</span><br><span class="line">  &#125;</span><br><span class="line">  // Nothing to do here. This is terminal. We&#x27;ll do the completion step</span><br><span class="line">  // immediately after.</span><br><span class="line">  return null; // 文本没有子节点不需要调和, 到 提交阶段直接就更新了</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="ForwardRef-更新"><a href="#ForwardRef-更新" class="headerlink" title="ForwardRef 更新"></a>ForwardRef 更新</h2><p><img src="/images/imagemogr2_auto_orient_strip_7cimageview2_2_w_1240_12401695136686942.png"></p>
+<ul>
+<li>实现了 React.forwardRef((props, ref) &#x3D;&gt; { 传入了 ref }) 传递 ref 的功能</li>
+</ul>
+<h2 id="Mode-组件"><a href="#Mode-组件" class="headerlink" title="Mode 组件"></a>Mode 组件</h2><ul>
+<li>React 提供的组件</li>
+<li><ConCurrentmode /> 标签</li>
+<li><StaticMode /> 标签</li>
+<li>updateMode 执行，const nextChildren &#x3D; workInProgress.pendingProps.children;<br><img src="/images/imagemogr2_auto_orient_strip_7cimageview2_2_w_1240_12401695136687790.png"></li>
+</ul>
+<h2 id="Memo-组件"><a href="#Memo-组件" class="headerlink" title="Memo 组件"></a>Memo 组件</h2><ul>
+<li>functionComponent 具有 pureComponent 功能</li>
+<li>memo 组件 Component.type 就是 传入的function组件， memo(function(props) {})</li>
+<li>memo 组件的 props 都要作用于 function 组件内</li>
+<li>memo 组件意义不多只是进行了一次包裹的比较</li>
+<li>创建的 child 没有调和 reconcileChildren</li>
+</ul>
+<h3 id="初次渲染"><a href="#初次渲染" class="headerlink" title="初次渲染"></a>初次渲染</h3><p><img src="/images/imagemogr2_auto_orient_strip_7cimageview2_2_w_1240_12401695136688565.png"></p>
+<ul>
+<li>根据 React.memo() 传入的函数组件进行判断</li>
+<li>SimpleFunctionComponent 的判断, 没有 defaulteProps, 不是构造函数, 简单函数组件只进行浅比较<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">export function isSimpleFunctionComponent(type: any) &#123;</span><br><span class="line">  return (</span><br><span class="line">    typeof type === &#x27;function&#x27; &amp;&amp;</span><br><span class="line">    !shouldConstruct(type) &amp;&amp;</span><br><span class="line">    type.defaultProps === undefined</span><br><span class="line">  );</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
+<li>updateSimpleMemoComponent<img src="/images/imagemogr2_auto_orient_strip_7cimageview2_2_w_1240_12401695136689339.png"></li>
+</ul>
+<h3 id="更新渲染"><a href="#更新渲染" class="headerlink" title="更新渲染"></a>更新渲染</h3><ul>
+<li>优先级低，进行 PureComponent 功能的比较</li>
+<li>有必要更新直接创建节点，构建 fiber 树<br><img src="/images/imagemogr2_auto_orient_strip_7cimageview2_2_w_1240_12401695136690091.png"></li>
+</ul>
+<h3 id="没有调和-reconcileChildren"><a href="#没有调和-reconcileChildren" class="headerlink" title="没有调和 reconcileChildren"></a>没有调和 reconcileChildren</h3><p><img src="/images/imagemogr2_auto_orient_strip_7cimageview2_2_w_660_6601695136691359.png"><br>reconcileChildren 也是把 nextChildren 结果的 ReactElement 生成 fiber 后赋值给 workInprogress.child 上不过多了很多 类型的判断, memo 组件有必要更新是直接创建后 赋值在 workInprogress.child 上了，memo 组件编写只会返回常规的 ReactElement 组件内容</p>
+<h2 id="completeUnitOfWork"><a href="#completeUnitOfWork" class="headerlink" title="completeUnitOfWork"></a>completeUnitOfWork</h2><ul>
+<li>根据是否中断调用不同的处理方法</li>
+<li>当一侧的子节点被 beginWork 更新组件完了执行</li>
+<li>beginWork 完成各个组件的 update，然后返回他的 child</li>
+<li>判断是否有兄弟节点来执行不同的操作</li>
+<li>完成节点之后复 effect 链</li>
+</ul>
+<h3 id="完成节点更新，重置-childExpirationTime"><a href="#完成节点更新，重置-childExpirationTime" class="headerlink" title="完成节点更新，重置 childExpirationTime"></a>完成节点更新，重置 childExpirationTime</h3><p><img src="/images/imagemogr2_auto_orient_strip_7cimageview2_2_w_1240_12401695136692143.png"></p>
+<h3 id="构建-effect-链，供-commitRoot-提交阶段使用"><a href="#构建-effect-链，供-commitRoot-提交阶段使用" class="headerlink" title="构建 effect 链，供 commitRoot 提交阶段使用"></a>构建 effect 链，供 commitRoot 提交阶段使用</h3><p><img src="/images/imagemogr2_auto_orient_strip_7cimageview2_2_w_1240_12401695136692941.png"></p>
+<h3 id="单侧节点查找向上寻找节点"><a href="#单侧节点查找向上寻找节点" class="headerlink" title="单侧节点查找向上寻找节点"></a>单侧节点查找向上寻找节点</h3><p><img src="/images/imagemogr2_auto_orient_strip_7cimageview2_2_w_1240_12401695136693747.png"></p>
+<h3 id="performUnitOfWork-遍历-fiber-树的顺序"><a href="#performUnitOfWork-遍历-fiber-树的顺序" class="headerlink" title="performUnitOfWork 遍历 fiber 树的顺序"></a>performUnitOfWork 遍历 fiber 树的顺序</h3><p><img src="/images/imagemogr2_auto_orient_strip_7cimageview2_2_w_660_6601695136694528.png"></p>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><ul>
+<li>renderRoot 阶段，通过 fiberRoot.current 构建 nextUnitOfWork</li>
+<li>在 workLoop 中对 nextUnitOfWork 的每个节点进行更新，从 fiberRoot 应用的第一个子节点开始</li>
+<li>workLoop 中 while 循环 执行 nextUnitOfWork &#x3D; performUnitOfWork(nextUnitOfWork)</li>
+<li>performUnitOfWork 中以 nextUnitOfWork.alternate 和 nextUnitOfWork 做两个 fiber 的对照，通过 beginWork 依次遍历复用和创建 fiber 构建成新的 nextUnitOfWork.child ，再返回 workLoop 中的 performUnitOfWork</li>
+<li>beginWork 根据 tag 属性判断当前 nextUnitOfWork 的节点类型与 alternate 对照来进行对应组件的复用更新，最后构建成新的 fiber 树，对节点上的操作进行 effect 标记</li>
+<li>当 beginWork 遍历完单侧子树后会通过 completeUnitOfWork 构建 effect 更新链，方便 commit 提交阶段更新</li>
+<li>completeUnitOfWork 在构建完此侧边树的 effect 链后, 向上寻找当前 workInProgress 的 兄弟节点，继续 beginWork。</li>
+<li>completeUnitOfWork 中如果找不到 workInProgress  的兄弟节点就继续找父节点的兄弟节点，直到找到 root 节点顶点返回 null，进入 commitRoot 提交阶段</li>
+<li>renderRoot 通过前后 fiberRoot.current 的对照逐层的复用更新，构建出一个新的 fiber 树，标记节点 effect 等到提交阶段操作</li>
+</ul>
+<h2 id="参考文章"><a href="#参考文章" class="headerlink" title="参考文章"></a>参考文章</h2><p><a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/37098539">实现 fiber 架构</a></p>
+
+            </div>
+        </div>
+    </article>
+
+    
+    
+<nav class="article-nav">
+  
+    <a href="/2019/06/21/React%20%E6%BA%90%E7%A0%81%E8%A7%A3%E6%9E%90%20-%20renderRoot%20%E5%AE%8C%E6%88%90%E8%8A%82%E7%82%B9%E6%9B%B4%E6%96%B0%E4%BB%BB%E5%8A%A1%20/" id="article-nav-newer" class="article-nav-link-wrap prev">
+      <strong class="article-nav-caption">Newer</strong>
+      <div class="article-nav-title">
+        
+          React 源码解析 - renderRoot 完成节点更新任务
+        
+      </div>
+    </a>
+  
+  
+    <a href="/2019/05/21/TCP%20%E6%8B%A5%E5%A1%9E%E6%8E%A7%E5%88%B6/" id="article-nav-older" class="article-nav-link-wrap next">
+      <strong class="article-nav-caption">Older</strong>
+      <div class="article-nav-title">TCP 拥塞控制</div>
+    </a>
+  
+</nav>
+
+    
+
+    
+</div>
+    </div>
+    <footer class="site-footer">
+        <div class="global-width">
+            <ul class="site-widget">
+                
+                <li class="widget widget-tag">
+                    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Tags</h3>
+    <div class="widget-body">
+      <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/JavaScript/" rel="tag">JavaScript</a><span class="tag-list-count">6</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/React/" rel="tag">React</a><span class="tag-list-count">5</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/React-Tips/" rel="tag">React Tips</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Redux/" rel="tag">Redux</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Vue/" rel="tag">Vue</a><span class="tag-list-count">4</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/css/" rel="tag">css</a><span class="tag-list-count">3</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/dom/" rel="tag">dom</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/http/" rel="tag">http</a><span class="tag-list-count">8</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/nodejs/" rel="tag">nodejs</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/react/" rel="tag">react</a><span class="tag-list-count">8</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/sftp/" rel="tag">sftp</a><span class="tag-list-count">1</span></li></ul>
+    </div>
+  </div>
+
+                </li>
+                
+                <li class="widget widget-category">
+                    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Categories</h3>
+    <div class="widget-body">
+      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/Font-End-Basis/">Font-End Basis</a><span class="category-list-count">11</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/React/">React</a><span class="category-list-count">8</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Vue/">Vue</a><span class="category-list-count">4</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/css/">css</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/http/">http</a><span class="category-list-count">5</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/network/">network</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/nodejs/">nodejs</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/react/">react</a><span class="category-list-count">2</span></li></ul>
+    </div>
+  </div>
+
+                </li>
+                
+                <li class="widget widget-recent_posts">
+                    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Recents</h3>
+    <div class="widget-body">
+      <ul>
+        
+          <li>
+            <a href="/2022/01/21/react%20%E5%86%85%E9%83%A8%E5%8E%9F%E7%90%86%20/">react 内部原理</a>
+          </li>
+        
+          <li>
+            <a href="/2020/05/04/React%20%E5%90%88%E6%88%90%E4%BA%8B%E4%BB%B6%20SyntheticEvent%20/">React 合成事件 SyntheticEvent</a>
+          </li>
+        
+          <li>
+            <a href="/2020/04/19/Vue3%20%E4%B8%BA%E4%BB%80%E4%B9%88%E8%A6%81%E7%94%A8%20Proxy%20%E4%BB%A3%E6%9B%BF%20Object.defineProperty%20%E5%AE%9E%E7%8E%B0%E5%93%8D%E5%BA%94%E5%BC%8F%20/">Vue3 为什么要用 Proxy 代替 Object-defineProperty 实现响应式</a>
+          </li>
+        
+          <li>
+            <a href="/2019/10/30/%E6%B5%8F%E8%A7%88%E5%99%A8%E8%BE%93%E5%85%A5%20URL%20%E5%88%B0%E9%A1%B5%E9%9D%A2%E5%91%88%E7%8E%B0%E5%8F%8A%E5%85%B6%E4%BC%98%E5%8C%96%20/">浏览器输入 URL 到页面呈现及其优化</a>
+          </li>
+        
+          <li>
+            <a href="/2019/08/23/React%20%E6%BA%90%E7%A0%81%E8%A7%A3%E6%9E%90%20-%20commitRoot%20%E6%9B%B4%E6%96%B0%E4%BB%BB%E5%8A%A1%20dom%20%E8%8A%82%E7%82%B9%20/">React 源码解析 - commitRoot 更新任务 dom 节点</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+                </li>
+                
+            </ul>
+        </div>
+        <div class="site-info">
+            <address>
+                &copy; 2014 <a href="http://yoursite.com">Minimalist</a> All Right Reserved. <br/>
+                Powered by <a target="_blank" rel="noopener" href="http://hexo.io">Hexo</a>. Theme by <a target="_blank" rel="noopener" href="http://zzoman.com">ZZOMAN</a>
+            </address>
+        </div>
+    </footer>
+    
+    <script src="/libs/jquery-1.11.3.min.js" type="text/javascript"></script>
+    
+    <script src="/libs/fancybox/jquery.fancybox.js" type="text/javascript"></script>
+    
+    <script src="/js/site_init.js" type="text/javascript"></script>
+    
+</body>
+</html>

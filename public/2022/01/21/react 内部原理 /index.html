@@ -1,0 +1,222 @@
+<!doctype html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge">
+    <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    
+    <title>react 内部原理 | Minimalist</title>
+    
+    <link rel="alternative" href="/atom.xml" title="Minimalist" type="application/atom+xml">
+    
+    
+<link rel="stylesheet" href="/css/style.css">
+
+    
+    <link rel="stylesheet" href="/libs/fancybox/jquery.fancybox.css" charset="utf-8">
+    
+    <!--[if lt IE 9]>
+    <script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
+    <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+    <![endif]-->
+<meta name="generator" content="Hexo 6.3.0"></head>
+<body class="site">
+    <header class="site-header">
+        <h1 class="site-title"><a href="/">Minimalist</a></h1>
+        <nav class="site-nav">
+            <ul class="nav">
+                
+                <li><a href="/archives">Archives</a></li>
+                
+                
+                <li><a target="_blank" rel="noopener" href="https://github.com/sfyr111" title="git">GITHUB</a></li>
+                
+                <li><a class="toggle-search" href="#search">search</a></li>
+            </ul>
+        </nav>
+        <div class="site-search" id="search">
+            <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><input type="hidden" name="sitesearch" value="http://yoursite.com"></form>
+        </div>
+        
+            <div class="site-header-background" style="background-image:url(http://reumia.github.io/hexo-theme-zzoman2015/images/background-zzoman2015.jpg)"></div>
+        
+    </header>
+    <div class="site-body">
+        <div class="global-width">
+    <article class="article" data-layout="post" data-slug="react 内部原理 ">
+        <div class="article-content">
+            
+            
+            <header class="article-header">
+                <div class="article-meta">
+                    <a href="/2022/01/21/react%20%E5%86%85%E9%83%A8%E5%8E%9F%E7%90%86%20/" class="article-date">
+  <time datetime="2022-01-21T06:40:33.000Z">2022-01-21</time>
+</a>
+                    
+  <div class="article-category categories">
+    <a class="category-link" href="/categories/react/">react</a>
+  </div>
+
+                    
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/react/" rel="tag">react</a></li></ul>
+
+                </div>
+                
+    <h1 class="article-title" itemprop="name">
+      <a href="/2022/01/21/react%20%E5%86%85%E9%83%A8%E5%8E%9F%E7%90%86%20/">react 内部原理</a>
+    </h1>
+
+            </header>
+            
+            <div class="article-body">
+                <h2 id="内部原理"><a href="#内部原理" class="headerlink" title="内部原理"></a>内部原理</h2><p>JSX 语法、内部数据结构、协调器对比算法、算法优化的假设条件、setState 更新、合成事件、Fiber</p>
+<h2 id="JSX-语法"><a href="#JSX-语法" class="headerlink" title="JSX 语法"></a>JSX 语法</h2><h2 id="内部数据结构"><a href="#内部数据结构" class="headerlink" title="内部数据结构"></a>内部数据结构</h2><ol>
+<li>React Element<br>React.createElement 的结果<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">ReactElement &#123;</span><br><span class="line">    _owner: null, // parent internal instance</span><br><span class="line">    _store: Object &#123;&#125;,</span><br><span class="line">    key: null,</span><br><span class="line">    props: Object &#123;&#125;,</span><br><span class="line">    ref: null,</span><br><span class="line">    type: Function|string</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
+<li>Public Instance<br>component 组件实例 this<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line">Component &#123;</span><br><span class="line">    _reactInternalInstance: ReactCompositeComponentWrapper,</span><br><span class="line">    context: Object,</span><br><span class="line">    props: Object,</span><br><span class="line">    refs: Object,</span><br><span class="line">    state: Object,</span><br><span class="line">    updater: Object,</span><br><span class="line">    __proto__: ReactComponent &#123;</span><br><span class="line">        constructor: Function,</span><br><span class="line">        componentWillMount: Function,</span><br><span class="line">        render: Function,</span><br><span class="line">        componentDidMount: Function,</span><br><span class="line">        componentWillReceiveProps: Function,</span><br><span class="line">        shouldComponentUpdate: Function,</span><br><span class="line">        componentWillUpdate: Function,</span><br><span class="line">        componentDidUpdate: Function,</span><br><span class="line">        componentWillUnmount: Function,</span><br><span class="line">        __proto__: &#123;</span><br><span class="line">            constructor: Function,</span><br><span class="line">            forceUpdate: Function,</span><br><span class="line">            setState: (partialState, callback)</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
+<li>Internal Instance<br>组件的额外信息<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br></pre></td><td class="code"><pre><span class="line">ReactCompositeComponent &#123;</span><br><span class="line">    _compositeType: Impure|Pure|StatelessFunctional,</span><br><span class="line">    _context: Object,</span><br><span class="line">    _currentElement: ReactElement,</span><br><span class="line">    _instance: ***Public Instance***,</span><br><span class="line">    _isOwnerNecessary: false,</span><br><span class="line">    _mountImage: null,</span><br><span class="line">    _mountIndex: 0,</span><br><span class="line">    _mountOrder: 2,</span><br><span class="line">    _pendingCallbacks: null,</span><br><span class="line">    _pendingElement: null,</span><br><span class="line">    _pendingStateQueue: null,</span><br><span class="line">    _renderedComponent: ***ReactDOMComponent***,</span><br><span class="line">    _rootNodeID: &quot;.0&quot;,</span><br><span class="line">    _topLevelWrapper: ***ReactCompositeComponentWrapper***,</span><br><span class="line">    _warnedAboutRefsInRender: false</span><br><span class="line">&#125;</span><br><span class="line">ReactCompositeComponent.prototype &#123;</span><br><span class="line">    _checkPropTypes: Function,</span><br><span class="line">    _instantiateReactComponent: Function,</span><br><span class="line">    _maskContext: Function,</span><br><span class="line">    _performComponentUpdate: Function,</span><br><span class="line">    _processChildContext: Function,</span><br><span class="line">    _processContext: Function,</span><br><span class="line">    _processPendingState: Function,</span><br><span class="line">    _processProps: Function,</span><br><span class="line">    _renderValidatedComponent: Function,</span><br><span class="line">    _renderValidatedComponentWithoutOwnerOrContext: Function,</span><br><span class="line">    _replaceNodeWithMarkupByID: Function,</span><br><span class="line">    _updateRenderedComponent: Function,</span><br><span class="line">    attachRef: Function,</span><br><span class="line">    construct: Function,</span><br><span class="line">    constructor: Function,</span><br><span class="line">    detachRef: Function,</span><br><span class="line">    getName: Function,</span><br><span class="line">    getPublicInstance: Function,</span><br><span class="line">    mountComponent: Function,</span><br><span class="line">    performUpdateIfNecessary: Function,</span><br><span class="line">    receiveComponent: Function,</span><br><span class="line">    unmountComponent: Function,</span><br><span class="line">    updateComponent: Function,</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
+<li>Rendered Component<br>component 组件实例 render 方法的返回结果 ReactDOM<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">ReactDOMComponent &#123;</span><br><span class="line">    _currentElement: ReactElement</span><br><span class="line">    _isOwnerNecessary: false</span><br><span class="line">    _mountImage: null</span><br><span class="line">    _mountIndex: 0</span><br><span class="line">    _nodeWithLegacyProperties: null</span><br><span class="line">    _previousStyle: null</span><br><span class="line">    _previousStyleCopy: null</span><br><span class="line">    _processedContextDev: Object</span><br><span class="line">    _renderedChildren: null</span><br><span class="line">    _rootNodeID: &quot;.0&quot;</span><br><span class="line">    _tag: &quot;div&quot;</span><br><span class="line">    _topLevelWrapper: null</span><br><span class="line">    _unprocessedContextDev: Object</span><br><span class="line">    _warnedAboutRefsInRender: false</span><br><span class="line">    _wrapperState: null</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
+</ol>
+<h2 id="协调器算法-对比算法"><a href="#协调器算法-对比算法" class="headerlink" title="协调器算法(对比算法)"></a>协调器算法(对比算法)</h2><ol>
+<li>标记组件 dirty 是否需要更新</li>
+<li>渲染所有实例等待更新</li>
+<li>通过 对照变化 reconcile change 构建 新的变化 mutation list（new fiber tree）</li>
+<li>更新 DOM<br><img src="/images/imagemogr2_auto_orient_strip_7cimageview2_2_w_1240_12401695481216878.png"></li>
+</ol>
+<h2 id="对比算法的优化"><a href="#对比算法的优化" class="headerlink" title="对比算法的优化"></a>对比算法的优化</h2><p><a target="_blank" rel="noopener" href="https://www.zhihu.com/question/66851503">https://www.zhihu.com/question/66851503</a><br>两颗 tree diff 遍历比较差异 O(n2) 再计算最小转化成本还要遍历一次，就是O(n3)。</p>
+<h3 id="react-通过假设只要遍历一遍-O-n-："><a href="#react-通过假设只要遍历一遍-O-n-：" class="headerlink" title="react 通过假设只要遍历一遍 O(n)："></a>react 通过假设只要遍历一遍 O(n)：</h3><ol>
+<li>不同类型的元素不需要比较，直接删除</li>
+<li>元素不能垂直移动</li>
+<li>列表通过 key 进行重用<br><img src="/images/imagemogr2_auto_orient_strip_7cimageview2_2_w_620_6201695481217580.png"><br><img src="/images/imagemogr2_auto_orient_strip_7cimageview2_2_w_620_6201695481218162.png"></li>
+</ol>
+<h2 id="setState"><a href="#setState" class="headerlink" title="setState"></a>setState</h2><p>只有 setState 和 ReactDOM.render 能触发更新</p>
+<h3 id="从-setState-调用到-DOM更新的完整内部生命周期"><a href="#从-setState-调用到-DOM更新的完整内部生命周期" class="headerlink" title="从 setState 调用到 DOM更新的完整内部生命周期"></a>从 setState 调用到 DOM更新的完整内部生命周期</h3><p><img src="/images/imagemogr2_auto_orient_strip_7cimageview2_2_w_620_6201695481218755.png"></p>
+<h3 id="batchedUpdates"><a href="#batchedUpdates" class="headerlink" title="batchedUpdates"></a>batchedUpdates</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">function batchedUpdates&lt;A, R&gt;(fn: (a: A) =&gt; R, a: A): R &#123;</span><br><span class="line">  const previousIsBatchingUpdates = isBatchingUpdates; // 初始为 false</span><br><span class="line">  isBatchingUpdates = true;</span><br><span class="line">  try &#123;</span><br><span class="line">    return fn(a); // 执行组件绑定的方法, 走到 requestWork 里</span><br><span class="line">  &#125; finally &#123;</span><br><span class="line">    // setState 最终 enqueueUpdates 全部走到 requestWork 后变回 false 再一同 performSyncWork 才真正的执行并改变 state</span><br><span class="line">    isBatchingUpdates = previousIsBatchingUpdates; // 变回 false</span><br><span class="line">    // 如果是 setTimeout(() =&gt; &#123; this.setState &#125;) setTimeout 走到这里后才执行 this.setState 这时上下文环境是 window isBatchingUpdates 已经 false，setState 就是同步的</span><br><span class="line">    if (!isBatchingUpdates &amp;&amp; !isRendering) &#123;</span><br><span class="line">      performSyncWork(); // 当所有 setState 执行完全部enqueueUpdates 后代替 requestWork 来调度</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="requestWork"><a href="#requestWork" class="headerlink" title="requestWork"></a>requestWork</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line">function requestWork(root: FiberRoot, expirationTime: ExpirationTime) &#123;</span><br><span class="line">  addRootToSchedule(root, expirationTime); // 把当前 root设置为最高优先级</span><br><span class="line">  // isRendering 调度已经在执行了, 循环已经开始了</span><br><span class="line">  if (isRendering) &#123;</span><br><span class="line">    return;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  // 批量处理相关</span><br><span class="line">  // 调用 setState 时在 enqueueUpdates 前 batchedUpdates 会把 isBatchingUpdates 设置成 true</span><br><span class="line">  if (isBatchingUpdates) &#123;</span><br><span class="line">    // Flush work at the end of the batch.</span><br><span class="line">    if (isUnbatchingUpdates) &#123; // unbatchedUpdates API 调用 </span><br><span class="line">      // ...unless we&#x27;re inside unbatchedUpdates, in which case we should</span><br><span class="line">      // flush it now.</span><br><span class="line">      nextFlushedRoot = root;</span><br><span class="line">      nextFlushedExpirationTime = Sync;</span><br><span class="line">      performWorkOnRoot(root, Sync, true);</span><br><span class="line">    &#125;</span><br><span class="line">    return; // isBatchingUpdates true // 普通的 setState 在进入 enqueueUpdates 时在这里直接不执行了，下面其实没进入调度</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  // TODO: Get rid of Sync and use current time?</span><br><span class="line">  if (expirationTime === Sync) &#123; // 同步的调用 js 代码</span><br><span class="line">    performSyncWork();</span><br><span class="line">  &#125; else &#123; // 异步调度 独立的 react 模块包，利用浏览器有空闲的时候进行执行，设置 deadline 在此之前执行</span><br><span class="line">    scheduleCallbackWithExpirationTime(root, expirationTime); // 在 secheduler 文件夹下的单独模块</span><br><span class="line">  &#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="合成事件"><a href="#合成事件" class="headerlink" title="合成事件"></a>合成事件</h2><ol>
+<li>事件跨浏览器跨平台兼容</li>
+<li>事件池便于事件对象复用</li>
+<li>document 顶层事件委托<br><img src="/images/imagemogr2_auto_orient_strip_7cimageview2_2_w_620_6201695481219345.png"></li>
+</ol>
+<h3 id="react-17-改成-root-委托"><a href="#react-17-改成-root-委托" class="headerlink" title="react 17 改成 root 委托"></a>react 17 改成 root 委托</h3><p><img src="/images/imagemogr2_auto_orient_strip_7cimageview2_2_w_620_6201695481219939.png"></p>
+<h3 id="event-persist-v16版本"><a href="#event-persist-v16版本" class="headerlink" title="event.persist() v16版本"></a>event.persist() v16版本</h3><p><a target="_blank" rel="noopener" href="https://deepscan.io/docs/rules/react-missing-event-persist">https://deepscan.io/docs/rules/react-missing-event-persist</a></p>
+<h3 id="event-pool"><a href="#event-pool" class="headerlink" title="event pool"></a>event pool</h3><p>react v17 不再使用事件池，现代浏览器不需要重用不同事件之间的事件对象以提高旧浏览器的性能，并将它们之间的所有事件字段设置为 null。<br><a target="_blank" rel="noopener" href="https://stackoverflow.com/questions/36114196/what-is-event-pooling-in-react/36115815">https://stackoverflow.com/questions/36114196/what-is-event-pooling-in-react/36115815</a></p>
+<h2 id="Fiber"><a href="#Fiber" class="headerlink" title="Fiber"></a>Fiber</h2><p><a target="_blank" rel="noopener" href="https://stackoverflow.com/questions/45341423/what-is-difference-between-react-vs-react-fiber">https://stackoverflow.com/questions/45341423/what-is-difference-between-react-vs-react-fiber</a></p>
+<h3 id="什么是-fiber"><a href="#什么是-fiber" class="headerlink" title="什么是 fiber"></a>什么是 fiber</h3><p>Fiber 是重新实现了 reconciler 更新机制的新架构。<br>一种虚拟堆栈帧，每个 fiber 都是一个任务一个帧。<br>可暂停&#x2F;可优先&#x2F;可记忆&#x2F;可中止<br>本身不关心渲染，尽管 renderers 需要更改以支持并利用 fiber。</p>
+<h3 id="为什么用-fiber"><a href="#为什么用-fiber" class="headerlink" title="为什么用 fiber"></a>为什么用 fiber</h3><ol>
+<li>动画、用户输入（动画流畅、UI 响应）， 需要主线程 16ms 运行一次，当 script 执行任务时就会阻塞主线程直到 script 任务完成。</li>
+<li>16版本之前的协调器算法一旦开始就停止不了，很大程度上 reconciler 依赖于<strong>递归</strong>调用, 所以很难使它停止再继续。<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line">function reconcile(parentDom, instance, element) &#123;</span><br><span class="line">  if (instance == null) &#123;</span><br><span class="line">    // Create instance</span><br><span class="line">    // ..</span><br><span class="line">    return newInstance;</span><br><span class="line">  &#125; else if (instance.element.type === element.type) &#123;</span><br><span class="line">    // Update instance</span><br><span class="line">    //..</span><br><span class="line">    instance.childInstances = reconcileChildren(instance, element);</span><br><span class="line">    return instance;</span><br><span class="line">  &#125; else &#123;</span><br><span class="line">    // Replace instance ..</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">function reconcileChildren(instance, element) &#123;</span><br><span class="line">   //...</span><br><span class="line">  for (let i = 0; i &lt; count; i++) &#123;</span><br><span class="line">   //...</span><br><span class="line">    const newChildInstance = reconcile(dom, childInstance, childElement); // reconcile 递归</span><br><span class="line">  &#125;</span><br><span class="line">  return newChildInstances;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
+<li>通过重写协调器算法，可以确定工作的优先级并加快整体帧速率。<br><a target="_blank" rel="noopener" href="https://engineering.hexacta.com/didact-fiber-incremental-reconciliation-b2fe028dcaec">基于 fiber 的reconciler 更新</a><br><img src="/images/imagemogr2_auto_orient_strip_7cimageview2_2_w_1240_12401695481220555.png"></li>
+</ol>
+<h3 id="fiber-结构关系"><a href="#fiber-结构关系" class="headerlink" title="fiber 结构关系"></a>fiber 结构关系</h3><p><img src="/images/imagemogr2_auto_orient_strip_7cimageview2_2_w_620_6201695481221143.png"></p>
+<h3 id="fiber-优先级"><a href="#fiber-优先级" class="headerlink" title="fiber 优先级"></a>fiber 优先级</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">ReactPriorityLevel &#123;</span><br><span class="line">  NoWork: 0, // No work is pending.</span><br><span class="line">  SynchronousPriority: 1, // For controlled text inputs. Synchronous side-effects.</span><br><span class="line">  AnimationPriority: 2, // For controlled text inputs. Synchronous side-effects.</span><br><span class="line">  HighPriority: 3, // Interaction that needs to complete pretty soon to feel responsive.</span><br><span class="line">  LowPriority: 4, // Data fetching, or result from updating stores.</span><br><span class="line">  OffscreenPriority: 5, // Won&#x27;t be visible but do the work in case it becomes vis</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<p><img src="/images/imagemogr2_auto_orient_strip_7cimageview2_2_w_620_6201695481221733.png"></p>
+<h3 id="fiber-会出现的问题"><a href="#fiber-会出现的问题" class="headerlink" title="fiber 会出现的问题"></a>fiber 会出现的问题</h3><ol>
+<li>componentWillUpdate 可能在 componentDidUpdate 之前被多次调用</li>
+<li>没有哪个帧会保证何时会发生更新</li>
+<li>可暂停&#x2F;可优先&#x2F;可记忆&#x2F;可中止导致<blockquote>
+<p>在 async mode 模式下，组件更新&#x2F;渲染可能会被推迟，因此 react 可以提供一些高优先级的东西。这意味着每次 react 开始在你的组件上工作时都会调用 willUpdate，但它可能不会完成完整的更新，因此每次它开始在这个组件上工作时都会调用 willUpdate，但只会在这个过程完成后调用一次 didUpdate。<br><a target="_blank" rel="noopener" href="https://stackoverflow.com/questions/54533907/react-componentwillupdate-getting-called-twice">https://stackoverflow.com/questions/54533907/react-componentwillupdate-getting-called-twice</a><br>从 v16.3.0 开始，componentWillUpdate 命周期方法已被弃用，鼓励在 componentDidUpdate 中处理任何副作用，这将在 render 方法之后触发</p>
+</blockquote>
+</li>
+</ol>
+<h2 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h2><p><a target="_blank" rel="noopener" href="https://github.com/pomber/didact">https://github.com/pomber/didact</a></p>
+
+            </div>
+        </div>
+    </article>
+
+    
+    
+<nav class="article-nav">
+  
+  
+    <a href="/2020/05/04/React%20%E5%90%88%E6%88%90%E4%BA%8B%E4%BB%B6%20SyntheticEvent%20/" id="article-nav-older" class="article-nav-link-wrap next">
+      <strong class="article-nav-caption">Older</strong>
+      <div class="article-nav-title">React 合成事件 SyntheticEvent</div>
+    </a>
+  
+</nav>
+
+    
+
+    
+</div>
+    </div>
+    <footer class="site-footer">
+        <div class="global-width">
+            <ul class="site-widget">
+                
+                <li class="widget widget-tag">
+                    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Tags</h3>
+    <div class="widget-body">
+      <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/JavaScript/" rel="tag">JavaScript</a><span class="tag-list-count">6</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/React/" rel="tag">React</a><span class="tag-list-count">5</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/React-Tips/" rel="tag">React Tips</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Redux/" rel="tag">Redux</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Vue/" rel="tag">Vue</a><span class="tag-list-count">4</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/css/" rel="tag">css</a><span class="tag-list-count">3</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/dom/" rel="tag">dom</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/http/" rel="tag">http</a><span class="tag-list-count">8</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/nodejs/" rel="tag">nodejs</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/react/" rel="tag">react</a><span class="tag-list-count">8</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/sftp/" rel="tag">sftp</a><span class="tag-list-count">1</span></li></ul>
+    </div>
+  </div>
+
+                </li>
+                
+                <li class="widget widget-category">
+                    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Categories</h3>
+    <div class="widget-body">
+      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/Font-End-Basis/">Font-End Basis</a><span class="category-list-count">11</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/React/">React</a><span class="category-list-count">8</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Vue/">Vue</a><span class="category-list-count">4</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/css/">css</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/http/">http</a><span class="category-list-count">5</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/network/">network</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/nodejs/">nodejs</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/react/">react</a><span class="category-list-count">2</span></li></ul>
+    </div>
+  </div>
+
+                </li>
+                
+                <li class="widget widget-recent_posts">
+                    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Recents</h3>
+    <div class="widget-body">
+      <ul>
+        
+          <li>
+            <a href="/2022/01/21/react%20%E5%86%85%E9%83%A8%E5%8E%9F%E7%90%86%20/">react 内部原理</a>
+          </li>
+        
+          <li>
+            <a href="/2020/05/04/React%20%E5%90%88%E6%88%90%E4%BA%8B%E4%BB%B6%20SyntheticEvent%20/">React 合成事件 SyntheticEvent</a>
+          </li>
+        
+          <li>
+            <a href="/2020/04/19/Vue3%20%E4%B8%BA%E4%BB%80%E4%B9%88%E8%A6%81%E7%94%A8%20Proxy%20%E4%BB%A3%E6%9B%BF%20Object.defineProperty%20%E5%AE%9E%E7%8E%B0%E5%93%8D%E5%BA%94%E5%BC%8F%20/">Vue3 为什么要用 Proxy 代替 Object-defineProperty 实现响应式</a>
+          </li>
+        
+          <li>
+            <a href="/2019/10/30/%E6%B5%8F%E8%A7%88%E5%99%A8%E8%BE%93%E5%85%A5%20URL%20%E5%88%B0%E9%A1%B5%E9%9D%A2%E5%91%88%E7%8E%B0%E5%8F%8A%E5%85%B6%E4%BC%98%E5%8C%96%20/">浏览器输入 URL 到页面呈现及其优化</a>
+          </li>
+        
+          <li>
+            <a href="/2019/08/23/React%20%E6%BA%90%E7%A0%81%E8%A7%A3%E6%9E%90%20-%20commitRoot%20%E6%9B%B4%E6%96%B0%E4%BB%BB%E5%8A%A1%20dom%20%E8%8A%82%E7%82%B9%20/">React 源码解析 - commitRoot 更新任务 dom 节点</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+                </li>
+                
+            </ul>
+        </div>
+        <div class="site-info">
+            <address>
+                &copy; 2014 <a href="http://yoursite.com">Minimalist</a> All Right Reserved. <br/>
+                Powered by <a target="_blank" rel="noopener" href="http://hexo.io">Hexo</a>. Theme by <a target="_blank" rel="noopener" href="http://zzoman.com">ZZOMAN</a>
+            </address>
+        </div>
+    </footer>
+    
+    <script src="/libs/jquery-1.11.3.min.js" type="text/javascript"></script>
+    
+    <script src="/libs/fancybox/jquery.fancybox.js" type="text/javascript"></script>
+    
+    <script src="/js/site_init.js" type="text/javascript"></script>
+    
+</body>
+</html>
