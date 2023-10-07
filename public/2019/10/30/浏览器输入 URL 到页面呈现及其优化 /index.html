@@ -1,0 +1,260 @@
+<!doctype html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge">
+    <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    
+    <title>浏览器输入 URL 到页面呈现及其优化 | Minimalist</title>
+    
+    <link rel="alternative" href="/atom.xml" title="Minimalist" type="application/atom+xml">
+    
+    
+<link rel="stylesheet" href="/css/style.css">
+
+    
+    <link rel="stylesheet" href="/libs/fancybox/jquery.fancybox.css" charset="utf-8">
+    
+    <!--[if lt IE 9]>
+    <script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
+    <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+    <![endif]-->
+<meta name="generator" content="Hexo 6.3.0"></head>
+<body class="site">
+    <header class="site-header">
+        <h1 class="site-title"><a href="/">Minimalist</a></h1>
+        <nav class="site-nav">
+            <ul class="nav">
+                
+                <li><a href="/archives">Archives</a></li>
+                
+                
+                <li><a target="_blank" rel="noopener" href="https://github.com/sfyr111" title="git">GITHUB</a></li>
+                
+                <li><a class="toggle-search" href="#search">search</a></li>
+            </ul>
+        </nav>
+        <div class="site-search" id="search">
+            <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><input type="hidden" name="sitesearch" value="http://yoursite.com"></form>
+        </div>
+        
+            <div class="site-header-background" style="background-image:url(http://reumia.github.io/hexo-theme-zzoman2015/images/background-zzoman2015.jpg)"></div>
+        
+    </header>
+    <div class="site-body">
+        <div class="global-width">
+    <article class="article" data-layout="post" data-slug="浏览器输入 URL 到页面呈现及其优化 ">
+        <div class="article-content">
+            
+            
+            <header class="article-header">
+                <div class="article-meta">
+                    <a href="/2019/10/30/%E6%B5%8F%E8%A7%88%E5%99%A8%E8%BE%93%E5%85%A5%20URL%20%E5%88%B0%E9%A1%B5%E9%9D%A2%E5%91%88%E7%8E%B0%E5%8F%8A%E5%85%B6%E4%BC%98%E5%8C%96%20/" class="article-date">
+  <time datetime="2019-10-30T08:33:09.000Z">2019-10-30</time>
+</a>
+                    
+                    
+                </div>
+                
+    <h1 class="article-title" itemprop="name">
+      <a href="/2019/10/30/%E6%B5%8F%E8%A7%88%E5%99%A8%E8%BE%93%E5%85%A5%20URL%20%E5%88%B0%E9%A1%B5%E9%9D%A2%E5%91%88%E7%8E%B0%E5%8F%8A%E5%85%B6%E4%BC%98%E5%8C%96%20/">浏览器输入 URL 到页面呈现及其优化</a>
+    </h1>
+
+            </header>
+            
+            <div class="article-body">
+                <h2 id="输入-url-浏览器先检查缓存，然后解析本地-路由器-全网-dns，指向服务器-ip"><a href="#输入-url-浏览器先检查缓存，然后解析本地-路由器-全网-dns，指向服务器-ip" class="headerlink" title="输入 url: 浏览器先检查缓存，然后解析本地-路由器-全网 dns，指向服务器 ip"></a>输入 url: 浏览器先检查缓存，然后解析本地-路由器-全网 dns，指向服务器 ip</h2><ul>
+<li>强缓存 request Cache-Control<br>1.max-age&#x3D;0，只 if-none-match 协商 etag 的 hash<br>2.no-cache, 都不缓存</li>
+<li>强缓存 response Cache-Control<br>1.max-age&#x3D;0, no-cache, 只 etag 对 if-none-match 协商 hash<br>2.no-store 都不缓存 隐私</li>
+<li>DNS 缓存<br>1.浏览器缓存的 dns<br>2.本机 host 文件的映射<br>3.路由器的映射<br>4.网络服务商的映射 (本地DNS服务器为止)<br>5.root 域名服务器<br>6.顶级域名-主域名服务器-结果缓存在本地DNS服务器</li>
+<li>默认访问 http 重定向到 https<br>HSTS 策略: response headers: <strong>Strict-Transport-Security: max-age&#x3D;31536000</strong> 把所有请求都访问为 https，首次访问不知道配置可以注册在公网上。</li>
+</ul>
+<h2 id="请求远程服务器-建立-TLS-连接2次RTT，-TCP-三次握手RTT，nginx-转发到对应的资源上，服务器检查缓存"><a href="#请求远程服务器-建立-TLS-连接2次RTT，-TCP-三次握手RTT，nginx-转发到对应的资源上，服务器检查缓存" class="headerlink" title="请求远程服务器: 建立 TLS 连接2次RTT， TCP 三次握手RTT，nginx 转发到对应的资源上，服务器检查缓存"></a>请求远程服务器: 建立 TLS 连接2次RTT， TCP 三次握手RTT，nginx 转发到对应的资源上，服务器检查缓存</h2><ul>
+<li>优化 TLS 2次 RTT, 浏览器缓存对称密钥<br>1.client 发送 k1 和加密方案列表<br>2.server 发送 k2、证书、公钥、确定的加密方案<br>3.client 验证证书、公钥加密 k3 发送<br>4.server 密钥解 k3<br>5.client server 使用 k1 k2 k3 对称加密通信<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">ssl_session_tickets on;</span><br><span class="line">ssl_session_ticket_key current.key;</span><br><span class="line">ssl_session_ticket_key previous.key;</span><br></pre></td></tr></table></figure></li>
+<li>优化 TCP 三次握手 RTT<ol>
+<li>request header：<strong>connection: keep-alive</strong></li>
+<li>重用 TCP 连接</li>
+</ol>
+</li>
+<li>管线化 http 1.1<ol>
+<li>keep-alive 基础上</li>
+<li>请求一次发出</li>
+<li>响应按顺序 还是有阻塞可能</li>
+</ol>
+</li>
+<li>管线化和多路复用区别<ol>
+<li>管线化在 keep-alive 基础上复用 TCP 3次握手</li>
+<li>管线化一次发送多个请求返回仍是一个个的顺序不变</li>
+<li>多路复用是 http2 多个请求响应都是并行</li>
+</ol>
+</li>
+</ul>
+<h2 id="服务器断开连接的四次挥手"><a href="#服务器断开连接的四次挥手" class="headerlink" title="服务器断开连接的四次挥手"></a>服务器断开连接的四次挥手</h2><ul>
+<li>客户端请求断开连接</li>
+<li>服务端确认断开请求</li>
+<li>服务端发送完毕剩下的数据 close</li>
+<li>客户端close 回复</li>
+</ul>
+<h2 id="浏览器检查状态码，304-协商缓存，301，302-重定向"><a href="#浏览器检查状态码，304-协商缓存，301，302-重定向" class="headerlink" title="浏览器检查状态码，304 协商缓存，301，302 重定向"></a>浏览器检查状态码，304 协商缓存，301，302 重定向</h2><ul>
+<li>304 req:if-none-match, res:etag 协商 hash</li>
+<li>301 永久重定向会浏览器缓存</li>
+<li>302 临时重定向浏览器不缓存</li>
+</ul>
+<h2 id="解析返回内容，重排重绘"><a href="#解析返回内容，重排重绘" class="headerlink" title="解析返回内容，重排重绘"></a>解析返回内容，重排重绘</h2><ul>
+<li>页面生成过程</li>
+</ul>
+<ol>
+<li>html 解析成 dom 树</li>
+<li>css 解析成 cssom</li>
+<li>结合 dom 树和 cssom 生成 render tree</li>
+<li>进行布局 flow 将 渲染树的 节点进行合成</li>
+<li>进行绘制 paint 至屏幕上</li>
+</ol>
+<ul>
+<li><p>文档解析过程的事件触发<br>1 开始解析 html 文档<br>触发 readystatechange: load<br>2 DOMContentLoaded 事件，原始 html 解析<br>不包含样式资源加载, 同时触发 readystatechange: interactive<br>3 load 事件，资源加载完毕<br>样式资源加载完毕后才触发, 同时触发 readystatechange: complete</p>
+<blockquote>
+<ul>
+<li>defer async 资源的script 都不阻塞，<br>普通 script 下载阻塞再执行阻塞<br>defer 先下载 html 解析完后执行，没什么阻塞<br>async 下载好后直接执行，阻塞执行阶段</li>
+</ul>
+</blockquote>
+</li>
+<li><p>重排<br>1.dom 的增删改查<br>2.浏览器窗口的变化滚动<br>3.用户的输入<br>4.dom的形状大小动画<br>5.重排必定发生重绘<br>6.影响范围大，最好固定 dom 容器大小不影响到其他 dom</p>
+</li>
+<li><p>重绘<br>1.dom 的颜色背景<br>2.dom border 样式 如圆角内陷<br>3.每次重绘前执行 requestAnimationFrame</p>
+</li>
+</ul>
+<h2 id="重排重绘优化"><a href="#重排重绘优化" class="headerlink" title="重排重绘优化"></a>重排重绘优化</h2><ul>
+<li><p>目标 dom 父容器固定大小，重排不会影响其他 dom</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">// 改变 p 里的 dom 也会影响 h5 和 h4，固定 p 的大小</span><br><span class="line">&lt;body&gt;</span><br><span class="line">  &lt;div class=&quot;hello&quot;&gt;</span><br><span class="line">    &lt;h4&gt;h4&lt;/h4&gt;</span><br><span class="line">    &lt;p&gt;&lt;strong&gt;Name:&lt;/strong&gt;BDing&lt;/p&gt;</span><br><span class="line">    &lt;h5&gt;h5&lt;/h5&gt;</span><br><span class="line">  &lt;/div&gt;</span><br><span class="line">&lt;/body&gt;</span><br></pre></td></tr></table></figure></li>
+<li><p>读写操作分离</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">// 只发生一次重绘重排, 读取操作在写入操作完成后才进行, 有的浏览器低下仍会进行4次</span><br><span class="line">div.style.left = &#x27;10px&#x27;;</span><br><span class="line">div.style.top = &#x27;10px&#x27;;</span><br><span class="line">div.style.width = &#x27;20px&#x27;;</span><br><span class="line">div.style.height = &#x27;20px&#x27;;</span><br><span class="line">console.log(div.offsetLeft);</span><br><span class="line">console.log(div.offsetTop);</span><br><span class="line">console.log(div.offsetWidth);</span><br><span class="line">console.log(div.offsetHeight);</span><br></pre></td></tr></table></figure></li>
+<li><p>样式集中改变</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">// 使用添加 className 和 cssText 的方式一次操作</span><br><span class="line">el.className += &quot; otherclass&quot;</span><br><span class="line">el.style.cssText += &quot;; left: &quot; + left + &quot;px; top: &quot; + top + &quot;px;&quot;;</span><br></pre></td></tr></table></figure></li>
+<li><p>缓存布局信息</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">// bad 同时又读写操作 强制刷新 触发两次重排</span><br><span class="line">div.style.left = div.offsetLeft + 1 + &#x27;px&#x27;;</span><br><span class="line">div.style.top = div.offsetTop + 1 + &#x27;px&#x27;;</span><br><span class="line">// good 缓存布局信息 读写分离</span><br><span class="line">var curLeft = div.offsetLeft;</span><br><span class="line">var curTop = div.offsetTop;</span><br><span class="line">div.style.left = curLeft + 1 + &#x27;px&#x27;;</span><br><span class="line">div.style.top = curTop + 1 + &#x27;px&#x27;;</span><br></pre></td></tr></table></figure></li>
+<li><p>dom 离线更改</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">dom.display = &#x27;none&#x27;</span><br><span class="line">// 修改dom样式</span><br><span class="line">dom.display = &#x27;block&#x27;</span><br><span class="line">----</span><br><span class="line">const fragment = document.createDocumentFragment();</span><br><span class="line">// DocumentFragment 上批量操作 dom</span><br><span class="line">list.appendChild(fragment);</span><br><span class="line">----</span><br><span class="line">复制 dom，操作完后替换掉原 dom</span><br><span class="line">var p = document.getElementById(&quot;para1&quot;),</span><br><span class="line">var p_prime = p.cloneNode(true);</span><br></pre></td></tr></table></figure></li>
+<li><p>绝对定位 固定定位<br>position属性为absolute或fixed 的dom 重排消耗小</p>
+</li>
+<li><p>优化动画<br>动画移动 1px 增加为 3px 减少 重排<br>启动 GPU 操作</p>
+</li>
+<li><p>react 调度优化 <a target="_blank" rel="noopener" href="https://www.jianshu.com/p/87533d64626a"> 调度模块原理 - 实现 requestIdleCallback 
+</a></p>
+<ol>
+<li>重绘的一帧 16.67，性能低是 33.33</li>
+<li>rAF 计算出当前帧开始时间和下一帧开始时间</li>
+<li>把 react 更新任务推入 addEventLisnter 队列中</li>
+<li>每一帧更新顺序：队列 react 任务 -&gt; UI 渲染动画 -&gt; idle 回调</li>
+<li>每一次循环队列开始根据 react 任务过期时间判断是否过期，过期了执行 react 更新，再执行 UI 操作</li>
+</ol>
+</li>
+</ul>
+<p><a target="_blank" rel="noopener" href="https://juejin.im/post/5c15f797f265da61141c7f86">参考</a></p>
+
+            </div>
+        </div>
+    </article>
+
+    
+    
+<nav class="article-nav">
+  
+    <a href="/2020/04/19/Vue3%20%E4%B8%BA%E4%BB%80%E4%B9%88%E8%A6%81%E7%94%A8%20Proxy%20%E4%BB%A3%E6%9B%BF%20Object.defineProperty%20%E5%AE%9E%E7%8E%B0%E5%93%8D%E5%BA%94%E5%BC%8F%20/" id="article-nav-newer" class="article-nav-link-wrap prev">
+      <strong class="article-nav-caption">Newer</strong>
+      <div class="article-nav-title">
+        
+          Vue3 为什么要用 Proxy 代替 Object-defineProperty 实现响应式
+        
+      </div>
+    </a>
+  
+  
+    <a href="/2019/08/23/React%20%E6%BA%90%E7%A0%81%E8%A7%A3%E6%9E%90%20-%20commitRoot%20%E6%9B%B4%E6%96%B0%E4%BB%BB%E5%8A%A1%20dom%20%E8%8A%82%E7%82%B9%20/" id="article-nav-older" class="article-nav-link-wrap next">
+      <strong class="article-nav-caption">Older</strong>
+      <div class="article-nav-title">React 源码解析 - commitRoot 更新任务 dom 节点</div>
+    </a>
+  
+</nav>
+
+    
+
+    
+</div>
+    </div>
+    <footer class="site-footer">
+        <div class="global-width">
+            <ul class="site-widget">
+                
+                <li class="widget widget-tag">
+                    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Tags</h3>
+    <div class="widget-body">
+      <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/JavaScript/" rel="tag">JavaScript</a><span class="tag-list-count">6</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/React/" rel="tag">React</a><span class="tag-list-count">5</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/React-Tips/" rel="tag">React Tips</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Redux/" rel="tag">Redux</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Vue/" rel="tag">Vue</a><span class="tag-list-count">4</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/css/" rel="tag">css</a><span class="tag-list-count">3</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/dom/" rel="tag">dom</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/http/" rel="tag">http</a><span class="tag-list-count">8</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/nodejs/" rel="tag">nodejs</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/react/" rel="tag">react</a><span class="tag-list-count">8</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/sftp/" rel="tag">sftp</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/webpack/" rel="tag">webpack</a><span class="tag-list-count">1</span></li></ul>
+    </div>
+  </div>
+
+                </li>
+                
+                <li class="widget widget-category">
+                    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Categories</h3>
+    <div class="widget-body">
+      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/Font-End-Basis/">Font-End Basis</a><span class="category-list-count">11</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/React/">React</a><span class="category-list-count">8</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Vue/">Vue</a><span class="category-list-count">4</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/css/">css</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/http/">http</a><span class="category-list-count">5</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/network/">network</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/nodejs/">nodejs</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/react/">react</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/webpack/">webpack</a><span class="category-list-count">1</span></li></ul>
+    </div>
+  </div>
+
+                </li>
+                
+                <li class="widget widget-recent_posts">
+                    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Recents</h3>
+    <div class="widget-body">
+      <ul>
+        
+          <li>
+            <a href="/2022/01/21/react%20%E5%86%85%E9%83%A8%E5%8E%9F%E7%90%86%20/">react 内部原理</a>
+          </li>
+        
+          <li>
+            <a href="/2020/05/04/React%20%E5%90%88%E6%88%90%E4%BA%8B%E4%BB%B6%20SyntheticEvent%20/">React 合成事件 SyntheticEvent</a>
+          </li>
+        
+          <li>
+            <a href="/2020/04/19/Vue3%20%E4%B8%BA%E4%BB%80%E4%B9%88%E8%A6%81%E7%94%A8%20Proxy%20%E4%BB%A3%E6%9B%BF%20Object.defineProperty%20%E5%AE%9E%E7%8E%B0%E5%93%8D%E5%BA%94%E5%BC%8F%20/">Vue3 为什么要用 Proxy 代替 Object-defineProperty 实现响应式</a>
+          </li>
+        
+          <li>
+            <a href="/2019/10/30/%E6%B5%8F%E8%A7%88%E5%99%A8%E8%BE%93%E5%85%A5%20URL%20%E5%88%B0%E9%A1%B5%E9%9D%A2%E5%91%88%E7%8E%B0%E5%8F%8A%E5%85%B6%E4%BC%98%E5%8C%96%20/">浏览器输入 URL 到页面呈现及其优化</a>
+          </li>
+        
+          <li>
+            <a href="/2019/08/23/React%20%E6%BA%90%E7%A0%81%E8%A7%A3%E6%9E%90%20-%20commitRoot%20%E6%9B%B4%E6%96%B0%E4%BB%BB%E5%8A%A1%20dom%20%E8%8A%82%E7%82%B9%20/">React 源码解析 - commitRoot 更新任务 dom 节点</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+                </li>
+                
+            </ul>
+        </div>
+        <div class="site-info">
+            <address>
+                &copy; 2014 <a href="http://yoursite.com">Minimalist</a> All Right Reserved. <br/>
+                Powered by <a target="_blank" rel="noopener" href="http://hexo.io">Hexo</a>. Theme by <a target="_blank" rel="noopener" href="http://zzoman.com">ZZOMAN</a>
+            </address>
+        </div>
+    </footer>
+    
+    <script src="/libs/jquery-1.11.3.min.js" type="text/javascript"></script>
+    
+    <script src="/libs/fancybox/jquery.fancybox.js" type="text/javascript"></script>
+    
+    <script src="/js/site_init.js" type="text/javascript"></script>
+    
+</body>
+</html>

@@ -1,0 +1,208 @@
+<!doctype html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge">
+    <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    
+    <title>Vue3 为什么要用 Proxy 代替 Object-defineProperty 实现响应式 | Minimalist</title>
+    
+    <link rel="alternative" href="/atom.xml" title="Minimalist" type="application/atom+xml">
+    
+    
+<link rel="stylesheet" href="/css/style.css">
+
+    
+    <link rel="stylesheet" href="/libs/fancybox/jquery.fancybox.css" charset="utf-8">
+    
+    <!--[if lt IE 9]>
+    <script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
+    <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+    <![endif]-->
+<meta name="generator" content="Hexo 6.3.0"></head>
+<body class="site">
+    <header class="site-header">
+        <h1 class="site-title"><a href="/">Minimalist</a></h1>
+        <nav class="site-nav">
+            <ul class="nav">
+                
+                <li><a href="/archives">Archives</a></li>
+                
+                
+                <li><a target="_blank" rel="noopener" href="https://github.com/sfyr111" title="git">GITHUB</a></li>
+                
+                <li><a class="toggle-search" href="#search">search</a></li>
+            </ul>
+        </nav>
+        <div class="site-search" id="search">
+            <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><input type="hidden" name="sitesearch" value="http://yoursite.com"></form>
+        </div>
+        
+            <div class="site-header-background" style="background-image:url(http://reumia.github.io/hexo-theme-zzoman2015/images/background-zzoman2015.jpg)"></div>
+        
+    </header>
+    <div class="site-body">
+        <div class="global-width">
+    <article class="article" data-layout="post" data-slug="Vue3 为什么要用 Proxy 代替 Object.defineProperty 实现响应式 ">
+        <div class="article-content">
+            
+            
+            <header class="article-header">
+                <div class="article-meta">
+                    <a href="/2020/04/19/Vue3%20%E4%B8%BA%E4%BB%80%E4%B9%88%E8%A6%81%E7%94%A8%20Proxy%20%E4%BB%A3%E6%9B%BF%20Object.defineProperty%20%E5%AE%9E%E7%8E%B0%E5%93%8D%E5%BA%94%E5%BC%8F%20/" class="article-date">
+  <time datetime="2020-04-19T15:30:02.000Z">2020-04-19</time>
+</a>
+                    
+                    
+                </div>
+                
+    <h1 class="article-title" itemprop="name">
+      <a href="/2020/04/19/Vue3%20%E4%B8%BA%E4%BB%80%E4%B9%88%E8%A6%81%E7%94%A8%20Proxy%20%E4%BB%A3%E6%9B%BF%20Object.defineProperty%20%E5%AE%9E%E7%8E%B0%E5%93%8D%E5%BA%94%E5%BC%8F%20/">Vue3 为什么要用 Proxy 代替 Object-defineProperty 实现响应式</a>
+    </h1>
+
+            </header>
+            
+            <div class="article-body">
+                <h2 id="Object-defineProperty-劫持数据"><a href="#Object-defineProperty-劫持数据" class="headerlink" title="Object.defineProperty 劫持数据"></a>Object.defineProperty 劫持数据</h2><blockquote>
+<p>只是对对象的属性进行劫持</p>
+</blockquote>
+<ul>
+<li>无法监听新增属性和删除属性<br>需要使用 vue.set, vue.delete</li>
+<li>深层对象的劫持需要一次性递归<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">var obj = &#123;</span><br><span class="line">  a: 1,</span><br><span class="line">  o: &#123;</span><br><span class="line">    b: 2,</span><br><span class="line">    o1: &#123;&#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
+<li>劫持数组时需要重写覆盖部分 Array.prototype 原生方法</li>
+</ul>
+<h2 id="Proxy-劫持数据"><a href="#Proxy-劫持数据" class="headerlink" title="Proxy 劫持数据"></a>Proxy 劫持数据</h2><blockquote>
+<p>真正的对对象本身进行劫持</p>
+</blockquote>
+<ul>
+<li>可以监听到对象新增删除属性</li>
+<li>只在 getter 时才对对象的下一层进行劫持(优化了性能)</li>
+<li>能正确监听原生数组方法</li>
+<li>无法 polyfill 存在浏览器兼容问题</li>
+</ul>
+<h2 id="Object-defineProperty-实现响应式"><a href="#Object-defineProperty-实现响应式" class="headerlink" title="Object.defineProperty 实现响应式"></a>Object.defineProperty 实现响应式</h2><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br></pre></td><td class="code"><pre><span class="line">function defineReactive(target, key, value) &#123;</span><br><span class="line">	observer(value) // 对 value 深层监听</span><br><span class="line">	</span><br><span class="line">	Object.defineProperties(target, key, &#123;</span><br><span class="line">		get() &#123;</span><br><span class="line">			// dep.addSubs(watcher) // 添加到监听队列</span><br><span class="line">			return value</span><br><span class="line">		&#125;,</span><br><span class="line">		set(newValue) &#123;</span><br><span class="line">			if (newValue !== value) &#123;</span><br><span class="line">				observer(newValue) // 再次劫持新 value</span><br><span class="line">				</span><br><span class="line">				value = newValue</span><br><span class="line">				// dep.notify() // 通知依赖触发监听队列的更新</span><br><span class="line">			&#125;</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">function observer(target) &#123;</span><br><span class="line">  if (typeof target !== &#x27;object&#x27; || !target) &#123;</span><br><span class="line">  	return target</span><br><span class="line">  &#125;</span><br><span class="line">  </span><br><span class="line">  if (Array.isArray(target)) &#123;</span><br><span class="line">  	target.__proto__ = newArrProto</span><br><span class="line">  &#125;</span><br><span class="line">  </span><br><span class="line">  for (let key of target) &#123;</span><br><span class="line">  	defineReactive(target, key, target[key])</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">const oldArrProto = Array.prototype</span><br><span class="line"></span><br><span class="line">const newArrProto = Object.create(oldArrProto)</span><br><span class="line">[&#x27;push&#x27;, &#x27;pop&#x27;, &#x27;shift&#x27;, &#x27;unshift&#x27;, &#x27;splice&#x27;, &#x27;sort&#x27;, &#x27;reverse&#x27;].forEach(methodName =&gt; &#123;</span><br><span class="line">	newArrProto[methodName] = function(...args) &#123;</span><br><span class="line">		// dep.notify()</span><br><span class="line">		oldArrProto[methodName].apply(this, args)</span><br><span class="line">	&#125;</span><br><span class="line">&#125;)</span><br></pre></td></tr></table></figure>
+<p>Dep 和 Watcher 具体实现可以参考之前的文章 <a target="_blank" rel="noopener" href="https://www.jianshu.com/p/26e24ce84c4b">实现响应式原理</a></p>
+<h2 id="Object-defineProperty-缺点"><a href="#Object-defineProperty-缺点" class="headerlink" title="Object.defineProperty 缺点"></a>Object.defineProperty 缺点</h2><ul>
+<li>无法监听新增属性和删除属性<br>需要使用 vue.set, vue.delete</li>
+<li>深层对象的劫持需要一次性递归<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">function observer(target) &#123;</span><br><span class="line">  ...</span><br><span class="line">  for (let key of target) &#123;</span><br><span class="line">    defineReactive(target, key, target[key])</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">function defineReactive(target, key, value) &#123;</span><br><span class="line">  observer(target) // 首次监听时就对 value 的属性进行递归</span><br><span class="line">  ...</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
+<li>监听原生数组的部分方法需要重写覆盖 Array.prototype<br><code>[&#39;push&#39;, &#39;pop&#39;, &#39;shift&#39;, &#39;unshift&#39;, &#39;splice&#39;, &#39;sort&#39;, &#39;reverse&#39;]</code> 会改变原数组的原生方法不会被 Object.defineProperty 劫持，需要重新写数组的原生方法添加更新触发</li>
+</ul>
+<h2 id="Proxy-实现响应式"><a href="#Proxy-实现响应式" class="headerlink" title="Proxy 实现响应式"></a>Proxy 实现响应式</h2><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br></pre></td><td class="code"><pre><span class="line">function reactive(target = &#123;&#125;) &#123;</span><br><span class="line">	if (typeof target !== &#x27;object&#x27; || target == null) &#123;</span><br><span class="line">		return target</span><br><span class="line">	&#125;</span><br><span class="line">	</span><br><span class="line">	const proxyConfig = &#123;</span><br><span class="line">		get(target, key, receiver) &#123;</span><br><span class="line">			const ownKeys = Reflect.ownKeys(target)</span><br><span class="line">			if (ownKeys.includes(key)) &#123;</span><br><span class="line">			  // dep.subs(watcher) // 添加监听</span><br><span class="line">			&#125;</span><br><span class="line">			const result = Reflect.get(target, key, receiver)</span><br><span class="line">			return reactive(result) // 只在 getter 时才再次劫持</span><br><span class="line">		&#125;,</span><br><span class="line">		set(target, key, val, receiver) &#123;</span><br><span class="line">		  if (val === target[key]) &#123;</span><br><span class="line">		  	return</span><br><span class="line">		  &#125;</span><br><span class="line">			</span><br><span class="line">			const ownKeys = Reflect.ownKeys(target)</span><br><span class="line">			if (ownKeys.includes(key)) &#123;</span><br><span class="line">			  // 已有值</span><br><span class="line">			&#125; else &#123;</span><br><span class="line">			  // 新增值</span><br><span class="line">			&#125;</span><br><span class="line">			</span><br><span class="line">			const result = Reflect.set(target, key, val, receiver)</span><br><span class="line">			// dep.noitfy() // 通知监听队列进行更新</span><br><span class="line">			return result</span><br><span class="line">		&#125;,</span><br><span class="line">		deleteProperty(target, key) &#123;</span><br><span class="line">			const result = Reflect.deleteProperty(target, key)</span><br><span class="line">			return result</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line">	</span><br><span class="line">	const observed = new Proxy(target, proxyConfig)</span><br><span class="line">	return observed</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="Proxy-解决的问题"><a href="#Proxy-解决的问题" class="headerlink" title="Proxy 解决的问题"></a>Proxy 解决的问题</h2><ul>
+<li>可以监听到对象新增删除属性</li>
+<li>只在 getter 时才对对象的下一层进行劫持(优化了性能)<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">get(target, key, receiver) &#123;</span><br><span class="line">    const ownKeys = Reflect.ownKeys(target)</span><br><span class="line">    if (ownKeys.includes(key)) &#123;</span><br><span class="line">      // dep.subs(watcher) // 添加监听</span><br><span class="line">    &#125;</span><br><span class="line">    const result = Reflect.get(target, key, receiver)</span><br><span class="line">    return reactive(result) // 只在 getter 时才再次劫持</span><br><span class="line">&#125;,</span><br></pre></td></tr></table></figure></li>
+<li>能正确监听原生数组方法</li>
+</ul>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>Object.defineProperty 是对对象<strong>属性</strong>的劫持<br>Proxy 是对整个<strong>对象</strong>劫持</p>
+<p>Object.defineProperty 无法监听新增和删除<br>Object.defineProperty 无法监听数组部分方法需要重写<br>Object.defineProperty 性能不好要对深层对象劫持要一次性递归</p>
+<p>Proxy 能正确监听数组方法<br>Proxy 能正确监听对象新增删除属性<br>Proxy 只在 getter 时才进行对象下一层属性的劫持 性能优化<br>Proxy 兼容性不好</p>
+<p>Object.defineProperty 和 Proxy<br>在 getter 时进行添加依赖 <code>dep.addSub(watcher)</code> 比如 绑定 view 层，在函数中使用<br>在 setter 时触发依赖通知 <code>dep.notify()</code> 比如 修改属性</p>
+
+            </div>
+        </div>
+    </article>
+
+    
+    
+<nav class="article-nav">
+  
+    <a href="/2020/05/04/React%20%E5%90%88%E6%88%90%E4%BA%8B%E4%BB%B6%20SyntheticEvent%20/" id="article-nav-newer" class="article-nav-link-wrap prev">
+      <strong class="article-nav-caption">Newer</strong>
+      <div class="article-nav-title">
+        
+          React 合成事件 SyntheticEvent
+        
+      </div>
+    </a>
+  
+  
+    <a href="/2019/10/30/%E6%B5%8F%E8%A7%88%E5%99%A8%E8%BE%93%E5%85%A5%20URL%20%E5%88%B0%E9%A1%B5%E9%9D%A2%E5%91%88%E7%8E%B0%E5%8F%8A%E5%85%B6%E4%BC%98%E5%8C%96%20/" id="article-nav-older" class="article-nav-link-wrap next">
+      <strong class="article-nav-caption">Older</strong>
+      <div class="article-nav-title">浏览器输入 URL 到页面呈现及其优化</div>
+    </a>
+  
+</nav>
+
+    
+
+    
+</div>
+    </div>
+    <footer class="site-footer">
+        <div class="global-width">
+            <ul class="site-widget">
+                
+                <li class="widget widget-tag">
+                    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Tags</h3>
+    <div class="widget-body">
+      <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/JavaScript/" rel="tag">JavaScript</a><span class="tag-list-count">6</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/React/" rel="tag">React</a><span class="tag-list-count">5</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/React-Tips/" rel="tag">React Tips</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Redux/" rel="tag">Redux</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Vue/" rel="tag">Vue</a><span class="tag-list-count">4</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/css/" rel="tag">css</a><span class="tag-list-count">3</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/dom/" rel="tag">dom</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/http/" rel="tag">http</a><span class="tag-list-count">8</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/nodejs/" rel="tag">nodejs</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/react/" rel="tag">react</a><span class="tag-list-count">8</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/sftp/" rel="tag">sftp</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/webpack/" rel="tag">webpack</a><span class="tag-list-count">1</span></li></ul>
+    </div>
+  </div>
+
+                </li>
+                
+                <li class="widget widget-category">
+                    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Categories</h3>
+    <div class="widget-body">
+      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/Font-End-Basis/">Font-End Basis</a><span class="category-list-count">11</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/React/">React</a><span class="category-list-count">8</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Vue/">Vue</a><span class="category-list-count">4</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/css/">css</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/http/">http</a><span class="category-list-count">5</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/network/">network</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/nodejs/">nodejs</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/react/">react</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/webpack/">webpack</a><span class="category-list-count">1</span></li></ul>
+    </div>
+  </div>
+
+                </li>
+                
+                <li class="widget widget-recent_posts">
+                    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Recents</h3>
+    <div class="widget-body">
+      <ul>
+        
+          <li>
+            <a href="/2022/01/21/react%20%E5%86%85%E9%83%A8%E5%8E%9F%E7%90%86%20/">react 内部原理</a>
+          </li>
+        
+          <li>
+            <a href="/2020/05/04/React%20%E5%90%88%E6%88%90%E4%BA%8B%E4%BB%B6%20SyntheticEvent%20/">React 合成事件 SyntheticEvent</a>
+          </li>
+        
+          <li>
+            <a href="/2020/04/19/Vue3%20%E4%B8%BA%E4%BB%80%E4%B9%88%E8%A6%81%E7%94%A8%20Proxy%20%E4%BB%A3%E6%9B%BF%20Object.defineProperty%20%E5%AE%9E%E7%8E%B0%E5%93%8D%E5%BA%94%E5%BC%8F%20/">Vue3 为什么要用 Proxy 代替 Object-defineProperty 实现响应式</a>
+          </li>
+        
+          <li>
+            <a href="/2019/10/30/%E6%B5%8F%E8%A7%88%E5%99%A8%E8%BE%93%E5%85%A5%20URL%20%E5%88%B0%E9%A1%B5%E9%9D%A2%E5%91%88%E7%8E%B0%E5%8F%8A%E5%85%B6%E4%BC%98%E5%8C%96%20/">浏览器输入 URL 到页面呈现及其优化</a>
+          </li>
+        
+          <li>
+            <a href="/2019/08/23/React%20%E6%BA%90%E7%A0%81%E8%A7%A3%E6%9E%90%20-%20commitRoot%20%E6%9B%B4%E6%96%B0%E4%BB%BB%E5%8A%A1%20dom%20%E8%8A%82%E7%82%B9%20/">React 源码解析 - commitRoot 更新任务 dom 节点</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+                </li>
+                
+            </ul>
+        </div>
+        <div class="site-info">
+            <address>
+                &copy; 2014 <a href="http://yoursite.com">Minimalist</a> All Right Reserved. <br/>
+                Powered by <a target="_blank" rel="noopener" href="http://hexo.io">Hexo</a>. Theme by <a target="_blank" rel="noopener" href="http://zzoman.com">ZZOMAN</a>
+            </address>
+        </div>
+    </footer>
+    
+    <script src="/libs/jquery-1.11.3.min.js" type="text/javascript"></script>
+    
+    <script src="/libs/fancybox/jquery.fancybox.js" type="text/javascript"></script>
+    
+    <script src="/js/site_init.js" type="text/javascript"></script>
+    
+</body>
+</html>
