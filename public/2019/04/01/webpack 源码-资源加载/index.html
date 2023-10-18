@@ -1,0 +1,207 @@
+<!doctype html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge">
+    <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    
+    <title>webpack 源码-资源加载 | Minimalist</title>
+    
+    <link rel="alternative" href="/atom.xml" title="Minimalist" type="application/atom+xml">
+    
+    
+<link rel="stylesheet" href="/css/style.css">
+
+    
+    <link rel="stylesheet" href="/libs/fancybox/jquery.fancybox.css" charset="utf-8">
+    
+    <!--[if lt IE 9]>
+    <script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
+    <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+    <![endif]-->
+<meta name="generator" content="Hexo 6.3.0"></head>
+<body class="site">
+    <header class="site-header">
+        <h1 class="site-title"><a href="/">Minimalist</a></h1>
+        <nav class="site-nav">
+            <ul class="nav">
+                
+                <li><a href="/archives">Archives</a></li>
+                
+                
+                <li><a target="_blank" rel="noopener" href="https://github.com/sfyr111" title="git">GITHUB</a></li>
+                
+                <li><a class="toggle-search" href="#search">search</a></li>
+            </ul>
+        </nav>
+        <div class="site-search" id="search">
+            <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><input type="hidden" name="sitesearch" value="http://yoursite.com"></form>
+        </div>
+        
+            <div class="site-header-background" style="background-image:url(http://reumia.github.io/hexo-theme-zzoman2015/images/background-zzoman2015.jpg)"></div>
+        
+    </header>
+    <div class="site-body">
+        <div class="global-width">
+    <article class="article" data-layout="post" data-slug="webpack 源码-资源加载">
+        <div class="article-content">
+            
+            
+            <header class="article-header">
+                <div class="article-meta">
+                    <a href="/2019/04/01/webpack%20%E6%BA%90%E7%A0%81-%E8%B5%84%E6%BA%90%E5%8A%A0%E8%BD%BD/" class="article-date">
+  <time datetime="2019-04-01T09:02:21.000Z">2019-04-01</time>
+</a>
+                    
+  <div class="article-category categories">
+    <a class="category-link" href="/categories/webpack/">webpack</a>
+  </div>
+
+                    
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/webpack/" rel="tag">webpack</a></li></ul>
+
+                </div>
+                
+    <h1 class="article-title" itemprop="name">
+      <a href="/2019/04/01/webpack%20%E6%BA%90%E7%A0%81-%E8%B5%84%E6%BA%90%E5%8A%A0%E8%BD%BD/">webpack 源码-资源加载</a>
+    </h1>
+
+            </header>
+            
+            <div class="article-body">
+                <h2 id="准备编译的代码资源"><a href="#准备编译的代码资源" class="headerlink" title="准备编译的代码资源"></a>准备编译的代码资源</h2><p>一共四个文件资源</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line">// index.js</span><br><span class="line">import &#123; varA, varB &#125; from &#x27;./mod1&#x27;</span><br><span class="line">import m2 from &#x27;./mod2&#x27;</span><br><span class="line"></span><br><span class="line">let b = &#x27;bbb&#x27;</span><br><span class="line">console.log(varA, varB, m2)</span><br><span class="line"></span><br><span class="line">// mod1.js</span><br><span class="line">export const varA = &#x27;aaa&#x27;</span><br><span class="line">export const varB = &#x27;bbb&#x27;</span><br><span class="line"></span><br><span class="line">// mod2.js</span><br><span class="line">import &#123; c &#125; from &#x27;./modc.js&#x27;</span><br><span class="line">export default &#123;</span><br><span class="line">  m1: &#x27;m1&#x27;,</span><br><span class="line">  m2: &#x27;m2&#x27;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">// modc.js</span><br><span class="line">export const c = &#x27;cccc&#x27;</span><br></pre></td></tr></table></figure>
+
+<h2 id="webpack-资源加载-主流程"><a href="#webpack-资源加载-主流程" class="headerlink" title="webpack 资源加载 - 主流程"></a>webpack 资源加载 - 主流程</h2><h3 id="1-Compiler-js-run，在-run-方法中执行-this-compile"><a href="#1-Compiler-js-run，在-run-方法中执行-this-compile" class="headerlink" title="1.Compiler.js - run，在 run 方法中执行 this.compile()"></a>1.Compiler.js - run，在 run 方法中执行 this.compile()</h3><p><img src="/images/imagemogr2_auto_orient_strip_7cimageview2_2_w_620_6201697125982183.png" alt="Compiler.js - run"></p>
+<h3 id="2-Compiler-js-compile，生成-Compiltaion-实例执行-make-hooks"><a href="#2-Compiler-js-compile，生成-Compiltaion-实例执行-make-hooks" class="headerlink" title="2.Compiler.js - compile，生成 Compiltaion 实例执行 make hooks"></a>2.Compiler.js - compile，生成 Compiltaion 实例执行 make hooks</h3><p><img src="/images/imagemogr2_auto_orient_strip_7cimageview2_2_w_1240_12401697125982984.png" alt="Compiler.js - compile"><br>make  hooks 的实现在 SingleEntryPlugin 插件里，生成 SingleEntryDependency 调用 compilation 实例的 addEntry 方法.<br><img src="/images/imagemogr2_auto_orient_strip_7cimageview2_2_w_1240_12401697125983572.png" alt="SingleEntryPlugin.js"><br><img src="/images/imagemogr2_auto_orient_strip_7cimageview2_2_w_1240_12401697125984157.png" alt="SingleEntryDependency"></p>
+<h3 id="3-Compilation-js-addEntry-处理入口-entry-执行-addModuleChain"><a href="#3-Compilation-js-addEntry-处理入口-entry-执行-addModuleChain" class="headerlink" title="3.Compilation.js - addEntry - 处理入口 entry 执行 _addModuleChain"></a>3.Compilation.js - addEntry - 处理入口 entry 执行 _addModuleChain</h3><p>addEntry 中把 SingleEntryPlugin 生成的 dep 也就是 entry 传入执行 _addModuleChain，发现执行的 _addModuleChain 回调有在 this.entries 中 push 一个 module 的线索<br><img src="/images/imagemogr2_auto_orient_strip_7cimageview2_2_w_1240_12401697125984735.png"></p>
+<h3 id="4-Compilation-js-addModuleChain-factory-创建-module-addModule-到-this-modules"><a href="#4-Compilation-js-addModuleChain-factory-创建-module-addModule-到-this-modules" class="headerlink" title="4.Compilation.js - _addModuleChain - factory 创建 module - addModule 到 this.modules"></a>4.Compilation.js - _addModuleChain - factory 创建 module - addModule 到 this.modules</h3><p>_addModuleChain 创建 module，此时第一个 module 出现，这个 module 是以为 entry 创建的<br><img src="/images/imagemogr2_auto_orient_strip_7cimageview2_2_w_1240_12401697125985315.png" alt="_addModuleChain 创建module"></p>
+<h3 id="5-Compilation-js-addModuleChain-addModule-把-module-push-到-this-modules-中"><a href="#5-Compilation-js-addModuleChain-addModule-把-module-push-到-this-modules-中" class="headerlink" title="5.Compilation.js - _addModuleChain - addModule 把 module push 到 this.modules 中"></a>5.Compilation.js - _addModuleChain - addModule 把 module push 到 this.modules 中</h3><p><img src="/images/imagemogr2_auto_orient_strip_7cimageview2_2_w_930_9301697125985890.png" alt="执行 addModule"></p>
+<p><img src="/images/imagemogr2_auto_orient_strip_7cimageview2_2_w_1240_12401697125986471.png" alt="addModule 中 this.modules.push module 并返回"></p>
+<h3 id="5-Compilation-js-addModuleChain-buildModule-对-entry-的-module-进行-Loader-处理"><a href="#5-Compilation-js-addModuleChain-buildModule-对-entry-的-module-进行-Loader-处理" class="headerlink" title="5.Compilation.js - _addModuleChain - buildModule - 对 entry 的 module 进行 Loader 处理"></a>5.Compilation.js - _addModuleChain - buildModule - 对 entry 的 module 进行 Loader 处理</h3><p>buildModule 由 NormalModule.js 实现，对远吗执行 loader 并收集依赖<br><img src="/images/imagemogr2_auto_orient_strip_7cimageview2_2_w_1240_12401697125987054.png" alt="buildModule"><br>此时 compilation 实例中 enties 和 modules 各自有一个 module , 这个 module 都是 entry 入口文件生成的。<br><img src="/images/imagemogr2_auto_orient_strip_7cimageview2_2_w_1240_12401697125987632.png" alt="此时 compilation 实例中 enties 和 module"><br>此时 entry 的 module 已经分析出了 import 导入的模块语法<br><img src="/images/imagemogr2_auto_orient_strip_7cimageview2_2_w_1240_12401697125988205.png" alt="module 的依赖"><br>entry 的 module 的源码也被 babel-loader 处理成了 ES5 的代码<br><img src="/images/imagemogr2_auto_orient_strip_7cimageview2_2_w_1240_12401697125988782.png" alt="module 的源码已经被 loader 处理"></p>
+<h3 id="6-Compilation-js-addModuleChain-afterBuild-主入口-module-处理完毕"><a href="#6-Compilation-js-addModuleChain-afterBuild-主入口-module-处理完毕" class="headerlink" title="6.Compilation.js - _addModuleChain - afterBuild - 主入口 module 处理完毕"></a>6.Compilation.js - _addModuleChain - afterBuild - 主入口 module 处理完毕</h3><p>在 processModuleDependencies 中对 entry 的 module 的依赖进行递归调用 buildModule，分析出所有的 module 放入到 this.modules 中最后进入 seal 阶段。此时 modues 已经不止 entry 的 module 了，把所有 import 语句导入的 module 都收集完毕。<br><img src="/images/imagemogr2_auto_orient_strip_7cimageview2_2_w_1240_12401697125989361.png" alt="资源加载收集完毕进入 seal 阶段"></p>
+<h3 id="Compilation-js-addModuleChain-做了什么"><a href="#Compilation-js-addModuleChain-做了什么" class="headerlink" title="Compilation.js - _addModuleChain 做了什么"></a>Compilation.js - _addModuleChain 做了什么</h3><p>1.传入 entry 信息<br>2.moduleFactory 创建 entry 的 module, 添加到 this.modules 和 this.enties 中<br>3.调用 buildModule，对 entry 的 module 进行 loader 调用、分析 entry 源码中的 import 导入模块语句分析出依赖信息。<br>4.执行 afterBuild 在 processModuleDependencies 中处理 entry module 的依赖文件，处理成 module 放入 this.modules 中，完成资源加载</p>
+<h2 id="buildModule"><a href="#buildModule" class="headerlink" title="buildModule"></a>buildModule</h2><p>buildModule 中执行当前 module 类型的 module.build<br><img src="/images/imagemogr2_auto_orient_strip_7cimageview2_2_w_1240_12401697125989945.png" alt="执行 module.build "></p>
+<p>进入 NormalModule.js 的 doBuild 执行 LoaderRunner.js 文件 runLoaders<br><img src="/images/imagemogr2_auto_orient_strip_7cimageview2_2_w_1240_12401697125990517.png" alt="执行 doBuild 中的 runLoaders"></p>
+<p>这里遇到 LOADER_EXECUTION 函数，里面 的 fn 就是 loader， args 是 loader 处理前的源码<br><img src="/images/imagemogr2_auto_orient_strip_7cimageview2_2_w_1240_12401697125991095.png" alt="babel-loader 前"></p>
+<p>到这一步中间就在 loader 中执行，经过 loader 出来后的代码就是 arguments， 这里已经转译成 ES5 了, 执行的 callback 是 doBuild 的回调<br><img src="/images/imagemogr2_auto_orient_strip_7cimageview2_2_w_1240_12401697125991679.png" alt="babel-loader 后"></p>
+<p>带着 loader 处理后的源码回到 doBuild 回调中走this.parser.parse 中<br><img src="/images/imagemogr2_auto_orient_strip_7cimageview2_2_w_1240_12401697125992247.png" alt="doBuild 回调执行 parse"></p>
+<p>带着 loader 处理后的源码进入 parse 出来 ast 对象<br><img src="/images/imagemogr2_auto_orient_strip_7cimageview2_2_w_1240_12401697125992828.png" alt="带着 loader 处理后的源码进入 parse 出来 ast 对象"></p>
+<p>通过 acorn 三方模块对源码分析出 ast ，描述源码的语义<br><img src="/images/imagemogr2_auto_orient_strip_7cimageview2_2_w_1240_12401697125993405.png" alt="ast 是源码的语义描述"></p>
+<p>parse 最后就是返回一个 state，这时 state 中 module.dependencies 还是空的<br><img src="/images/imagemogr2_auto_orient_strip_7cimageview2_2_w_1240_12401697125993980.png" alt="parse 处理 ast"></p>
+<p>源码生成的 ast 经过 walker 的处理，在 state 上分析出了所有 import 文件的信息<br><img src="/images/imagemogr2_auto_orient_strip_7cimageview2_2_w_1240_12401697125994549.png" alt="module.dependencies 分析完毕"></p>
+<p>用这种语法彻底描述出源码中的依赖关系<br><img src="/images/imagemogr2_auto_orient_strip_7cimageview2_2_w_1240_12401697125995135.png" alt="用这种语法彻底描述出源码中的依赖关系"></p>
+<blockquote>
+<p>此时 entry 文件的就处理完了，此时 compilation 实例上的 this.modules 仍然只有一个 entry module，但是现在 webpack 已经通过 ast 解析出了所有 entry module 中的依赖模块的信息，后面就根据这些依赖信息生成各个模块</p>
+</blockquote>
+<h3 id="资源递归收集依赖"><a href="#资源递归收集依赖" class="headerlink" title="资源递归收集依赖"></a>资源递归收集依赖</h3><p>对依赖进行处理，发现是 import 语义的依赖才进行处理<br><img src="/images/imagemogr2_auto_orient_strip_7cimageview2_2_w_930_9301697125995731.png" alt="处理 ast 分析过的 module"><br>处理收集 import 的依赖调用 addModuleDependencies，方法里与 buildModule 类似，工厂生成 module，addModule 加入到 this.modules 中，进行 loader 处理源码<br><img src="/images/imagemogr2_auto_orient_strip_7cimageview2_2_w_930_9301697125996312.png" alt="进入 addModuleDependencies "><br>最后进入 afterBuild 判断当前处理的 module 结果是否继续有依赖进行递归处理<br><img src="/images/imagemogr2_auto_orient_strip_7cimageview2_2_w_930_9301697125996903.png" alt="对结果分析进行递归"></p>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>1.Compiler.js - compiler.run 执行 this.compile()<br>2.Compiler.js - compile，生成 Compiltaion 实例执行 make hooks<br>3.Compilation.js - addEntry - 处理入口 entry 执行 _addModuleChain<br>4._addModuleChain 使用工厂函数创建 module，使用 module 自己的 build<br>5.build 在 NormalModule 中执行 doBuild 调用 LoaderRunner.js 的 runLoaders 使用 loader 处理源码<br>6.loader 处理完源码回到 doBuild 回调调用 Parser 的 parse<br>7.使用 acorn 分析源码成 ast ，给 module.dependencies 添加依赖关系<br>8.根据依赖关系在 afterBuild 中调用 processModuleDependencies 递归处理依赖文件<br>9.最后把所有处理好的 module 都放入 compilation 实例的 this.modules 中进入 seal 阶段</p>
+<p><a target="_blank" rel="noopener" href="https://www.yuque.com/thzt/webpack/webpack-04#1ci7ld">参考资源加载</a></p>
+
+            </div>
+        </div>
+    </article>
+
+    
+    
+<nav class="article-nav">
+  
+    <a href="/2019/04/11/webpack%20%E6%BA%90%E7%A0%81%20-%20seal%20hook%20%E4%B9%8B%E4%BB%A3%E7%A0%81%E7%94%9F%E6%88%90%20/" id="article-nav-newer" class="article-nav-link-wrap prev">
+      <strong class="article-nav-caption">Newer</strong>
+      <div class="article-nav-title">
+        
+          webpack 源码 - seal hook 之代码生成
+        
+      </div>
+    </a>
+  
+  
+    <a href="/2019/03/13/webpack%20%E5%8E%9F%E7%90%86/" id="article-nav-older" class="article-nav-link-wrap next">
+      <strong class="article-nav-caption">Older</strong>
+      <div class="article-nav-title">webpack 原理</div>
+    </a>
+  
+</nav>
+
+    
+
+    
+</div>
+    </div>
+    <footer class="site-footer">
+        <div class="global-width">
+            <ul class="site-widget">
+                
+                <li class="widget widget-tag">
+                    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Tags</h3>
+    <div class="widget-body">
+      <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/JavaScript/" rel="tag">JavaScript</a><span class="tag-list-count">6</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/React/" rel="tag">React</a><span class="tag-list-count">5</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/React-Tips/" rel="tag">React Tips</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Redux/" rel="tag">Redux</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Vue/" rel="tag">Vue</a><span class="tag-list-count">4</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/css/" rel="tag">css</a><span class="tag-list-count">3</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/dom/" rel="tag">dom</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/http/" rel="tag">http</a><span class="tag-list-count">8</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/nodejs/" rel="tag">nodejs</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/react/" rel="tag">react</a><span class="tag-list-count">8</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/sftp/" rel="tag">sftp</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/webpack/" rel="tag">webpack</a><span class="tag-list-count">2</span></li></ul>
+    </div>
+  </div>
+
+                </li>
+                
+                <li class="widget widget-category">
+                    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Categories</h3>
+    <div class="widget-body">
+      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/Font-End-Basis/">Font-End Basis</a><span class="category-list-count">11</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/React/">React</a><span class="category-list-count">8</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Vue/">Vue</a><span class="category-list-count">4</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/css/">css</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/http/">http</a><span class="category-list-count">5</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/network/">network</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/nodejs/">nodejs</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/react/">react</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/webpack/">webpack</a><span class="category-list-count">4</span></li></ul>
+    </div>
+  </div>
+
+                </li>
+                
+                <li class="widget widget-recent_posts">
+                    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Recents</h3>
+    <div class="widget-body">
+      <ul>
+        
+          <li>
+            <a href="/2022/01/21/react%20%E5%86%85%E9%83%A8%E5%8E%9F%E7%90%86%20/">react 内部原理</a>
+          </li>
+        
+          <li>
+            <a href="/2020/05/04/React%20%E5%90%88%E6%88%90%E4%BA%8B%E4%BB%B6%20SyntheticEvent%20/">React 合成事件 SyntheticEvent</a>
+          </li>
+        
+          <li>
+            <a href="/2020/04/19/Vue3%20%E4%B8%BA%E4%BB%80%E4%B9%88%E8%A6%81%E7%94%A8%20Proxy%20%E4%BB%A3%E6%9B%BF%20Object.defineProperty%20%E5%AE%9E%E7%8E%B0%E5%93%8D%E5%BA%94%E5%BC%8F%20/">Vue3 为什么要用 Proxy 代替 Object-defineProperty 实现响应式</a>
+          </li>
+        
+          <li>
+            <a href="/2019/10/30/%E6%B5%8F%E8%A7%88%E5%99%A8%E8%BE%93%E5%85%A5%20URL%20%E5%88%B0%E9%A1%B5%E9%9D%A2%E5%91%88%E7%8E%B0%E5%8F%8A%E5%85%B6%E4%BC%98%E5%8C%96%20/">浏览器输入 URL 到页面呈现及其优化</a>
+          </li>
+        
+          <li>
+            <a href="/2019/08/23/React%20%E6%BA%90%E7%A0%81%E8%A7%A3%E6%9E%90%20-%20commitRoot%20%E6%9B%B4%E6%96%B0%E4%BB%BB%E5%8A%A1%20dom%20%E8%8A%82%E7%82%B9%20/">React 源码解析 - commitRoot 更新任务 dom 节点</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+                </li>
+                
+            </ul>
+        </div>
+        <div class="site-info">
+            <address>
+                &copy; 2014 <a href="http://yoursite.com">Minimalist</a> All Right Reserved. <br/>
+                Powered by <a target="_blank" rel="noopener" href="http://hexo.io">Hexo</a>. Theme by <a target="_blank" rel="noopener" href="http://zzoman.com">ZZOMAN</a>
+            </address>
+        </div>
+    </footer>
+    
+    <script src="/libs/jquery-1.11.3.min.js" type="text/javascript"></script>
+    
+    <script src="/libs/fancybox/jquery.fancybox.js" type="text/javascript"></script>
+    
+    <script src="/js/site_init.js" type="text/javascript"></script>
+    
+</body>
+</html>

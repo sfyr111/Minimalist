@@ -1,0 +1,278 @@
+<!doctype html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge">
+    <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    
+    <title>webpack 原理 | Minimalist</title>
+    
+    <link rel="alternative" href="/atom.xml" title="Minimalist" type="application/atom+xml">
+    
+    
+<link rel="stylesheet" href="/css/style.css">
+
+    
+    <link rel="stylesheet" href="/libs/fancybox/jquery.fancybox.css" charset="utf-8">
+    
+    <!--[if lt IE 9]>
+    <script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
+    <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+    <![endif]-->
+<meta name="generator" content="Hexo 6.3.0"></head>
+<body class="site">
+    <header class="site-header">
+        <h1 class="site-title"><a href="/">Minimalist</a></h1>
+        <nav class="site-nav">
+            <ul class="nav">
+                
+                <li><a href="/archives">Archives</a></li>
+                
+                
+                <li><a target="_blank" rel="noopener" href="https://github.com/sfyr111" title="git">GITHUB</a></li>
+                
+                <li><a class="toggle-search" href="#search">search</a></li>
+            </ul>
+        </nav>
+        <div class="site-search" id="search">
+            <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><input type="hidden" name="sitesearch" value="http://yoursite.com"></form>
+        </div>
+        
+            <div class="site-header-background" style="background-image:url(http://reumia.github.io/hexo-theme-zzoman2015/images/background-zzoman2015.jpg)"></div>
+        
+    </header>
+    <div class="site-body">
+        <div class="global-width">
+    <article class="article" data-layout="post" data-slug="webpack 原理">
+        <div class="article-content">
+            
+            
+            <header class="article-header">
+                <div class="article-meta">
+                    <a href="/2019/03/13/webpack%20%E5%8E%9F%E7%90%86/" class="article-date">
+  <time datetime="2019-03-13T10:25:56.000Z">2019-03-13</time>
+</a>
+                    
+  <div class="article-category categories">
+    <a class="category-link" href="/categories/webpack/">webpack</a>
+  </div>
+
+                    
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/webpack/" rel="tag">webpack</a></li></ul>
+
+                </div>
+                
+    <h1 class="article-title" itemprop="name">
+      <a href="/2019/03/13/webpack%20%E5%8E%9F%E7%90%86/">webpack 原理</a>
+    </h1>
+
+            </header>
+            
+            <div class="article-body">
+                <h2 id="webpack-核心"><a href="#webpack-核心" class="headerlink" title="webpack 核心"></a>webpack 核心</h2><h3 id="核心概述"><a href="#核心概述" class="headerlink" title="核心概述"></a>核心概述</h3><ul>
+<li>entry 入口文件：js 代码文件，可执行的 node 模块或打包的入口文件。</li>
+<li>chunk 代码块：代码分割的代码块，按需加载的分块，装载多个不同模块和这些模块所依赖的模块文件经过 webpack 打包而成的代码块。</li>
+<li>loader 文件转换器：把匹配规则的文件资源转换成想要的结果，比如 scss-loader 把 scss 文件当作模块转成 css 文件，loader 可以串行使用。</li>
+<li>plugin 插件：用于扩展webpack的功能，在 webpack 构建过程中各个 hook 上扩展功能，调用 webpack API 改变输出结果。</li>
+</ul>
+<h3 id="module-chunk-bundle-之间的关系"><a href="#module-chunk-bundle-之间的关系" class="headerlink" title="module, chunk, bundle 之间的关系"></a>module, chunk, bundle 之间的关系</h3><ul>
+<li>module 模块：代码模块，由 import, require 等模块规范导出的代码片段。</li>
+<li>chunk 代码块：由多个 module 组成，通常情况下 bundle 是由 chunk 对应生成。</li>
+<li>bundle：由多个 module 组成，通常跟 chunk 对应，包含已经过加载和编译的最终生成的源文件。</li>
+</ul>
+<h3 id="一个例子介绍-module-chunk-bundle"><a href="#一个例子介绍-module-chunk-bundle" class="headerlink" title="一个例子介绍 module, chunk, bundle"></a>一个例子介绍 module, chunk, bundle</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">  entry: &#123;</span><br><span class="line">    foo: [&quot;lodash.js&quot;,&quot;./src/foo.js&quot;],</span><br><span class="line">    bar: [&quot;./src/bar.js&quot;]</span><br><span class="line">  &#125;,</span><br><span class="line">  output: &#123;</span><br><span class="line">    path: &quot;./dist&quot;,</span><br><span class="line">    filename: &quot;[name].js&quot;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<ul>
+<li>module:  <code>lodash.js</code> ，<code>./src/foo.js</code>, 还包括 foo.js 用 require, import 等方法导入的文件和依赖+ chunk: foo, bar</li>
+<li>bundles: foo.js, bar.js 文件</li>
+</ul>
+<h2 id="webpack-核心对象"><a href="#webpack-核心对象" class="headerlink" title="webpack 核心对象"></a>webpack 核心对象</h2><ul>
+<li><p>Tapable<br>与 nodejs 中的 eventEmiiter 模块类似, Compiler 和 Compilation 对象都继承于 Tapable，webpack 运行时通过 Tabpable 实例的 API 进行广播和监听</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">// 旧版本: 使用的 apply 和 plugin 广播和监听事件</span><br><span class="line">// 广播事件</span><br><span class="line">compiler.apply(&#x27;eventName&#x27;,params);</span><br><span class="line">// 监听事件</span><br><span class="line">compiler.plugin(&#x27;eventName&#x27;,function(params) &#123;&#125;);</span><br></pre></td></tr></table></figure>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">// 新版本: 使用 Hooks 进行广播和监听</span><br><span class="line">const &#123; SyncHook &#125; = require(&quot;tapable&quot;)</span><br><span class="line">let hook = new SyncHook([&#x27;自定义钩子名&#x27;]); </span><br><span class="line">// 订阅</span><br><span class="line">hook.tap(&#x27;自定义函数名&#x27;, function (params) &#123;  // todo  &#125;);</span><br><span class="line">// 发布</span><br><span class="line">hook.call(params);// 发布的时候触发订阅的函数 同时传入参数</span><br></pre></td></tr></table></figure>
+<p><a target="_blank" rel="noopener" href="https://juejin.im/post/5abf33f16fb9a028e46ec352#heading-9">参考 Tapable 的使用</a></p>
+</li>
+<li><p>Compiler<br>Compiler 继承 Tapable 对象，可以广播和监听 webpack 事件。<br>Compiler 对象是 webpack 的编译器，webpack 周期中只存在一个 Compiler 对象。<br>Compiler 对象在 webpack 启动时创建实例，compiler 实例中包含 webpack 的完整配置，包括 loaders, plugins 信息。</p>
+</li>
+<li><p>Compilation<br>Compilation 继承 Tapable 对象，可以广播和监听 webpack 事件。<br>Compilation 实例仅代表一次 webpack 构建和生成编译资源的的过程。<br>webpack 开发模式开启 watch 选项，每次检测到入口文件模块变化时，会创建一次新的编译: 生成一次新的编译资源和新的 compilation 对象，这个 compilation 对象包含了当前编译的<code>模块资源 module</code>, <code>编译生成的资源</code>，<code>变化的文件</code>, <code>依赖的的状态</code></p>
+</li>
+</ul>
+<blockquote>
+<p>Compiler 和 Compilation 的区别在于：Compiler 代表了整个 Webpack 从启动到关闭的生命周期，而 Compilation 只是代表了一次新的编译。</p>
+</blockquote>
+<h2 id="webpack-构建"><a href="#webpack-构建" class="headerlink" title="webpack 构建"></a>webpack 构建</h2><p>webpack 编译的过程有哪些阶段<br>webpack 是如何从 entry 开始解析整个依赖树的<br>laoders 在何时调用的</p>
+<h3 id="流程图"><a href="#流程图" class="headerlink" title="流程图"></a>流程图</h3><p><img src="/images/imagemogr2_auto_orient_strip_7cimageview2_2_w_1240_12401696692674250.png" alt="webpack 流程"></p>
+<h3 id="流程顺序"><a href="#流程顺序" class="headerlink" title="流程顺序"></a>流程顺序</h3><p>解析webpack配置参数，合并的命令行启动传入和 webpack.config.js 文件里配置。</p>
+<ul>
+<li>注册插件<br>注册所有配置的插件，好让插件监听webpack构建生命周期的事件节点，以做出对应的反应。<br>从配置的entry入口文件开始解析文件构建AST语法树，找出每个文件所依赖的文件，递归下去。<br>在解析文件递归的过程中根据文件类型和loader配置找出合适的loader用来对文件进行转换。<br>递归完后得到每个文件的最终结果，根据entry配置生成代码块chunk。<br>输出所有chunk到文件系统。</li>
+</ul>
+<h3 id="注册插件"><a href="#注册插件" class="headerlink" title="注册插件"></a>注册插件</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line">const webpack = (options, callback) =&gt; &#123;</span><br><span class="line">        // ...</span><br><span class="line">	compiler = new Compiler(options.context);</span><br><span class="line">		compiler.options = options;</span><br><span class="line">		new NodeEnvironmentPlugin().apply(compiler);</span><br><span class="line">		if (options.plugins &amp;&amp; Array.isArray(options.plugins)) &#123;</span><br><span class="line">			// 加载 webpack.config.js 里的插件</span><br><span class="line">			for (const plugin of options.plugins) &#123;</span><br><span class="line">				if (typeof plugin === &quot;function&quot;) &#123;</span><br><span class="line">					plugin.call(compiler, compiler);</span><br><span class="line">				&#125; else &#123;</span><br><span class="line">					plugin.apply(compiler);</span><br><span class="line">				&#125;</span><br><span class="line">			&#125;</span><br><span class="line">         // ...</span><br><span class="line">		// 加载 webpack 自身的插件</span><br><span class="line">		compiler.options = new WebpackOptionsApply().process(options, compiler);</span><br><span class="line">        // ... 有watch 配置执行 compiler.watch(watchOptions, callback)</span><br><span class="line">		compiler.run(callback);</span><br><span class="line">	&#125;</span><br><span class="line">	return compiler;</span><br><span class="line">    // ...</span><br></pre></td></tr></table></figure>
+<h3 id="WebpackOptionsApply"><a href="#WebpackOptionsApply" class="headerlink" title="WebpackOptionsApply"></a>WebpackOptionsApply</h3><ul>
+<li>WebpackOptionsApply 会根据配置注册对应的 webpack 内部插件</li>
+<li>WebpackOptionsApply 一开始会注册一个处理 Entry 的插件<br>仅仅是注册了 EntryOptionPlugin 插件, 这个插件会在 make 阶段调用 compilation 的 addEntry 把入口文件通过 parse 先解析成 AST 语法树，对 AST 进行遍历收集 require、import 这些导入的模块 module。<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">class WebpackOptionsApply &#123;</span><br><span class="line">  process(options, compiler) &#123;</span><br><span class="line">    // ...</span><br><span class="line">    // 处理一个 Entry 插件</span><br><span class="line">    new EntryOptionPlugin().apply(compiler);</span><br><span class="line">    // 调用 entryOption 钩子 注册 EntryOptionPlugin 插件，注册 DynamicEntryPlugin  等待 make 钩子触发执行 compilation 对象上的 addEntry</span><br><span class="line">    compiler.hooks.entryOption.call(options.context, options.entry);</span><br><span class="line"></span><br><span class="line">    // ... 加载 webpack 自身的插件</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+注册的钩子 Hooks<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line">// EntryOptionPlugin.js</span><br><span class="line">module.exports = class EntryOptionPlugin &#123;</span><br><span class="line">  apply(compiler) &#123;</span><br><span class="line">    compiler.hooks.entryOption.tap(&quot;EntryOptionPlugin&quot;, (context, entry) =&gt; &#123;</span><br><span class="line">        // ...</span><br><span class="line">    	new DynamicEntryPlugin(context, entry).apply(compiler);</span><br><span class="line">        return</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">// DynamicEntryPlugin.js </span><br><span class="line">class DynamicEntryPlugin &#123;</span><br><span class="line">  apply(compiler) &#123;</span><br><span class="line">    // 等待触发 make 钩子进行 addEntry</span><br><span class="line">    compiler.hooks.make.tapAsync(&#x27;DynamicEntryPlugin&#x27;, (compilation, callback) =&gt; &#123;</span><br><span class="line">      const addEntry = (entry, name) =&gt; &#123;</span><br><span class="line">        //...</span><br><span class="line">        compilation.addEntry(...)</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    // ...</span><br><span class="line">    return addEntry(entry[name], name);</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
+</ul>
+<h3 id="compiler-run"><a href="#compiler-run" class="headerlink" title="compiler.run"></a>compiler.run</h3><p>compiler.run 才是 webpack 的编译的入口，run 会启动编译执行构建流程，在不同的生命周期执行相应的插件</p>
+<ul>
+<li>compile 开始编译</li>
+<li>make 从入口点分析模块及其依赖的模块，创建这些模块对象</li>
+<li>build-module 构建模块</li>
+<li>after-compile 完成构建</li>
+<li>seal 封装构建结果</li>
+<li>emit 把各个chunk输出到结果文件</li>
+<li>after-emit 完成输出</li>
+</ul>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br></pre></td><td class="code"><pre><span class="line">// Compiler.js</span><br><span class="line">class Compiler extends Tapable &#123;</span><br><span class="line"></span><br><span class="line">  run() &#123;</span><br><span class="line">  // ...</span><br><span class="line">    this.hooks.beforeRun.callAsync(this,  // beforeRun</span><br><span class="line">      this.hooks.run.callAsync(this, err =&gt; &#123; // run</span><br><span class="line">	this.readRecords(err =&gt; &#123;</span><br><span class="line">	  this.compile(onCompiled); // 执行 this.compile</span><br><span class="line">	&#125;);</span><br><span class="line">      &#125;);</span><br><span class="line">    &#125;);</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">compile(callback) &#123;</span><br><span class="line">  const params = this.newCompilationParams();</span><br><span class="line">    this.hooks.beforeCompile.callAsync(params, err =&gt; &#123; // 执行 beforeCompile hook</span><br><span class="line">      if (err) return callback(err);</span><br><span class="line"></span><br><span class="line">      this.hooks.compile.call(params); // 执行 compile hook</span><br><span class="line"></span><br><span class="line">      const compilation = this.newCompilation(params); // 创建 compilation 编译资源实例</span><br><span class="line"></span><br><span class="line">      this.hooks.make.callAsync(compilation, err =&gt; &#123; // 执行 mak hook</span><br><span class="line">	if (err) return callback(err);</span><br><span class="line"></span><br><span class="line">	compilation.finish();</span><br><span class="line"></span><br><span class="line">	compilation.seal(err =&gt; &#123; // seal hook</span><br><span class="line">	  if (err) return callback(err);</span><br><span class="line"></span><br><span class="line">	  this.hooks.afterCompile.callAsync(compilation, err =&gt; &#123; // afterCompile hook</span><br><span class="line">	    if (err) return callback(err);</span><br><span class="line">	    return callback(null, compilation);</span><br><span class="line">	  &#125;);</span><br><span class="line">	&#125;);</span><br><span class="line">      &#125;);</span><br><span class="line">    &#125;);</span><br><span class="line">  &#125;  </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<ul>
+<li><p>构建 Compilation 对象<br>compiler.run 时会在 compiler 中 创建一个 Compilation 实例对象，compilation 对象中存放着 module, chunk, assets 还有生成文件的 template 信息。同时 compilation 代表 webpack 构建生成d编译资源的过程，还具有 <code>addEntry() , _addModuleChain() , buildModule() , seal() , createChunkAssets()</code>等方法用于编译过程的各个阶段触发各种 hooks 来调用相应插件。</p>
+</li>
+<li><p>先从 make 钩子开始看，是由 compiler 触发的，之前在 WebpackOptionsApply 里处理 hooks.EntyOption 到 DynamicEntryPlugin 中订阅了的 compiler.hooks.mak.tapasync() 这个 make hook。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line">// DynamicEntryPlugin.js</span><br><span class="line">		compiler.hooks.make.tapAsync(</span><br><span class="line">			&quot;DynamicEntryPlugin&quot;,</span><br><span class="line">			(compilation, callback) =&gt; &#123;</span><br><span class="line">  			const addEntry = (entry, name) =&gt; &#123;</span><br><span class="line">					const dep = DynamicEntryPlugin.createDependency(entry, name);</span><br><span class="line">					return new Promise((resolve, reject) =&gt; &#123;</span><br><span class="line">						compilation.addEntry(this.context, dep, name, err =&gt; &#123;</span><br><span class="line">							if (err) return reject(err);</span><br><span class="line">							resolve();</span><br><span class="line">						&#125;);</span><br><span class="line">					&#125;);</span><br><span class="line">				&#125;;</span><br><span class="line"></span><br><span class="line">				Promise.resolve(this.entry()).then(entry =&gt; &#123;</span><br><span class="line">					if (typeof entry === &quot;string&quot; || Array.isArray(entry)) &#123;</span><br><span class="line">						addEntry(entry, &quot;main&quot;).then(() =&gt; callback(), callback);</span><br><span class="line">					&#125; else if (typeof entry === &quot;object&quot;) &#123;</span><br><span class="line">						Promise.all(</span><br><span class="line">							Object.keys(entry).map(name =&gt; &#123;</span><br><span class="line">								return addEntry(entry[name], name);</span><br><span class="line">							&#125;)</span><br><span class="line">						).then(() =&gt; callback(), callback);</span><br><span class="line">					&#125;</span><br><span class="line">				&#125;);</span><br><span class="line">			&#125;</span><br><span class="line">		);</span><br></pre></td></tr></table></figure></li>
+<li><p>在 mak hook 中调用了 compilation.addEntry 方法，读取 options 中的 entry 对象找到入口文件，addEntry 中还会调用私有方法 _addModuleChain</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">addEntry(context, entry, name, callback) &#123;</span><br><span class="line">  this._addModuleChain(context, entry, module =&gt; this.entries.push(module), callback)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>在创建 module 之前，Compiler 会触发 make，并调用 Compilation.addEntry 方法，通过 options 对象的 entry 字段找到我们的入口js文件。之后，在 addEntry 中调用私有方法 _addModuleChain ，这个方法主要做了两件事情。一是根据模块的类型获取对应的模块工厂并创建模块，二是构建模块。<br>在 module 创建之前， Compiler 实例会触发 make 钩子</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">// Compiler.js</span><br><span class="line">class Compiler extends Tapable &#123;</span><br><span class="line">  compile() &#123;</span><br><span class="line">    // ...</span><br><span class="line">     this.hook.make.callAsync(compilation, err =&gt; &#123;&#125;)</span><br><span class="line">    // ..</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>调用 compilation 实例中的 addEntry<img src="/images/imagemogr2_auto_orient_strip_7cimageview2_2_w_1240_12401696692674969.png"><br>之后再 addEntry 中调用私有方法 _addModuleChain<img src="/images/imagemogr2_auto_orient_strip_7cimageview2_2_w_1240_12401696692675566.png"><br>在 _addModuleChain 中根据模块的类型获取对应模块的工厂函数创建模块，构建模块</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line">_addModuleChain(context, dependency, onModule, callback) &#123;</span><br><span class="line">  //.. </span><br><span class="line">  // dependency 就是传入的 entry </span><br><span class="line">  const Dep = /** @type &#123;DepConstructor&#125; */ (dependency.constructor);</span><br><span class="line">  // 找到 相应的工厂函数</span><br><span class="line">  const moduleFactory = this.dependencyFactories.get(Dep);</span><br><span class="line"></span><br><span class="line">  // ...</span><br><span class="line">  moduleFactory.create( // 创建 module</span><br><span class="line">    &#123;</span><br><span class="line">      contextInfo: &#123;</span><br><span class="line">        issuer: &quot;&quot;,</span><br><span class="line">	compiler: this.compiler.name</span><br><span class="line">      &#125;,</span><br><span class="line">      context: context,</span><br><span class="line">      dependencies: [dependency]</span><br><span class="line">    &#125;,</span><br><span class="line">    (err, module) =&gt; &#123;</span><br><span class="line">      // ...</span><br><span class="line">      // 构建模块, buildModule 调用到 NormalModule 的 build </span><br><span class="line">      this.buildModule(module, false, null, null, err =&gt; &#123; // ... &#125;)</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>compilation 构建模块, buildModule 调用到 NormalModule 的 build, 执行 doBuild 对每个 require、import 的文件用对应的 loader 进行处理，最后生成 js 的 module。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line">// NormalModule.js</span><br><span class="line">build(options, compilation, resolver, fs, callback) &#123;</span><br><span class="line">   // ...</span><br><span class="line">  // 返回 doBuild</span><br><span class="line">  return this.doBuild(options, compilation, resolver, fs, err =&gt; &#123;    </span><br><span class="line"></span><br><span class="line">    const result = this.parser.parse(</span><br><span class="line">      this._ast || this._source.source(), // doBuild  函数里会给环境上下文赋值后执行回调</span><br><span class="line">	&#123;</span><br><span class="line">	  current: this,</span><br><span class="line">	  module: this,</span><br><span class="line">          compilation: compilation,</span><br><span class="line">	  options: options</span><br><span class="line">	&#125;,</span><br><span class="line">        (err, result) =&gt; &#123; handleParseResult(result) &#125;</span><br><span class="line">    );</span><br><span class="line">  &#125;)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">doBuild(options, compilation, resolver, fs, callback) &#123;</span><br><span class="line">  const loaderContext = this.createLoaderContext(resolver, options, compilation, fs)</span><br><span class="line">  // 进行 loader 处理</span><br><span class="line">  runLoaders(&#123; resource: this.resource, loaders: this.loaders, context: loaderContext, readResource: fs.readFile.bind(fs) </span><br><span class="line">    (err, result) =&gt; &#123;</span><br><span class="line">      // ...</span><br><span class="line">      this._source = this.createSource(..) // 给环境上下文赋值</span><br><span class="line">      this._ast = extraInfo.webapckAST // 给环境上下文赋值</span><br><span class="line">      return callback() // 执行 doBuild  回调，进行 parser.parse</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;,  </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>调用 acorn 包把 loader 处理后文件解析成抽象语法树 AST</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">class Parser extends Tapable &#123;</span><br><span class="line">  parse() &#123;  </span><br><span class="line">    // ...</span><br><span class="line">    ast = acorn.parse(code, &#123;</span><br><span class="line">      ranges: true,</span><br><span class="line">      locations: true,</span><br><span class="line">      ecmaVersion: 2019,</span><br><span class="line">      sourceType: &quot;module&quot;,</span><br><span class="line">      onComment: null,</span><br><span class="line">      plugins: &#123;</span><br><span class="line">      	dynamicImport: true</span><br><span class="line">      &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>遍历 AST 构建其中模块依赖的模块，模块可能存在依赖其他模块的情况，遍历 AST 将 require、import 的模块通过 addDependency() 添加到此模块的依赖 dependenies 数组中。当前模块构建完成后，webpack 调用 processModuleDependencies 开始递归处理依赖的 module，接着就会重复之前的构建步骤。</p>
+</li>
+<li><p>processModuleDependencies 方法递归执行 addDependency 进行依赖解析并收集到 module.dependenies 中<img src="/images/imagemogr2_auto_orient_strip_7cimageview2_2_w_1240_12401696692676157.png"></p>
+</li>
+<li><p>把模块所依赖的模块收集到 module.dependenies 后，回到 compiler.js 中的 compile 方法里调用 compilation.seal <img src="/images/imagemogr2_auto_orient_strip_7cimageview2_2_w_1240_12401696692676755.png"></p>
+</li>
+<li><p>在所有模块和依赖模块构建完后， seal hook 调用各插件对构建后的结果进行处理，对每个 module 和 chunk 进行整理，生成编译后的源码</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">seal() &#123;</span><br><span class="line">  //... 一大堆 hook 触发插件</span><br><span class="line">  this.createModuleAssets()</span><br><span class="line">  this.createChunkAssets() // 最终生成资源文件</span><br><span class="line">  // 把 js 模块都收集到一起，entry 对应每个 chunk 比如 app.js ，使用代码分割会产生多个不同的 chunk</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>createChunkAssets 这个方法遍历 this.chunks 生成对应 entry 的数量和命名的文件内容，同时 dependencies 记录依赖的 modules。最后把 chunk 携带的依赖树一起调用 MainTemplate 中的 render 插件生成最终的代码文件。</p>
+</li>
+<li><p>把 render 方法存放在 mainfest 里<img src="/images/imagemogr2_auto_orient_strip_7cimageview2_2_w_1240_12401696692677353.png"></p>
+</li>
+<li><p>遍历 mainfest 最后执行 render 生成 source<img src="/images/imagemogr2_auto_orient_strip_7cimageview2_2_w_1240_12401696692677939.png"></p>
+</li>
+<li><p>最后根据 生成 budle 文件的 模板遍历 chunk 的依赖树把 module 传入生成最终的 js 文件.</p>
+</li>
+</ul>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><ul>
+<li>webpack 实际是一个 插件的集合。</li>
+<li>webpack 由 tapable 控制在各个插件在 hook 的事件流上运行</li>
+<li>webpack 主要编译流程依赖于 compilation 和 module 两个对象</li>
+</ul>
+<h3 id="流程总结"><a href="#流程总结" class="headerlink" title="流程总结"></a>流程总结</h3><ul>
+<li>webpack 根据配置注册对应的插件</li>
+<li>生成 compile 实例，执行 compile.run 进入编译阶段</li>
+<li>第一步创建 compilation 实例，compilation 实例注册处理不同类型 module 对应的工厂 factory 插件，用于处理不同的 module</li>
+<li>make 阶段，根据 entry 配置处理对应的 chunk 资源：<br>1 调用 loaders 对模块资源进行处理(doBuild)，转换成统一标准的 js 代码(babel-loader)的 module<br>2 在 parser.parse 中调用 acorn 对 AST 的 js 代码进行语法分析，收集 module 间的依赖关系，记录下来形成依赖树</li>
+<li>最后在钩子 compilation.seal 进入 render 阶段，根据 module 的依赖，生成 module.source() 传入 MainTemplate 中进行 render  生成最终文件</li>
+</ul>
+
+            </div>
+        </div>
+    </article>
+
+    
+    
+<nav class="article-nav">
+  
+    <a href="/2019/04/01/webpack%20%E6%BA%90%E7%A0%81-%E8%B5%84%E6%BA%90%E5%8A%A0%E8%BD%BD/" id="article-nav-newer" class="article-nav-link-wrap prev">
+      <strong class="article-nav-caption">Newer</strong>
+      <div class="article-nav-title">
+        
+          webpack 源码-资源加载
+        
+      </div>
+    </a>
+  
+  
+    <a href="/2019/02/27/React%20%E6%BA%90%E7%A0%81%E8%A7%A3%E6%9E%90%20-%20reactScheduler%20%E5%BC%82%E6%AD%A5%E4%BB%BB%E5%8A%A1%E8%B0%83%E5%BA%A6%20/" id="article-nav-older" class="article-nav-link-wrap next">
+      <strong class="article-nav-caption">Older</strong>
+      <div class="article-nav-title">React 源码解析 - reactScheduler 异步任务调度</div>
+    </a>
+  
+</nav>
+
+    
+
+    
+</div>
+    </div>
+    <footer class="site-footer">
+        <div class="global-width">
+            <ul class="site-widget">
+                
+                <li class="widget widget-tag">
+                    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Tags</h3>
+    <div class="widget-body">
+      <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/JavaScript/" rel="tag">JavaScript</a><span class="tag-list-count">6</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/React/" rel="tag">React</a><span class="tag-list-count">5</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/React-Tips/" rel="tag">React Tips</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Redux/" rel="tag">Redux</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Vue/" rel="tag">Vue</a><span class="tag-list-count">4</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/css/" rel="tag">css</a><span class="tag-list-count">3</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/dom/" rel="tag">dom</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/http/" rel="tag">http</a><span class="tag-list-count">8</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/nodejs/" rel="tag">nodejs</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/react/" rel="tag">react</a><span class="tag-list-count">8</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/sftp/" rel="tag">sftp</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/webpack/" rel="tag">webpack</a><span class="tag-list-count">2</span></li></ul>
+    </div>
+  </div>
+
+                </li>
+                
+                <li class="widget widget-category">
+                    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Categories</h3>
+    <div class="widget-body">
+      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/Font-End-Basis/">Font-End Basis</a><span class="category-list-count">11</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/React/">React</a><span class="category-list-count">8</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Vue/">Vue</a><span class="category-list-count">4</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/css/">css</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/http/">http</a><span class="category-list-count">5</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/network/">network</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/nodejs/">nodejs</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/react/">react</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/webpack/">webpack</a><span class="category-list-count">4</span></li></ul>
+    </div>
+  </div>
+
+                </li>
+                
+                <li class="widget widget-recent_posts">
+                    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Recents</h3>
+    <div class="widget-body">
+      <ul>
+        
+          <li>
+            <a href="/2022/01/21/react%20%E5%86%85%E9%83%A8%E5%8E%9F%E7%90%86%20/">react 内部原理</a>
+          </li>
+        
+          <li>
+            <a href="/2020/05/04/React%20%E5%90%88%E6%88%90%E4%BA%8B%E4%BB%B6%20SyntheticEvent%20/">React 合成事件 SyntheticEvent</a>
+          </li>
+        
+          <li>
+            <a href="/2020/04/19/Vue3%20%E4%B8%BA%E4%BB%80%E4%B9%88%E8%A6%81%E7%94%A8%20Proxy%20%E4%BB%A3%E6%9B%BF%20Object.defineProperty%20%E5%AE%9E%E7%8E%B0%E5%93%8D%E5%BA%94%E5%BC%8F%20/">Vue3 为什么要用 Proxy 代替 Object-defineProperty 实现响应式</a>
+          </li>
+        
+          <li>
+            <a href="/2019/10/30/%E6%B5%8F%E8%A7%88%E5%99%A8%E8%BE%93%E5%85%A5%20URL%20%E5%88%B0%E9%A1%B5%E9%9D%A2%E5%91%88%E7%8E%B0%E5%8F%8A%E5%85%B6%E4%BC%98%E5%8C%96%20/">浏览器输入 URL 到页面呈现及其优化</a>
+          </li>
+        
+          <li>
+            <a href="/2019/08/23/React%20%E6%BA%90%E7%A0%81%E8%A7%A3%E6%9E%90%20-%20commitRoot%20%E6%9B%B4%E6%96%B0%E4%BB%BB%E5%8A%A1%20dom%20%E8%8A%82%E7%82%B9%20/">React 源码解析 - commitRoot 更新任务 dom 节点</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+                </li>
+                
+            </ul>
+        </div>
+        <div class="site-info">
+            <address>
+                &copy; 2014 <a href="http://yoursite.com">Minimalist</a> All Right Reserved. <br/>
+                Powered by <a target="_blank" rel="noopener" href="http://hexo.io">Hexo</a>. Theme by <a target="_blank" rel="noopener" href="http://zzoman.com">ZZOMAN</a>
+            </address>
+        </div>
+    </footer>
+    
+    <script src="/libs/jquery-1.11.3.min.js" type="text/javascript"></script>
+    
+    <script src="/libs/fancybox/jquery.fancybox.js" type="text/javascript"></script>
+    
+    <script src="/js/site_init.js" type="text/javascript"></script>
+    
+</body>
+</html>
