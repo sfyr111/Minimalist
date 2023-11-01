@@ -1,0 +1,229 @@
+<!doctype html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge">
+    <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    
+    <title>webpack 源码 - seal hook 之代码生成 | Minimalist</title>
+    
+    <link rel="alternative" href="/atom.xml" title="Minimalist" type="application/atom+xml">
+    
+    
+<link rel="stylesheet" href="/css/style.css">
+
+    
+    <link rel="stylesheet" href="/libs/fancybox/jquery.fancybox.css" charset="utf-8">
+    
+    <!--[if lt IE 9]>
+    <script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
+    <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+    <![endif]-->
+<meta name="generator" content="Hexo 6.3.0"></head>
+<body class="site">
+    <header class="site-header">
+        <h1 class="site-title"><a href="/">Minimalist</a></h1>
+        <nav class="site-nav">
+            <ul class="nav">
+                
+                <li><a href="/archives">Archives</a></li>
+                
+                
+                <li><a target="_blank" rel="noopener" href="https://github.com/sfyr111" title="git">GITHUB</a></li>
+                
+                <li><a class="toggle-search" href="#search">search</a></li>
+            </ul>
+        </nav>
+        <div class="site-search" id="search">
+            <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><input type="hidden" name="sitesearch" value="http://yoursite.com"></form>
+        </div>
+        
+            <div class="site-header-background" style="background-image:url(http://reumia.github.io/hexo-theme-zzoman2015/images/background-zzoman2015.jpg)"></div>
+        
+    </header>
+    <div class="site-body">
+        <div class="global-width">
+    <article class="article" data-layout="post" data-slug="webpack 源码 - seal hook 之代码生成 ">
+        <div class="article-content">
+            
+            
+            <header class="article-header">
+                <div class="article-meta">
+                    <a href="/2019/04/11/webpack%20%E6%BA%90%E7%A0%81%20-%20seal%20hook%20%E4%B9%8B%E4%BB%A3%E7%A0%81%E7%94%9F%E6%88%90%20/" class="article-date">
+  <time datetime="2019-04-11T03:09:30.000Z">2019-04-11</time>
+</a>
+                    
+  <div class="article-category categories">
+    <a class="category-link" href="/categories/webpack/">webpack</a>
+  </div>
+
+                    
+                </div>
+                
+    <h1 class="article-title" itemprop="name">
+      <a href="/2019/04/11/webpack%20%E6%BA%90%E7%A0%81%20-%20seal%20hook%20%E4%B9%8B%E4%BB%A3%E7%A0%81%E7%94%9F%E6%88%90%20/">webpack 源码 - seal hook 之代码生成</a>
+    </h1>
+
+            </header>
+            
+            <div class="article-body">
+                <h2 id="compilation-seal-实例方法"><a href="#compilation-seal-实例方法" class="headerlink" title="compilation.seal 实例方法"></a>compilation.seal 实例方法</h2><h3 id="功能"><a href="#功能" class="headerlink" title="功能"></a>功能</h3><ul>
+<li>执行 this.hooks.seal</li>
+<li>进行大量 hooks ，部分 hook 是空的可以用插件来拦截<img src="/images/imagemogr2_auto_orient_strip_7cimageview2_2_w_930_9301697644537403.png"></li>
+<li>执行 this.hooks.optimizeTree </li>
+<li>在 this.hooks.optimizeTree 中生成代码 this.createChunkAssets()，和压缩代码this.hooks.optimizeChunkAsset</li>
+<li>最后执行 this.hook.afterSeal</li>
+</ul>
+<h3 id="核心功能"><a href="#核心功能" class="headerlink" title="核心功能"></a>核心功能</h3><ul>
+<li>生成代码 this.createChunkAssets()</li>
+<li>压缩代码 this.hooks.optimizeChunkAsset</li>
+</ul>
+<h2 id="生成代码-createChunkAssets"><a href="#生成代码-createChunkAssets" class="headerlink" title="生成代码 createChunkAssets()"></a>生成代码 createChunkAssets()</h2><p>createChunkAssets 是 compilation 实例方法</p>
+<h3 id="createChunkAssets-主要流程"><a href="#createChunkAssets-主要流程" class="headerlink" title="createChunkAssets 主要流程"></a>createChunkAssets 主要流程</h3><p><img src="/images/imagemogr2_auto_orient_strip_7cimageview2_2_w_1240_12401697644538107.png"></p>
+<ul>
+<li>读取 webpack 的输出配置 outputOptions</li>
+<li>使用 mainTemplate 实例生成 manifest , <code>const manifest = template.getRenderManifest(&#123; 配置 &#125;)</code></li>
+<li>根据 manifest 生成文件名 <code>file = this.getPath(filenameTemplate, fileManifest.pathOptions);</code></li>
+<li>根据 manifest 生成代码 <code>source = fileManifest.render();</code></li>
+<li>生成对应的 assets 资源 <code>this.assets[file] = source;</code></li>
+<li>调用 hook 生成 chunk 资源 <code>this.hooks.chunkAsset.call(chunk, file);</code></li>
+</ul>
+<h2 id="getRenderManifest-mainTemplate-实例生成-manifest"><a href="#getRenderManifest-mainTemplate-实例生成-manifest" class="headerlink" title="getRenderManifest,  mainTemplate 实例生成 manifest"></a>getRenderManifest,  mainTemplate 实例生成 manifest</h2><ul>
+<li>getRenderManifest 中创建 result 数组再调用 renderManifest hook <img src="/images/imagemogr2_auto_orient_strip_7cimageview2_2_w_1240_12401697644538722.png"></li>
+<li>renderManifest hook 最重要的就是给 result(manifest) 添加 mainTemplate 实例的 render 函数<img src="/images/imagemogr2_auto_orient_strip_7cimageview2_2_w_1240_12401697644539310.png"></li>
+</ul>
+<h3 id="什么是-manifest"><a href="#什么是-manifest" class="headerlink" title="什么是 manifest"></a>什么是 manifest</h3><p>manifest 保存着 chunk 对应相关 module 的映射信息, 可以看到这个 manifest 中的 chunk0 包含了所有生成它的 module 信息，还添加了通过 modules 生成 chunk 代码的 render 函数<img src="/images/imagemogr2_auto_orient_strip_7cimageview2_2_w_1240_12401697644539894.png"></p>
+<h2 id="生成代码-source-fileManifest-render"><a href="#生成代码-source-fileManifest-render" class="headerlink" title="生成代码 source , fileManifest.render"></a>生成代码 source , fileManifest.render</h2><p><code>source = fileManifest.render(); </code> 执行到 MainTemplate 的 render 实例方法中，这个方法通过 render hook 生成一个 source,  source.children 数组中可以看出是与 webpack 最终生成代码相似的内容了，不过其中文件 module 用了 &#x2F;&#x2F; CONCATENATED MODULE 注释标识，源码也在 ReplaceSource 实例对象中<img src="/images/imagemogr2_auto_orient_strip_7cimageview2_2_w_1240_12401697644540497.png"></p>
+<h2 id="manifest-render-流程"><a href="#manifest-render-流程" class="headerlink" title="manifest.render 流程"></a>manifest.render 流程</h2><ul>
+<li><p>MainTemplate.js - constructor 实现 this.hooks.render</p>
+</li>
+<li><p>this.hooks.render - 对 source 进行 add 添加固定格式的代码，最后通过 modules hook 添加对应的 module 代码<code>ReplaceSource 实例和 CONCATENATED MODULE 标记</code><img src="/images/imagemogr2_auto_orient_strip_7cimageview2_2_w_1240_12401697644541103.png"></p>
+</li>
+<li><p>this.hooks.modules - 对 module 进行解析，生成包裹源码的 ReplaceSource 实例<br>在 JavascriptModulesPlugin 中实现，调用静态方法 Template.renderChunkModules<br><img src="/images/imagemogr2_auto_orient_strip_7cimageview2_2_w_1240_12401697644541698.png"></p>
+</li>
+</ul>
+<h3 id="Template-renderChunkModules-生成-ReplaceSource-实例标记-CONCATENATED-MODULE"><a href="#Template-renderChunkModules-生成-ReplaceSource-实例标记-CONCATENATED-MODULE" class="headerlink" title="Template.renderChunkModules 生成 ReplaceSource 实例标记 CONCATENATED MODULE"></a>Template.renderChunkModules 生成 ReplaceSource 实例标记 CONCATENATED MODULE</h3><p><img src="/images/imagemogr2_auto_orient_strip_7cimageview2_2_w_1240_12401697644542288.png"></p>
+<ul>
+<li><p>Template.renderChunkModules 中的 allModule<br>allModule 数组内容就是每个 module 对应的 CONCATENATED MODULE 的标记和包裹 module 源码的 ReplaceSource</p>
+</li>
+<li><p>allModule 核心是通过 moduleTemplate.render 创建 source <img src="/images/imagemogr2_auto_orient_strip_7cimageview2_2_w_930_9301697644542895.png"></p>
+</li>
+</ul>
+<h3 id="moduleTemplate-render"><a href="#moduleTemplate-render" class="headerlink" title="moduleTemplate.render"></a>moduleTemplate.render</h3><p>通过 module.source 创建 moduleSource， 这里就是我们需要的 module 代码内容, 最后打包返回到 compoilation.js 赋值给对应的 assets[file]<br><img src="/images/imagemogr2_auto_orient_strip_7cimageview2_2_w_1240_12401697644543490.png"></p>
+<h3 id="module-source-收集-module-信息-返回-module-对应代码"><a href="#module-source-收集-module-信息-返回-module-对应代码" class="headerlink" title="module.source 收集 module 信息,  返回 module 对应代码"></a>module.source 收集 module 信息,  返回 module 对应代码</h3><p>收集 module 信息 modulesWithInfo<img src="/images/imagemogr2_auto_orient_strip_7cimageview2_2_w_1240_12401697644544093.png"></p>
+<p>遍历 modulesWithInfo 组装 module 代码 <code>ReplaceSource 实例标记 CONCATENATED MODULE</code><img src="/images/imagemogr2_auto_orient_strip_7cimageview2_2_w_1240_12401697644544700.png"></p>
+<h3 id="赋值-assets"><a href="#赋值-assets" class="headerlink" title="赋值 assets"></a>赋值 assets</h3><p>source 由 fileManifest.render 最终生成赋值到 compoilation 实例的 assets[file] 上，最后调用 chunkAsset hook 对 source 源码进行压缩<img src="/images/imagemogr2_auto_orient_strip_7cimageview2_2_w_1240_12401697644545296.png"></p>
+<h3 id="总结-webpack-的代码生成"><a href="#总结-webpack-的代码生成" class="headerlink" title="总结 webpack 的代码生成"></a>总结 webpack 的代码生成</h3><ul>
+<li><p>compilateion.seal：<br>1执行 hooks seal，运行大量 hooks 用于编写拦截插件<br>2执行 this.hooks.optimizeTree，生成代码 this.createChunkAssets()，和压缩代码this.hooks.optimizeChunkAsset<br>3结束 seal 执行 hooks.afterSeal</p>
+</li>
+<li><p>生成代码 createChunkAssets<br>1读取 webpack 的输出配置 outputOptions<br>2生成 chunk 映射 module 的 manifest, 并添加通过 module 生成 chunk 代码的 render 函数<br>3manifest 的 render 函数， MainTemplate 的 render 实例方法生成 source 源码<br>4createChunkAssets 生成 source 源码结束返回 compilation 上赋值给 assets[file]</p>
+</li>
+</ul>
+
+            </div>
+        </div>
+    </article>
+
+    
+    
+<nav class="article-nav">
+  
+    <a href="/2019/04/15/webpack%20%E6%BA%90%E7%A0%81%20-%20seal%20hook%20%E4%B9%8B%E4%BB%A3%E7%A0%81%E5%8E%8B%E7%BC%A9%20/" id="article-nav-newer" class="article-nav-link-wrap prev">
+      <strong class="article-nav-caption">Newer</strong>
+      <div class="article-nav-title">
+        
+          webpack 源码 - seal hook 之代码压缩
+        
+      </div>
+    </a>
+  
+  
+    <a href="/2019/04/01/webpack%20%E6%BA%90%E7%A0%81-%E8%B5%84%E6%BA%90%E5%8A%A0%E8%BD%BD/" id="article-nav-older" class="article-nav-link-wrap next">
+      <strong class="article-nav-caption">Older</strong>
+      <div class="article-nav-title">webpack 源码-资源加载</div>
+    </a>
+  
+</nav>
+
+    
+
+    
+</div>
+    </div>
+    <footer class="site-footer">
+        <div class="global-width">
+            <ul class="site-widget">
+                
+                <li class="widget widget-tag">
+                    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Tags</h3>
+    <div class="widget-body">
+      <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/JavaScript/" rel="tag">JavaScript</a><span class="tag-list-count">6</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/React/" rel="tag">React</a><span class="tag-list-count">5</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/React-Tips/" rel="tag">React Tips</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Redux/" rel="tag">Redux</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Vue/" rel="tag">Vue</a><span class="tag-list-count">4</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/css/" rel="tag">css</a><span class="tag-list-count">3</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/dom/" rel="tag">dom</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/http/" rel="tag">http</a><span class="tag-list-count">8</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/nodejs/" rel="tag">nodejs</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/react/" rel="tag">react</a><span class="tag-list-count">8</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/sftp/" rel="tag">sftp</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/webpack/" rel="tag">webpack</a><span class="tag-list-count">2</span></li></ul>
+    </div>
+  </div>
+
+                </li>
+                
+                <li class="widget widget-category">
+                    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Categories</h3>
+    <div class="widget-body">
+      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/Font-End-Basis/">Font-End Basis</a><span class="category-list-count">11</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/React/">React</a><span class="category-list-count">8</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Vue/">Vue</a><span class="category-list-count">4</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/css/">css</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/http/">http</a><span class="category-list-count">5</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/network/">network</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/nodejs/">nodejs</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/react/">react</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/webpack/">webpack</a><span class="category-list-count">4</span></li></ul>
+    </div>
+  </div>
+
+                </li>
+                
+                <li class="widget widget-recent_posts">
+                    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Recents</h3>
+    <div class="widget-body">
+      <ul>
+        
+          <li>
+            <a href="/2022/01/21/react%20%E5%86%85%E9%83%A8%E5%8E%9F%E7%90%86%20/">react 内部原理</a>
+          </li>
+        
+          <li>
+            <a href="/2020/05/04/React%20%E5%90%88%E6%88%90%E4%BA%8B%E4%BB%B6%20SyntheticEvent%20/">React 合成事件 SyntheticEvent</a>
+          </li>
+        
+          <li>
+            <a href="/2020/04/19/Vue3%20%E4%B8%BA%E4%BB%80%E4%B9%88%E8%A6%81%E7%94%A8%20Proxy%20%E4%BB%A3%E6%9B%BF%20Object.defineProperty%20%E5%AE%9E%E7%8E%B0%E5%93%8D%E5%BA%94%E5%BC%8F%20/">Vue3 为什么要用 Proxy 代替 Object-defineProperty 实现响应式</a>
+          </li>
+        
+          <li>
+            <a href="/2019/10/30/%E6%B5%8F%E8%A7%88%E5%99%A8%E8%BE%93%E5%85%A5%20URL%20%E5%88%B0%E9%A1%B5%E9%9D%A2%E5%91%88%E7%8E%B0%E5%8F%8A%E5%85%B6%E4%BC%98%E5%8C%96%20/">浏览器输入 URL 到页面呈现及其优化</a>
+          </li>
+        
+          <li>
+            <a href="/2019/08/23/React%20%E6%BA%90%E7%A0%81%E8%A7%A3%E6%9E%90%20-%20commitRoot%20%E6%9B%B4%E6%96%B0%E4%BB%BB%E5%8A%A1%20dom%20%E8%8A%82%E7%82%B9%20/">React 源码解析 - commitRoot 更新任务 dom 节点</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+                </li>
+                
+            </ul>
+        </div>
+        <div class="site-info">
+            <address>
+                &copy; 2014 <a href="http://yoursite.com">Minimalist</a> All Right Reserved. <br/>
+                Powered by <a target="_blank" rel="noopener" href="http://hexo.io">Hexo</a>. Theme by <a target="_blank" rel="noopener" href="http://zzoman.com">ZZOMAN</a>
+            </address>
+        </div>
+    </footer>
+    
+    <script src="/libs/jquery-1.11.3.min.js" type="text/javascript"></script>
+    
+    <script src="/libs/fancybox/jquery.fancybox.js" type="text/javascript"></script>
+    
+    <script src="/js/site_init.js" type="text/javascript"></script>
+    
+</body>
+</html>
