@@ -1,0 +1,232 @@
+<!doctype html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge">
+    <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    
+    <title>Immutable 源码解析 - List 对象 | Minimalist</title>
+    
+    <link rel="alternative" href="/atom.xml" title="Minimalist" type="application/atom+xml">
+    
+    
+<link rel="stylesheet" href="/css/style.css">
+
+    
+    <link rel="stylesheet" href="/libs/fancybox/jquery.fancybox.css" charset="utf-8">
+    
+    <!--[if lt IE 9]>
+    <script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
+    <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+    <![endif]-->
+<meta name="generator" content="Hexo 6.3.0"></head>
+<body class="site">
+    <header class="site-header">
+        <h1 class="site-title"><a href="/">Minimalist</a></h1>
+        <nav class="site-nav">
+            <ul class="nav">
+                
+                <li><a href="/archives">Archives</a></li>
+                
+                
+                <li><a target="_blank" rel="noopener" href="https://github.com/sfyr111" title="git">GITHUB</a></li>
+                
+                <li><a class="toggle-search" href="#search">search</a></li>
+            </ul>
+        </nav>
+        <div class="site-search" id="search">
+            <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><input type="hidden" name="sitesearch" value="http://yoursite.com"></form>
+        </div>
+        
+            <div class="site-header-background" style="background-image:url(http://reumia.github.io/hexo-theme-zzoman2015/images/background-zzoman2015.jpg)"></div>
+        
+    </header>
+    <div class="site-body">
+        <div class="global-width">
+    <article class="article" data-layout="post" data-slug="Immutable 源码解析 - List 对象">
+        <div class="article-content">
+            
+            
+            <header class="article-header">
+                <div class="article-meta">
+                    <a href="/2019/05/09/Immutable%20%E6%BA%90%E7%A0%81%E8%A7%A3%E6%9E%90%20-%20List%20%E5%AF%B9%E8%B1%A1/" class="article-date">
+  <time datetime="2019-05-09T13:58:08.000Z">2019-05-09</time>
+</a>
+                    
+                    
+                </div>
+                
+    <h1 class="article-title" itemprop="name">
+      <a href="/2019/05/09/Immutable%20%E6%BA%90%E7%A0%81%E8%A7%A3%E6%9E%90%20-%20List%20%E5%AF%B9%E8%B1%A1/">Immutable 源码解析 - List 对象</a>
+    </h1>
+
+            </header>
+            
+            <div class="article-body">
+                <h2 id="什么是-Trie"><a href="#什么是-Trie" class="headerlink" title="什么是 Trie"></a>什么是 Trie</h2><p><img src="/images/imagemogr2_auto_orient_strip_7cimageview2_2_w_600_6001698854044384.png"></p>
+<ul>
+<li>查询每个条目的复杂度跟树中的元素个数无关</li>
+<li>查询复杂度只跟深度有关 O(deep)</li>
+<li>修改某个节点可以轻松记录查找的路径</li>
+</ul>
+<h2 id="Immutable-List-的-Trie"><a href="#Immutable-List-的-Trie" class="headerlink" title="Immutable.List 的 Trie"></a>Immutable.List 的 Trie</h2><ul>
+<li>Immutable.List 的 Trie 结构是一个 32 叉宽的结构<br><img src="/images/imagemogr2_auto_orient_strip_7cimageview2_2_w_1240_12401698854045074.png"></li>
+</ul>
+<h2 id="List-构建"><a href="#List-构建" class="headerlink" title="List 构建"></a>List 构建</h2><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">// 示例代码，创建一个 1100 长度的 list</span><br><span class="line">const Immutable = require(&#x27;immutable&#x27;)</span><br><span class="line">let arr = [];</span><br><span class="line">for (let i = 0; i &lt; 1100; i++) &#123;</span><br><span class="line">  arr[i] = i;</span><br><span class="line">&#125;</span><br><span class="line">const list = Immutable.List(arr)</span><br><span class="line">debugger;</span><br><span class="line">console.log(list)</span><br></pre></td></tr></table></figure>
+
+<h2 id="创建空的-List-对象"><a href="#创建空的-List-对象" class="headerlink" title="创建空的 List 对象"></a>创建空的 List 对象</h2><p><img src="/images/imagemogr2_auto_orient_strip_7cimageview2_2_w_1240_12401698854045734.png"><br><strong>只有在创建空 List 时才调用 makeList，这时的 list 才会有 ownerID 属性, lilst.ownerID 用于标识需要进行 VNode 对象引用比较，VNode 的 ownerID 用于判断引用 &#x3D;&#x3D;&#x3D; ，在初始化空 list 时防止多次创建，list 创建完毕后会删除 list.ownerID，再次更新 list 时就必须返回新的 VNode 变为可变对象</strong></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line">// 生成一个空的 List 对象</span><br><span class="line">  var EMPTY_LIST;</span><br><span class="line">  function emptyList() &#123;</span><br><span class="line">    return EMPTY_LIST || (EMPTY_LIST = makeList(0, 0, SHIFT));</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  function makeList(origin, capacity, level, root, tail, ownerID, hash) &#123;</span><br><span class="line">    var list = Object.create(ListPrototype);</span><br><span class="line">    list.size = capacity - origin;</span><br><span class="line">    list._origin = origin;</span><br><span class="line">    list._capacity = capacity;</span><br><span class="line">    list._level = level;</span><br><span class="line">    list._root = root;</span><br><span class="line">    list._tail = tail;</span><br><span class="line">    list.__ownerID = ownerID; // 只在空 list 初始化时存在</span><br><span class="line">    list.__hash = hash;</span><br><span class="line">    list.__altered = false;</span><br><span class="line">    return list;</span><br><span class="line">  &#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="设置-List-的边界"><a href="#设置-List-的边界" class="headerlink" title="设置 List 的边界"></a>设置 List 的边界</h2><h3 id="根据传入数组的长度来决定如何构建树的深度和结构"><a href="#根据传入数组的长度来决定如何构建树的深度和结构" class="headerlink" title="根据传入数组的长度来决定如何构建树的深度和结构"></a>根据传入数组的长度来决定如何构建树的深度和结构</h3><p><img src="/images/imagemogr2_auto_orient_strip_7cimageview2_2_w_1240_12401698854046399.png"></p>
+<h3 id="setListBounds-根据-List-的-size-设置容量、-root、-tail-的信息"><a href="#setListBounds-根据-List-的-size-设置容量、-root、-tail-的信息" class="headerlink" title="setListBounds 根据 List 的 size 设置容量、_root、_tail 的信息"></a>setListBounds 根据 List 的 size 设置容量、_root、_tail 的信息</h3><p><img src="/images/imagemogr2_auto_orient_strip_7cimageview2_2_w_1240_12401698854047079.png"></p>
+<h3 id="描述-trie-树尺寸的常量"><a href="#描述-trie-树尺寸的常量" class="headerlink" title="描述 trie 树尺寸的常量"></a>描述 trie 树尺寸的常量</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">// Constants describing the size of trie nodes.</span><br><span class="line">var SHIFT = 5; </span><br><span class="line">var SIZE = 1 &lt;&lt; SHIFT; // 32</span><br><span class="line">var MASK = SIZE - 1; // 31</span><br></pre></td></tr></table></figure>
+
+<h3 id="创建-list-结构"><a href="#创建-list-结构" class="headerlink" title="创建 list 结构"></a>创建 list 结构</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br></pre></td><td class="code"><pre><span class="line">function setListBounds(list, begin, end) &#123;</span><br><span class="line">  // ...</span><br><span class="line"></span><br><span class="line">  var newCapacity = </span><br><span class="line">  var newLevel = list._level; // 初始 1 层结构是 5</span><br><span class="line">  var newRoot = list._root;</span><br><span class="line"></span><br><span class="line">  var oldTailOffset = getTailOffset(oldCapacity);</span><br><span class="line">  var newTailOffset = getTailOffset(newCapacity); // 根据容量计算 _tail 的位置，offset 为 32 的倍数</span><br><span class="line"></span><br><span class="line">  // New size might need creating a higher root. SHIFT = 5, 这里 1 &lt;&lt;&lt; (5 + 5) = 1024, 也是 32 * 32 的倍数，此时一层最大就只有 1024 个，加一层结构</span><br><span class="line">  while (newTailOffset &gt;= 1 &lt;&lt; (newLevel + SHIFT)) &#123; // newTailOffset &gt;= (1 &lt;&lt; (newLevel + SHIFT))</span><br><span class="line">    newRoot = new VNode(newRoot &amp;&amp; newRoot.array.length ? [newRoot] : [], owner);</span><br><span class="line">    newLevel += SHIFT; // 加一层结构</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">    // Locate or create the new tail. // 创建 _tail</span><br><span class="line">    var oldTail = list._tail;</span><br><span class="line">    var newTail = newTailOffset &lt; oldTailOffset ?</span><br><span class="line">      listNodeFor(list, newCapacity - 1) :</span><br><span class="line">      newTailOffset &gt; oldTailOffset ? new VNode([], owner) : oldTail;</span><br><span class="line"></span><br><span class="line">    // ...</span><br><span class="line"></span><br><span class="line">    // 初始化 list 结构</span><br><span class="line">    if (list.__ownerID) &#123;</span><br><span class="line">      list.size = newCapacity - newOrigin;</span><br><span class="line">      list._origin = newOrigin;</span><br><span class="line">      list._capacity = newCapacity;</span><br><span class="line">      list._level = newLevel;</span><br><span class="line">      list._root = newRoot;</span><br><span class="line">      list._tail = newTail;</span><br><span class="line">      list.__hash = undefined;</span><br><span class="line">      list.__altered = true;</span><br><span class="line">      return list;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="最后得到的-list-结构"><a href="#最后得到的-list-结构" class="headerlink" title="最后得到的 list 结构"></a>最后得到的 list 结构</h3><p><img src="/images/imagemogr2_auto_orient_strip_7cimageview2_2_w_1240_12401698854047738.png"></p>
+<h3 id="getTailOffset-找到-tail-的起始位置"><a href="#getTailOffset-找到-tail-的起始位置" class="headerlink" title="getTailOffset 找到 tail 的起始位置"></a>getTailOffset 找到 tail 的起始位置</h3><p>如果 size 小于 32 就是从 0 开始，size - 1 向左移 5 位再向右移 5 位，会得到一个小于 size 中倍数 32 的最大数。size &#x3D; 1100, 得出 1088, 得出的数就是 tail 开始的位置</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">var SHIFT = 5; </span><br><span class="line">var SIZE = 1 &lt;&lt; SHIFT; // 32</span><br><span class="line"></span><br><span class="line">function getTailOffset(size) &#123;</span><br><span class="line">  return size &lt; SIZE ? 0 : (((size - 1) &gt;&gt;&gt; SHIFT) &lt;&lt; SHIFT);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>构建 _root，根据 size 决定 trie 的深度，1 &lt;&lt; (newLevel + SHIFT)，第一次 1 &lt;&lt; 10 &#x3D; 1024， 也就是 32 * 32 一层的数量，size 超过一层的空间 SHIFT + 5，增加一层深度</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">// 初始 SHIFT = 5, 这里 1 &lt;&lt;&lt; (5 + 5) = 1024, 也是 32 * 32 的倍数，此时一层最大就只有 1024 个，加一层结构</span><br><span class="line">while (newTailOffset &gt;= 1 &lt;&lt; (newLevel + SHIFT)) &#123; // newTailOffset &gt;= (1 &lt;&lt; (newLevel + SHIFT))</span><br><span class="line">  newRoot = new VNode(newRoot &amp;&amp; newRoot.array.length ? [newRoot] : [], owner);</span><br><span class="line">  newLevel += SHIFT; // 加一层q结构</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="List-set"><a href="#List-set" class="headerlink" title="List.set"></a>List.set</h2><h3 id="withMutations"><a href="#withMutations" class="headerlink" title="withMutations"></a>withMutations</h3><p>List.set 在 withMutations 回调中可以暂时使用可变对象的操作方式，执行 updateList 方法进行赋值<br><img src="/images/imagemogr2_auto_orient_strip_7cimageview2_2_w_1240_12401698854048322.png"><br><img src="/images/imagemogr2_auto_orient_strip_7cimageview2_2_w_1240_12401698854048907.png"></p>
+<p>withMutaions 在回调给 fn 传了一个可以进行可变操作的 list，操作完后返回新对象</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">export function withMutations(fn) &#123;</span><br><span class="line">  const mutable = this.asMutable();</span><br><span class="line">  fn(mutable);</span><br><span class="line">  return mutable.wasAltered() ? mutable.__ensureOwner(this.__ownerID) : this;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="updateList-更新-list"><a href="#updateList-更新-list" class="headerlink" title="updateList 更新 list"></a>updateList 更新 list</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br></pre></td><td class="code"><pre><span class="line">function updateList(list, index, value) &#123;</span><br><span class="line">  index = wrapIndex(list, index); // 确定好 index </span><br><span class="line"></span><br><span class="line">  if (index !== index) &#123;</span><br><span class="line">    return list;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  if (index &gt;= list.size || index &lt; 0) &#123;</span><br><span class="line">    return list.withMutations(function(list ) &#123;</span><br><span class="line">      index &lt; 0 ?</span><br><span class="line">        setListBounds(list, index).set(0, value) : // 小于 0 头部加一个</span><br><span class="line">        setListBounds(list, 0, index + 1).set(index, value) </span><br><span class="line">    &#125;);</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  index += list._origin; // 找到在 list 上的位置</span><br><span class="line"></span><br><span class="line">  var newTail = list._tail;</span><br><span class="line">  var newRoot = list._root;</span><br><span class="line">  var didAlter = MakeRef(DID_ALTER);</span><br><span class="line">  // 更新的 index, 在 _tail 还是 _root 中, 分别更新</span><br><span class="line">  if (index &gt;= getTailOffset(list._capacity)) &#123; // index 在 _tail 中 更新 _tail</span><br><span class="line">    newTail = updateVNode(newTail, list.__ownerID, 0, index, value, didAlter); // 在范围外的的用 tail 结构</span><br><span class="line">  &#125; else &#123; // index 在 _root 中</span><br><span class="line">    newRoot = updateVNode(newRoot, list.__ownerID, list._level, index, value, didAlter); // 在范围内的 root 结构</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  if (!didAlter.value) &#123;</span><br><span class="line">    return list;</span><br><span class="line">  &#125;</span><br><span class="line">  // 初始化的时候有 ownerID 防止多次创建，创建完了后就设置为 undefined</span><br><span class="line">  if (list.__ownerID) &#123;</span><br><span class="line">    list._root = newRoot;</span><br><span class="line">    list._tail = newTail;</span><br><span class="line">    list.__hash = undefined;</span><br><span class="line">    list.__altered = true;</span><br><span class="line">    return list;</span><br><span class="line">  &#125;</span><br><span class="line">  return makeList(list._origin, list._capacity, list._level, newRoot, newTail);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>这里看下 List 结构的更新，root 为 trie 结构上，更新时传入树深度的 level，而更新 tail 这种扁平化数组结构不需要深度 level</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">// 更新的 index, 在 _tail 还是 _root 中, 分别更新</span><br><span class="line">if (index &gt;= getTailOffset(list._capacity)) &#123; // index 在 _tail 中 更新 _tail</span><br><span class="line">  newTail = updateVNode(newTail, list.__ownerID, 0, index, value, didAlter); // 在范围外的的用 tail 结构</span><br><span class="line">&#125; else &#123; // index 在 _root 中</span><br><span class="line">  newRoot = updateVNode(newRoot, list.__ownerID, list._level, index, value, didAlter); // 在范围内的 root 结构</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="updateNode"><a href="#updateNode" class="headerlink" title="updateNode"></a>updateNode</h2><p>updateVNode 分两段逻辑，一段是更新 root 的 trie 树，一段是更新扁平化 VNode 数组逻辑比如 tail 结构或者是 root trie 树的最后一层。</p>
+<h3 id="updateNode-更新扁平化结构"><a href="#updateNode-更新扁平化结构" class="headerlink" title="updateNode 更新扁平化结构"></a>updateNode 更新扁平化结构</h3><p>通过换位找到 index 在当前层级数组上的 idx 后， tail 这种扁平化的 VNode 会通过 editableVNode 拷贝一个新的 newNode 用来更新，返回的也是这个 newNode 新的 VNode，替换掉原来的 tail 或者 root 的最下层 VNode<img src="/images/imagemogr2_auto_orient_strip_7cimageview2_2_w_1240_12401698854049566.png"></p>
+<h3 id="updateNode-更新-trie-树结构"><a href="#updateNode-更新-trie-树结构" class="headerlink" title="updateNode 更新 trie 树结构"></a>updateNode 更新 trie 树结构</h3><p>通过换位运算来找到 index 在当前层级下的 idx 索引,  当 level &gt; 0 时表示此时的 VNode 不是最下层，通过递归 updateVNode 找到最下一层进行操作<img src="/images/imagemogr2_auto_orient_strip_7cimageview2_2_w_1240_12401698854050229.png"></p>
+<h3 id="editableVNode"><a href="#editableVNode" class="headerlink" title="editableVNode"></a>editableVNode</h3><p><img src="/images/imagemogr2_auto_orient_strip_7cimageview2_2_w_1240_12401698854050883.png"></p>
+<h3 id="换位运算"><a href="#换位运算" class="headerlink" title="换位运算"></a>换位运算</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">// 十进制 index = 1000, level = 10, MASK = 31</span><br><span class="line">// 二进制 MASK 011111</span><br><span class="line">var idx = (index &gt;&gt;&gt; level) &amp; MASK</span><br></pre></td></tr></table></figure>
+<p>第一轮位运算, 得到 index 的位置在 trie 上第一层 VNode.array 的序号</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">// 十进制 1000, 二进制 11111 01000 向右移 10 位得到 0, 再 &amp; MASK 还是 0 </span><br><span class="line">// 十进制 1088, 二进制 1 00010 00000 向右移 10 位得到 1, 再 &amp; MASK 是 1</span><br></pre></td></tr></table></figure>
+<p>第二轮位运算，level - 5 &#x3D; 5 得到 index 在下一层 VNode.array 的序号</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">// 递归 level - 5 = 5</span><br><span class="line">// 十进制 1000, 二进制 11111 01000 向右移 10 位得到 11111, 再 &amp; MASK 还是 7</span><br><span class="line">// 十进制 1088, 二进制 1 00010 00000 向右移 10 位得到 100010 , 再 &amp; MASK 是 10 </span><br></pre></td></tr></table></figure>
+<p>此时 level - 5 &#x3D; 0 不会进入 if (level &gt; 0) 的递归操作中，代表已经找到了 root 中 trie 的最下一层，index 的位置，进入操作扁平化数组的逻辑中，不断返回到上一层进行路径的回溯创建一直到 root 上返回新的 root。</p>
+<h2 id="List-get"><a href="#List-get" class="headerlink" title="List.get"></a>List.get</h2><p>根据 index 找到扁平化内容的 VNode，index &amp; MASK 结果是 0 - 31 得到序号从 VNode.array 中找到 value<img src="/images/imagemogr2_auto_orient_strip_7cimageview2_2_w_1240_12401698854051543.png"></p>
+<h3 id="listNode"><a href="#listNode" class="headerlink" title="listNode"></a>listNode</h3><p>先确认是不是在 tail 上，在 root 上就 level - 5 进行循环找到最后一层 VNode<img src="/images/imagemogr2_auto_orient_strip_7cimageview2_2_w_1240_12401698854052224.png"></p>
+<h2 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h2><ul>
+<li><p><a target="_blank" rel="noopener" href="https://cdn.oreillystatic.com/en/assets/1/event/259/Immutable%20data%20structures%20for%20functional%20JavaScript%20Presentation.pdf">https://cdn.oreillystatic.com/en/assets/1/event/259/Immutable%20data%20structures%20for%20functional%20JavaScript%20Presentation.pdf</a></p>
+</li>
+<li><p><a target="_blank" rel="noopener" href="https://segmentfault.com/a/1190000017130003?utm_medium=hao.caibaojian.com&utm_source=hao.caibaojian.com&share_user=1030000000178452#articleHeader2">https://segmentfault.com/a/1190000017130003?utm_medium&#x3D;hao.caibaojian.com&amp;utm_source&#x3D;hao.caibaojian.com&amp;share_user&#x3D;1030000000178452#articleHeader2</a></p>
+</li>
+<li><p><a target="_blank" rel="noopener" href="https://www.zcfy.cc/article/immutable-js-persistent-data-structures-and-structural-sharing-4292.html">https://www.zcfy.cc/article/immutable-js-persistent-data-structures-and-structural-sharing-4292.html</a></p>
+</li>
+<li><p><a target="_blank" rel="noopener" href="https://juejin.im/post/5b9b30a35188255c6418e67c#heading-1">https://juejin.im/post/5b9b30a35188255c6418e67c#heading-1</a></p>
+</li>
+<li><p><a target="_blank" rel="noopener" href="https://io-meter.com/2016/09/03/Functional-Go-persist-datastructure-intro/">https://io-meter.com/2016/09/03/Functional-Go-persist-datastructure-intro/</a></p>
+</li>
+</ul>
+
+            </div>
+        </div>
+    </article>
+
+    
+    
+<nav class="article-nav">
+  
+    <a href="/2019/05/13/Immutable%20%E6%BA%90%E7%A0%81%E8%A7%A3%E6%9E%90%20-%20Map%20%E5%AF%B9%E8%B1%A1/" id="article-nav-newer" class="article-nav-link-wrap prev">
+      <strong class="article-nav-caption">Newer</strong>
+      <div class="article-nav-title">
+        
+          Immutable 源码解析 - Map 对象
+        
+      </div>
+    </a>
+  
+  
+    <a href="/2019/04/15/webpack%20%E6%BA%90%E7%A0%81%20-%20seal%20hook%20%E4%B9%8B%E4%BB%A3%E7%A0%81%E5%8E%8B%E7%BC%A9%20/" id="article-nav-older" class="article-nav-link-wrap next">
+      <strong class="article-nav-caption">Older</strong>
+      <div class="article-nav-title">webpack 源码 - seal hook 之代码压缩</div>
+    </a>
+  
+</nav>
+
+    
+
+    
+</div>
+    </div>
+    <footer class="site-footer">
+        <div class="global-width">
+            <ul class="site-widget">
+                
+                <li class="widget widget-tag">
+                    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Tags</h3>
+    <div class="widget-body">
+      <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/JavaScript/" rel="tag">JavaScript</a><span class="tag-list-count">6</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/React/" rel="tag">React</a><span class="tag-list-count">5</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/React-Tips/" rel="tag">React Tips</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Redux/" rel="tag">Redux</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Vue/" rel="tag">Vue</a><span class="tag-list-count">4</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/css/" rel="tag">css</a><span class="tag-list-count">3</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/dom/" rel="tag">dom</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/http/" rel="tag">http</a><span class="tag-list-count">8</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/nodejs/" rel="tag">nodejs</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/react/" rel="tag">react</a><span class="tag-list-count">8</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/sftp/" rel="tag">sftp</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/webpack/" rel="tag">webpack</a><span class="tag-list-count">2</span></li></ul>
+    </div>
+  </div>
+
+                </li>
+                
+                <li class="widget widget-category">
+                    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Categories</h3>
+    <div class="widget-body">
+      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/Font-End-Basis/">Font-End Basis</a><span class="category-list-count">11</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/React/">React</a><span class="category-list-count">8</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Vue/">Vue</a><span class="category-list-count">4</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/css/">css</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/http/">http</a><span class="category-list-count">5</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/network/">network</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/nodejs/">nodejs</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/react/">react</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/webpack/">webpack</a><span class="category-list-count">4</span></li></ul>
+    </div>
+  </div>
+
+                </li>
+                
+                <li class="widget widget-recent_posts">
+                    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Recents</h3>
+    <div class="widget-body">
+      <ul>
+        
+          <li>
+            <a href="/2022/01/21/react%20%E5%86%85%E9%83%A8%E5%8E%9F%E7%90%86%20/">react 内部原理</a>
+          </li>
+        
+          <li>
+            <a href="/2020/05/04/React%20%E5%90%88%E6%88%90%E4%BA%8B%E4%BB%B6%20SyntheticEvent%20/">React 合成事件 SyntheticEvent</a>
+          </li>
+        
+          <li>
+            <a href="/2020/04/19/Vue3%20%E4%B8%BA%E4%BB%80%E4%B9%88%E8%A6%81%E7%94%A8%20Proxy%20%E4%BB%A3%E6%9B%BF%20Object.defineProperty%20%E5%AE%9E%E7%8E%B0%E5%93%8D%E5%BA%94%E5%BC%8F%20/">Vue3 为什么要用 Proxy 代替 Object-defineProperty 实现响应式</a>
+          </li>
+        
+          <li>
+            <a href="/2019/10/30/%E6%B5%8F%E8%A7%88%E5%99%A8%E8%BE%93%E5%85%A5%20URL%20%E5%88%B0%E9%A1%B5%E9%9D%A2%E5%91%88%E7%8E%B0%E5%8F%8A%E5%85%B6%E4%BC%98%E5%8C%96%20/">浏览器输入 URL 到页面呈现及其优化</a>
+          </li>
+        
+          <li>
+            <a href="/2019/08/23/React%20%E6%BA%90%E7%A0%81%E8%A7%A3%E6%9E%90%20-%20commitRoot%20%E6%9B%B4%E6%96%B0%E4%BB%BB%E5%8A%A1%20dom%20%E8%8A%82%E7%82%B9%20/">React 源码解析 - commitRoot 更新任务 dom 节点</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+                </li>
+                
+            </ul>
+        </div>
+        <div class="site-info">
+            <address>
+                &copy; 2014 <a href="http://yoursite.com">Minimalist</a> All Right Reserved. <br/>
+                Powered by <a target="_blank" rel="noopener" href="http://hexo.io">Hexo</a>. Theme by <a target="_blank" rel="noopener" href="http://zzoman.com">ZZOMAN</a>
+            </address>
+        </div>
+    </footer>
+    
+    <script src="/libs/jquery-1.11.3.min.js" type="text/javascript"></script>
+    
+    <script src="/libs/fancybox/jquery.fancybox.js" type="text/javascript"></script>
+    
+    <script src="/js/site_init.js" type="text/javascript"></script>
+    
+</body>
+</html>

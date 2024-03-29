@@ -1,0 +1,242 @@
+<!doctype html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge">
+    <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    
+    <title>Immutable 源码解析 - Map 对象 | Minimalist</title>
+    
+    <link rel="alternative" href="/atom.xml" title="Minimalist" type="application/atom+xml">
+    
+    
+<link rel="stylesheet" href="/css/style.css">
+
+    
+    <link rel="stylesheet" href="/libs/fancybox/jquery.fancybox.css" charset="utf-8">
+    
+    <!--[if lt IE 9]>
+    <script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
+    <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+    <![endif]-->
+<meta name="generator" content="Hexo 6.3.0"></head>
+<body class="site">
+    <header class="site-header">
+        <h1 class="site-title"><a href="/">Minimalist</a></h1>
+        <nav class="site-nav">
+            <ul class="nav">
+                
+                <li><a href="/archives">Archives</a></li>
+                
+                
+                <li><a target="_blank" rel="noopener" href="https://github.com/sfyr111" title="git">GITHUB</a></li>
+                
+                <li><a class="toggle-search" href="#search">search</a></li>
+            </ul>
+        </nav>
+        <div class="site-search" id="search">
+            <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><input type="hidden" name="sitesearch" value="http://yoursite.com"></form>
+        </div>
+        
+            <div class="site-header-background" style="background-image:url(http://reumia.github.io/hexo-theme-zzoman2015/images/background-zzoman2015.jpg)"></div>
+        
+    </header>
+    <div class="site-body">
+        <div class="global-width">
+    <article class="article" data-layout="post" data-slug="Immutable 源码解析 - Map 对象">
+        <div class="article-content">
+            
+            
+            <header class="article-header">
+                <div class="article-meta">
+                    <a href="/2019/05/13/Immutable%20%E6%BA%90%E7%A0%81%E8%A7%A3%E6%9E%90%20-%20Map%20%E5%AF%B9%E8%B1%A1/" class="article-date">
+  <time datetime="2019-05-13T12:41:02.000Z">2019-05-13</time>
+</a>
+                    
+                    
+                </div>
+                
+    <h1 class="article-title" itemprop="name">
+      <a href="/2019/05/13/Immutable%20%E6%BA%90%E7%A0%81%E8%A7%A3%E6%9E%90%20-%20Map%20%E5%AF%B9%E8%B1%A1/">Immutable 源码解析 - Map 对象</a>
+    </h1>
+
+            </header>
+            
+            <div class="article-body">
+                <h2 id="Trie-树高的压缩"><a href="#Trie-树高的压缩" class="headerlink" title="Trie 树高的压缩"></a>Trie 树高的压缩</h2><p>Trie  压缩是基于标准的 Trie, 通过把某个节点至最终找到结果节点的 path 路径连接起来。使得原来 Trie 的空间复杂度 O(树的高度) （树的高度由字符串的总个数决定) 降低为 O(树的单词数) 由 Trie 中形成单词的个数决定，比如 100个 字符串形成 40个结果，O(100) &gt; O(40)，最终体现在 Trie 树高的压缩上</p>
+<ul>
+<li><p>标准 Trie<img src="/images/imagemogr2_auto_orient_strip_7cimageview2_2_w_1240_12401698854032733.png"></p>
+</li>
+<li><p>压缩后的 Trie<img src="/images/imagemogr2_auto_orient_strip_7cimageview2_2_w_1240_12401698854033478.png"></p>
+</li>
+</ul>
+<h2 id="Map-构建"><a href="#Map-构建" class="headerlink" title="Map 构建"></a>Map 构建</h2><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">const Immutable = require(&#x27;immutable&#x27;)</span><br><span class="line">var n = 65</span><br><span class="line">var obj = &#123;&#125;</span><br><span class="line">for (let i = n; i &lt; (n + 64); i++) &#123;</span><br><span class="line">  obj[String.fromCharCode(i).repeat((Math.random()+1)*10|0)] = i;</span><br><span class="line">&#125;</span><br><span class="line">debugger</span><br><span class="line">let map = Immutable.Map(obj);</span><br><span class="line">debugger</span><br><span class="line">console.log(map);</span><br></pre></td></tr></table></figure>
+<p>Map 存的都是 [key, value] 的 entry， key 都是字符串，Immutable 使用 hash 算法把每个 key 都转化成一串唯一的数字</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">function hash(o: string): number &#123; &#125;</span><br></pre></td></tr></table></figure>
+
+
+<h2 id="Map-的创建"><a href="#Map-的创建" class="headerlink" title="Map 的创建"></a>Map 的创建</h2><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">function Map(value) &#123;</span><br><span class="line">  return value === null || value === undefined ? emptyMap() :</span><br><span class="line">    isMap(value) &amp;&amp; !isOrdered(value) ? value :</span><br><span class="line">    emptyMap().withMutations(function(map ) &#123;</span><br><span class="line">      var iter = KeyedIterable(value);</span><br><span class="line">      assertNotInfinite(iter.size);</span><br><span class="line">      iter.forEach(function(v, k)  &#123;</span><br><span class="line">        return map.set(k, v)</span><br><span class="line">      &#125;);</span><br><span class="line">    &#125;);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="生成-Map-空对象"><a href="#生成-Map-空对象" class="headerlink" title="生成 Map 空对象"></a>生成 Map 空对象</h3><p>Map 对象只有 _root 结构, 同样也是在 makeMap 创建空对象时才有 ownerID</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">var EMPTY_MAP;</span><br><span class="line">function emptyMap() &#123;</span><br><span class="line">  return EMPTY_MAP || (EMPTY_MAP = makeMap(0));</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">function makeMap(size, root, ownerID, hash) &#123;</span><br><span class="line">  var map = Object.create(MapPrototype);</span><br><span class="line">  map.size = size;</span><br><span class="line">  map._root = root;</span><br><span class="line">  map.__ownerID = ownerID;</span><br><span class="line">  map.__hash = hash;</span><br><span class="line">  map.__altered = false;</span><br><span class="line">  return map;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="ArrayMapNode-size-小于等于-8-生成"><a href="#ArrayMapNode-size-小于等于-8-生成" class="headerlink" title="ArrayMapNode size 小于等于 8 生成"></a>ArrayMapNode size 小于等于 8 生成</h2><p>对象元素 size 小于等于 8 时</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">Map.prototype.set = function(k, v) &#123;</span><br><span class="line">  return updateMap(this, k, v);</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<h3 id="udpateMap"><a href="#udpateMap" class="headerlink" title="udpateMap"></a>udpateMap</h3><p><img src="/images/imagemogr2_auto_orient_strip_7cimageview2_2_w_1240_12401698854034154.png"></p>
+<h3 id="new-ArrayMapNode"><a href="#new-ArrayMapNode" class="headerlink" title="new ArrayMapNode"></a>new ArrayMapNode</h3><p>ArrayMapNode 结构简单，this.entries 数组只有 8 个 key value 元素</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">function ArrayMapNode(ownerID, entries) &#123;</span><br><span class="line">  this.ownerID = ownerID;</span><br><span class="line">  this.entries = entries;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="updateNode"><a href="#updateNode" class="headerlink" title="updateNode"></a>updateNode</h3><p>updateNode 方法就是执行 当前 map._root 结构的 prototype.update 方法<img src="/images/imagemogr2_auto_orient_strip_7cimageview2_2_w_1240_12401698854034813.png"></p>
+<h3 id="ArrayMapNode-prototype-update"><a href="#ArrayMapNode-prototype-update" class="headerlink" title="ArrayMapNode.prototype.update"></a>ArrayMapNode.prototype.update</h3><ul>
+<li>通过遍历 entries  来判断是否存在当前设置的 key value 值</li>
+<li>通过判断 size 是否大于等于 8 来决定是否需要改变结构<img src="/images/imagemogr2_auto_orient_strip_7cimageview2_2_w_1240_12401698854035497.png"></li>
+<li>ArrayMapNode 的操作就是简单的数组结构索引操作<img src="/images/imagemogr2_auto_orient_strip_7cimageview2_2_w_1240_12401698854036172.png"></li>
+</ul>
+<h2 id="BitmapIndexedNode"><a href="#BitmapIndexedNode" class="headerlink" title="BitmapIndexedNode"></a>BitmapIndexedNode</h2><ul>
+<li>当 key value 的 entry 的 8 &lt;&#x3D; size &lt; 16 时使用这个结构。</li>
+<li>节点只有 ValueNode 或 BitmapIndexedNode</li>
+</ul>
+<h3 id="createNodes-生成-BitmapIndexedNode"><a href="#createNodes-生成-BitmapIndexedNode" class="headerlink" title="createNodes 生成 BitmapIndexedNode"></a>createNodes 生成 BitmapIndexedNode</h3><p>把新设置的值生成一个 ValueNode，遍历map._root ，把 ArrayMapNode 上的 entry  更新到这个 ValueNode 上，同时 ValueNode 在更新时变为 BitmapIndexedNode</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">function createNodes(ownerID, entries, key, value) &#123;</span><br><span class="line">  if (!ownerID) &#123;</span><br><span class="line">    ownerID = new OwnerID();</span><br><span class="line">  &#125;</span><br><span class="line">  var node = new ValueNode(ownerID, hash(key), [key, value]);</span><br><span class="line">  for (var ii = 0; ii &lt; entries.length; ii++) &#123;</span><br><span class="line">    var entry = entries[ii]; // ArrayMapNode 原 8 个 ValueNode 元素都需要更新</span><br><span class="line">    node = node.update(ownerID, 0, undefined, entry[0], entry[1]);</span><br><span class="line">  &#125;</span><br><span class="line">  return node;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="ArrayMapNode-改变为-BitmapIndexedNode-的更新"><a href="#ArrayMapNode-改变为-BitmapIndexedNode-的更新" class="headerlink" title="ArrayMapNode 改变为 BitmapIndexedNode 的更新"></a>ArrayMapNode 改变为 BitmapIndexedNode 的更新</h3><ul>
+<li>遍历 _root.entries 与新的 node 进行合并，第一次合并时 node 是 ValueNode<img src="/images/imagemogr2_auto_orient_strip_7cimageview2_2_w_1240_12401698854036831.png"></li>
+<li>ValueNode.prototype.update 也只在改变结构为 Bitmap 时才调用, 进入 mergeIntoNode<img src="/images/imagemogr2_auto_orient_strip_7cimageview2_2_w_1240_12401698854037488.png"></li>
+<li>构建确定这些 entry 所在 Trire 上的序号，通过 + SHIFT &#x3D; 5 来模拟新的一层结构,  其实这里 map 并没有像 list 一样增加一层结构，而是通过 SHIFT 来调整位置或与其他 ValueNode 或 Bitmap 节点进行合并压缩<img src="/images/imagemogr2_auto_orient_strip_7cimageview2_2_w_1240_12401698854038152.png"></li>
+<li>这里的 this.bitmap 是首次创建 Biamap 对象时传入的 (1&lt;&lt; idx1) | (1 &lt;&lt; idx2)<img src="/images/imagemogr2_auto_orient_strip_7cimageview2_2_w_1240_12401698854038817.png"></li>
+</ul>
+<h3 id="BitmapIndexedNode-的更新"><a href="#BitmapIndexedNode-的更新" class="headerlink" title="BitmapIndexedNode 的更新"></a>BitmapIndexedNode 的更新</h3><p><img src="/images/imagemogr2_auto_orient_strip_7cimageview2_2_w_1240_12401698854039502.png"></p>
+<ul>
+<li>直接进入 BitmapIndexedNode.prototype.update<img src="/images/imagemogr2_auto_orient_strip_7cimageview2_2_w_1240_12401698854040170.png"></li>
+<li>最后更新当前 Bitmap 的 entries 返回新的 Bitmap 对象<img src="/images/imagemogr2_auto_orient_strip_7cimageview2_2_w_1240_12401698854040850.png"></li>
+</ul>
+<h3 id="popCount"><a href="#popCount" class="headerlink" title="popCount"></a>popCount</h3><ul>
+<li>popCount 的作用是计算二进制数中 1 数量, Bitmap 通过这个方法计算出数组的下标, 也就是 key 在 Bitmap 中的位置,</li>
+<li>bitmap &amp; (bit - 1) 即 010101110111010000111011100010100 &amp; 1111111111111 &#x3D; 1011100010100</li>
+<li>计算出有 6 个 1，idx 就是 6<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">function popCount(x) &#123;</span><br><span class="line">  x -= (x &gt;&gt; 1) &amp; 0x55555555;</span><br><span class="line">  x = (x &amp; 0x33333333) + ((x &gt;&gt; 2) &amp; 0x33333333);</span><br><span class="line">  x = (x + (x &gt;&gt; 4)) &amp; 0x0f0f0f0f;</span><br><span class="line">  x += x &gt;&gt; 8;</span><br><span class="line">  x += x &gt;&gt; 16;</span><br><span class="line">  return x &amp; 0x7f;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
+</ul>
+<h2 id="HashArrayMapNode"><a href="#HashArrayMapNode" class="headerlink" title="HashArrayMapNode"></a>HashArrayMapNode</h2><ul>
+<li>当 key value 的 entry 的 size &gt;&#x3D; 16 时使用这个结构</li>
+<li>由 HashArrayMapNode 、BitmapIndexedNode 、ValueNode 三种结构组成</li>
+<li>HashArrayMapNode 最多存 32个元素，结合  HashArrayMapNode 、BitmapIndexedNode 、ValueNode  三种结构可以存储非常多的数据</li>
+</ul>
+<h3 id="expandNodes-生成-HashArrayMapNode-结构"><a href="#expandNodes-生成-HashArrayMapNode-结构" class="headerlink" title="expandNodes 生成 HashArrayMapNode 结构"></a>expandNodes 生成 HashArrayMapNode 结构</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">if (!exists &amp;&amp; newNode &amp;&amp; nodes.length &gt;= MAX_BITMAP_INDEXED_SIZE) &#123;</span><br><span class="line">  return expandNodes(ownerID, nodes, bitmap, keyHashFrag, newNode);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><img src="/images/imagemogr2_auto_orient_strip_7cimageview2_2_w_1240_12401698854041531.png"></p>
+<h3 id="HashArrayMapNode-prototype-update"><a href="#HashArrayMapNode-prototype-update" class="headerlink" title="HashArrayMapNode.prototype.update"></a>HashArrayMapNode.prototype.update</h3><ul>
+<li>HashArrayMapNode 已经是一个跟 List 差不多的 32 位长度的 Trie 树结构</li>
+<li>Trie 在 32 位一层中的更新已经不需要压缩算法，直接 + SHIFT 进入下一层的结构中</li>
+<li>而下一层结构中有可能是 BitmapIndexedNode, ValueNode，仍然可能出现压缩算法的结构创建<br><img src="/images/imagemogr2_auto_orient_strip_7cimageview2_2_w_1240_12401698854042218.png"></li>
+</ul>
+<h3 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h3><p><a target="_blank" rel="noopener" href="https://segmentfault.com/a/1190000017130413#articleHeader3">https://segmentfault.com/a/1190000017130413#articleHeader3</a></p>
+<p><a target="_blank" rel="noopener" href="https://juejin.im/post/5ba4a6b75188255ca1537b19">https://juejin.im/post/5ba4a6b75188255ca1537b19</a></p>
+<p><a target="_blank" rel="noopener" href="https://cdn.oreillystatic.com/en/assets/1/event/259/Immutable%20data%20structures%20for%20functional%20JavaScript%20Presentation.pdf">https://cdn.oreillystatic.com/en/assets/1/event/259/Immutable%20data%20structures%20for%20functional%20JavaScript%20Presentation.pdf</a></p>
+<p><a target="_blank" rel="noopener" href="https://www.zcfy.cc/article/immutable-js-persistent-data-structures-and-structural-sharing-4292.html">https://www.zcfy.cc/article/immutable-js-persistent-data-structures-and-structural-sharing-4292.html</a></p>
+
+            </div>
+        </div>
+    </article>
+
+    
+    
+<nav class="article-nav">
+  
+    <a href="/2019/05/21/TCP%20%E6%8B%A5%E5%A1%9E%E6%8E%A7%E5%88%B6/" id="article-nav-newer" class="article-nav-link-wrap prev">
+      <strong class="article-nav-caption">Newer</strong>
+      <div class="article-nav-title">
+        
+          TCP 拥塞控制
+        
+      </div>
+    </a>
+  
+  
+    <a href="/2019/05/09/Immutable%20%E6%BA%90%E7%A0%81%E8%A7%A3%E6%9E%90%20-%20List%20%E5%AF%B9%E8%B1%A1/" id="article-nav-older" class="article-nav-link-wrap next">
+      <strong class="article-nav-caption">Older</strong>
+      <div class="article-nav-title">Immutable 源码解析 - List 对象</div>
+    </a>
+  
+</nav>
+
+    
+
+    
+</div>
+    </div>
+    <footer class="site-footer">
+        <div class="global-width">
+            <ul class="site-widget">
+                
+                <li class="widget widget-tag">
+                    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Tags</h3>
+    <div class="widget-body">
+      <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/JavaScript/" rel="tag">JavaScript</a><span class="tag-list-count">6</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/React/" rel="tag">React</a><span class="tag-list-count">5</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/React-Tips/" rel="tag">React Tips</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Redux/" rel="tag">Redux</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Vue/" rel="tag">Vue</a><span class="tag-list-count">4</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/css/" rel="tag">css</a><span class="tag-list-count">3</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/dom/" rel="tag">dom</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/http/" rel="tag">http</a><span class="tag-list-count">8</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/nodejs/" rel="tag">nodejs</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/react/" rel="tag">react</a><span class="tag-list-count">8</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/sftp/" rel="tag">sftp</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/webpack/" rel="tag">webpack</a><span class="tag-list-count">2</span></li></ul>
+    </div>
+  </div>
+
+                </li>
+                
+                <li class="widget widget-category">
+                    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Categories</h3>
+    <div class="widget-body">
+      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/Font-End-Basis/">Font-End Basis</a><span class="category-list-count">11</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/React/">React</a><span class="category-list-count">8</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Vue/">Vue</a><span class="category-list-count">4</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/css/">css</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/http/">http</a><span class="category-list-count">5</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/network/">network</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/nodejs/">nodejs</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/react/">react</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/webpack/">webpack</a><span class="category-list-count">4</span></li></ul>
+    </div>
+  </div>
+
+                </li>
+                
+                <li class="widget widget-recent_posts">
+                    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Recents</h3>
+    <div class="widget-body">
+      <ul>
+        
+          <li>
+            <a href="/2022/01/21/react%20%E5%86%85%E9%83%A8%E5%8E%9F%E7%90%86%20/">react 内部原理</a>
+          </li>
+        
+          <li>
+            <a href="/2020/05/04/React%20%E5%90%88%E6%88%90%E4%BA%8B%E4%BB%B6%20SyntheticEvent%20/">React 合成事件 SyntheticEvent</a>
+          </li>
+        
+          <li>
+            <a href="/2020/04/19/Vue3%20%E4%B8%BA%E4%BB%80%E4%B9%88%E8%A6%81%E7%94%A8%20Proxy%20%E4%BB%A3%E6%9B%BF%20Object.defineProperty%20%E5%AE%9E%E7%8E%B0%E5%93%8D%E5%BA%94%E5%BC%8F%20/">Vue3 为什么要用 Proxy 代替 Object-defineProperty 实现响应式</a>
+          </li>
+        
+          <li>
+            <a href="/2019/10/30/%E6%B5%8F%E8%A7%88%E5%99%A8%E8%BE%93%E5%85%A5%20URL%20%E5%88%B0%E9%A1%B5%E9%9D%A2%E5%91%88%E7%8E%B0%E5%8F%8A%E5%85%B6%E4%BC%98%E5%8C%96%20/">浏览器输入 URL 到页面呈现及其优化</a>
+          </li>
+        
+          <li>
+            <a href="/2019/08/23/React%20%E6%BA%90%E7%A0%81%E8%A7%A3%E6%9E%90%20-%20commitRoot%20%E6%9B%B4%E6%96%B0%E4%BB%BB%E5%8A%A1%20dom%20%E8%8A%82%E7%82%B9%20/">React 源码解析 - commitRoot 更新任务 dom 节点</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+                </li>
+                
+            </ul>
+        </div>
+        <div class="site-info">
+            <address>
+                &copy; 2014 <a href="http://yoursite.com">Minimalist</a> All Right Reserved. <br/>
+                Powered by <a target="_blank" rel="noopener" href="http://hexo.io">Hexo</a>. Theme by <a target="_blank" rel="noopener" href="http://zzoman.com">ZZOMAN</a>
+            </address>
+        </div>
+    </footer>
+    
+    <script src="/libs/jquery-1.11.3.min.js" type="text/javascript"></script>
+    
+    <script src="/libs/fancybox/jquery.fancybox.js" type="text/javascript"></script>
+    
+    <script src="/js/site_init.js" type="text/javascript"></script>
+    
+</body>
+</html>
